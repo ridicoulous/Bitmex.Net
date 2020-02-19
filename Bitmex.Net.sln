@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitmex.Net", "Bitmex.Net\Bitmex.Net.csproj", "{C856E3F2-3E71-435B-9500-FB9104C293E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitmex.Net.Tests", "Bitmex.Net.Tests\Bitmex.Net.Tests.csproj", "{E79E7122-28A2-427E-AD85-14988D241692}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C856E3F2-3E71-435B-9500-FB9104C293E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C856E3F2-3E71-435B-9500-FB9104C293E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C856E3F2-3E71-435B-9500-FB9104C293E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C856E3F2-3E71-435B-9500-FB9104C293E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E79E7122-28A2-427E-AD85-14988D241692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E79E7122-28A2-427E-AD85-14988D241692}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E79E7122-28A2-427E-AD85-14988D241692}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E79E7122-28A2-427E-AD85-14988D241692}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DEFF91B2-7001-4567-A5F7-2B9F1E86AC25}
+	EndGlobalSection
+EndGlobal
