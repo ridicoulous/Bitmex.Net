@@ -1,16 +1,18 @@
-using Bitmex.Net.Objects;
+
 using System;
 using System.Text.Json;
 using Xunit;
 
-namespace Bitmex.Net.Tests
+namespace Bitmex.Net.Objects.Tests
 {
     public class UnitTest1
     {
         [Fact]
         public void Test1()
         {
-            var result = JsonSerializer.Deserialize<BitmexOrder>("{\"id\":\"42\"}");
+            var client = new BitmexClient(new BitmexClientOptions(true), new BitmexAuthenticationProvider(new CryptoExchange.Net.Authentication.ApiCredentials("xWklWsCaUCrEjMFGl7oO1tFG", "BetX2XzPbFJuALcorDdq_S_8WRJ9MvvZflBouBQix-EjkYtf")));
+            var result = client.GetUserAccount();
+            Assert.True(result);
         }
     }
 }
