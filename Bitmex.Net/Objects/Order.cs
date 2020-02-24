@@ -25,7 +25,7 @@ namespace Bitmex.Net.Objects
         public string Side { get; set; }
 
         [JsonProperty("simpleOrderQty")]
-        public decimal SimpleOrderQty { get; set; }
+        public decimal? SimpleOrderQty { get; set; }
 
         [JsonProperty("orderQty")]
         public decimal OrderQty { get; set; }
@@ -34,13 +34,13 @@ namespace Bitmex.Net.Objects
         public decimal Price { get; set; }
 
         [JsonProperty("displayQty")]
-        public decimal DisplayQty { get; set; }
+        public decimal? DisplayQty { get; set; }
 
         [JsonProperty("stopPx")]
-        public decimal StopPx { get; set; }
+        public decimal? StopPx { get; set; }
 
         [JsonProperty("pegOffsetValue")]
-        public decimal PegOffsetValue { get; set; }
+        public decimal? PegOffsetValue { get; set; }
 
         [JsonProperty("pegPriceType")]
         public string PegPriceType { get; set; }
@@ -52,7 +52,7 @@ namespace Bitmex.Net.Objects
         public string SettlCurrency { get; set; }
 
         [JsonProperty("ordType")]
-        public string OrdType { get; set; }
+        public BitmexOrderType OrdType { get; set; }
 
         [JsonProperty("timeInForce")]
         public string TimeInForce { get; set; }
