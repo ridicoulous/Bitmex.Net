@@ -79,19 +79,19 @@ namespace Bitmex.Net.Objects
         public string OrdRejReason { get; set; }
 
         [JsonProperty("simpleLeavesQty")]
-        public decimal SimpleLeavesQty { get; set; }
+        public decimal? SimpleLeavesQty { get; set; }
 
         [JsonProperty("leavesQty")]
         public decimal LeavesQty { get; set; }
 
         [JsonProperty("simpleCumQty")]
-        public decimal SimpleCumQty { get; set; }
+        public decimal? SimpleCumQty { get; set; }
 
         [JsonProperty("cumQty")]
-        public decimal CumQty { get; set; }
+        public decimal? CumQty { get; set; }
 
         [JsonProperty("avgPx")]
-        public decimal AvgPx { get; set; }
+        public decimal? AvgPx { get; set; }
 
         [JsonProperty("multiLegReportingType")]
         public string MultiLegReportingType { get; set; }
