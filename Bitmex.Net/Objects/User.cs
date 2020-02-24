@@ -7,16 +7,16 @@ namespace Bitmex.Net.Objects
 
     public class User
     {
-        [JsonProperty("id", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Id { get; set; }
+        [JsonProperty("id")]
+        public decimal Id { get; set; }
 
-        [JsonProperty("ownerId", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? OwnerId { get; set; }
+        [JsonProperty("ownerId")]
+        public decimal OwnerId { get; set; }
 
-        [JsonProperty("firstname", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("firstname")]
         public string Firstname { get; set; }
 
-        [JsonProperty("lastname", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("lastname")]
         public string Lastname { get; set; }
 
         [JsonProperty("username", Required = Required.Always)]
@@ -27,42 +27,42 @@ namespace Bitmex.Net.Objects
 
         public string Email { get; set; }
 
-        [JsonProperty("phone", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("phone")]
         public string Phone { get; set; }
 
-        [JsonProperty("created", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("created")]
         public System.DateTimeOffset? Created { get; set; }
 
-        [JsonProperty("lastUpdated", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("lastUpdated")]
         public System.DateTimeOffset? LastUpdated { get; set; }
 
-        [JsonProperty("preferences", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("preferences")]
         public UserPreferences Preferences { get; set; }
 
-        [JsonProperty("TFAEnabled", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("TFAEnabled")]
         public string TFAEnabled { get; set; }
 
-        [JsonProperty("affiliateID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("affiliateID")]
    
         public string AffiliateID { get; set; }
 
-        [JsonProperty("pgpPubKey", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("pgpPubKey")]
         public string PgpPubKey { get; set; }
 
-        [JsonProperty("pgpPubKeyCreated", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("pgpPubKeyCreated")]
         public System.DateTimeOffset? PgpPubKeyCreated { get; set; }
 
-        [JsonProperty("country", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("country")]
 
         public string Country { get; set; }
 
-        [JsonProperty("geoipCountry", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("geoipCountry")]
         public string GeoipCountry { get; set; }
 
-        [JsonProperty("geoipRegion", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("geoipRegion")]
         public string GeoipRegion { get; set; }
 
-        [JsonProperty("typ", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("typ")]
         public string Typ { get; set; }
 
 

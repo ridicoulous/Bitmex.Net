@@ -14,8 +14,8 @@ namespace Bitmex.Net.Objects
       
         public System.DateTimeOffset Timestamp { get; set; }
 
-        [JsonProperty("walletBalance", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? WalletBalance { get; set; }
+        [JsonProperty("walletBalance")]
+        public decimal WalletBalance { get; set; }
 
 
     }

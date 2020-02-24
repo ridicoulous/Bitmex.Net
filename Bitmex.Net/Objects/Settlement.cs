@@ -14,26 +14,26 @@ namespace Bitmex.Net.Objects
       
         public string Symbol { get; set; }
 
-        [JsonProperty("settlementType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("settlementType")]
         public string SettlementType { get; set; }
 
-        [JsonProperty("settledPrice", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? SettledPrice { get; set; }
+        [JsonProperty("settledPrice")]
+        public decimal SettledPrice { get; set; }
 
-        [JsonProperty("optionStrikePrice", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? OptionStrikePrice { get; set; }
+        [JsonProperty("optionStrikePrice")]
+        public decimal OptionStrikePrice { get; set; }
 
-        [JsonProperty("optionUnderlyingPrice", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? OptionUnderlyingPrice { get; set; }
+        [JsonProperty("optionUnderlyingPrice")]
+        public decimal OptionUnderlyingPrice { get; set; }
 
-        [JsonProperty("bankrupt", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Bankrupt { get; set; }
+        [JsonProperty("bankrupt")]
+        public decimal Bankrupt { get; set; }
 
-        [JsonProperty("taxBase", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? TaxBase { get; set; }
+        [JsonProperty("taxBase")]
+        public decimal TaxBase { get; set; }
 
-        [JsonProperty("taxRate", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? TaxRate { get; set; }
+        [JsonProperty("taxRate")]
+        public decimal TaxRate { get; set; }
 
 
     }

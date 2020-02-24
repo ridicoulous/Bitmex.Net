@@ -26,24 +26,24 @@ namespace Bitmex.Net.Objects.Requests
         /// Optional order quantity in units of the instrument (i.e. contracts).
         /// </summary>
         [JsonProperty("orderQty")] 
-        public decimal? OrderQty { get; set; }
+        public decimal OrderQty { get; set; }
         /// <summary>
         /// Optional leaves quantity in units of the instrument (i.e. contracts). Useful for amending partially filled orders.
         /// </summary>
         [JsonProperty("leavesQty")] 
-        public decimal? LeavesQty { get; set; }
+        public decimal LeavesQty { get; set; }
         /// <summary>
         /// Optional trigger price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders. Use a price below the current price for stop-sell orders and buy-if-touched orders.
         /// </summary>
         [JsonProperty("stopPx")]
-        public decimal? StopPx { get; set; }
+        public decimal StopPx { get; set; }
         /// <summary>
         /// Optional trailing offset from the current price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders; use a negative offset for stop-sell orders and buy-if-touched orders. Optional offset from the peg price for 'Pegged' orders.
         /// </summary>
         [JsonProperty("pegOffsetValue")]
-        public decimal? PegOffsetValue { get; set; }
+        public decimal PegOffsetValue { get; set; }
         [JsonProperty("price")]
-        public decimal? Price { get; set; }
+        public decimal Price { get; set; }
 
         /// <summary>
         /// Optional amend annotation. e.g. 'Adjust skew'.

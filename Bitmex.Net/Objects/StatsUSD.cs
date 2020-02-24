@@ -8,20 +8,20 @@ namespace Bitmex.Net.Objects
 
         public string RootSymbol { get; set; }
 
-        [JsonProperty("currency", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("currency")]
         public string Currency { get; set; }
 
-        [JsonProperty("turnover24h", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Turnover24h { get; set; }
+        [JsonProperty("turnover24h")]
+        public decimal Turnover24h { get; set; }
 
-        [JsonProperty("turnover30d", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Turnover30d { get; set; }
+        [JsonProperty("turnover30d")]
+        public decimal Turnover30d { get; set; }
 
-        [JsonProperty("turnover365d", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Turnover365d { get; set; }
+        [JsonProperty("turnover365d")]
+        public decimal Turnover365d { get; set; }
 
-        [JsonProperty("turnover", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Turnover { get; set; }
+        [JsonProperty("turnover")]
+        public decimal Turnover { get; set; }
 
 
     }

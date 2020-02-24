@@ -17,13 +17,13 @@ namespace Bitmex.Net.Objects
       
         public string Symbol { get; set; }
 
-        [JsonProperty("fundingInterval", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("fundingInterval")]
         public System.DateTimeOffset? FundingInterval { get; set; }
 
-        [JsonProperty("fundingRate", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("fundingRate")]
         public double? FundingRate { get; set; }
 
-        [JsonProperty("fundingRateDaily", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("fundingRateDaily")]
         public double? FundingRateDaily { get; set; }
 
 

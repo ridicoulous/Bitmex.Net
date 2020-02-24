@@ -6,8 +6,8 @@ namespace Bitmex.Net.Objects
 
     public class UserEvent
     {
-        [JsonProperty("id", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Id { get; set; }
+        [JsonProperty("id")]
+        public decimal Id { get; set; }
 
         [JsonProperty("type", Required = Required.Always)]
 
@@ -25,21 +25,21 @@ namespace Bitmex.Net.Objects
         [JsonProperty("createdById", Required = Required.Always)]
         public decimal CreatedById { get; set; }
 
-        [JsonProperty("ip", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("ip")]
         public string Ip { get; set; }
 
-        [JsonProperty("geoipCountry", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("geoipCountry")]
 
         public string GeoipCountry { get; set; }
 
-        [JsonProperty("geoipRegion", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("geoipRegion")]
         public string GeoipRegion { get; set; }
 
-        [JsonProperty("geoipSubRegion", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("geoipSubRegion")]
 
         public string GeoipSubRegion { get; set; }
 
-        [JsonProperty("eventMeta", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("eventMeta")]
         public object EventMeta { get; set; }
 
         [JsonProperty("created", Required = Required.Always)]

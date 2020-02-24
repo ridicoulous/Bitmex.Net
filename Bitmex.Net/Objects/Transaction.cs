@@ -8,37 +8,37 @@ namespace Bitmex.Net.Objects
 
         public System.Guid TransactID { get; set; }
 
-        [JsonProperty("account", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Account { get; set; }
+        [JsonProperty("account")]
+        public decimal Account { get; set; }
 
-        [JsonProperty("currency", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("currency")]
         public string Currency { get; set; }
 
-        [JsonProperty("transactType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("transactType")]
         public string TransactType { get; set; }
 
-        [JsonProperty("amount", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Amount { get; set; }
+        [JsonProperty("amount")]
+        public decimal Amount { get; set; }
 
-        [JsonProperty("fee", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Fee { get; set; }
+        [JsonProperty("fee")]
+        public decimal Fee { get; set; }
 
-        [JsonProperty("transactStatus", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("transactStatus")]
         public string TransactStatus { get; set; }
 
-        [JsonProperty("address", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("address")]
         public string Address { get; set; }
 
-        [JsonProperty("tx", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("tx")]
         public string Tx { get; set; }
 
-        [JsonProperty("text", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("text")]
         public string Text { get; set; }
 
-        [JsonProperty("transactTime", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("transactTime")]
         public System.DateTimeOffset? TransactTime { get; set; }
 
-        [JsonProperty("timestamp", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("timestamp")]
         public System.DateTimeOffset? Timestamp { get; set; }
 
 

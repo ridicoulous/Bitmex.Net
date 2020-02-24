@@ -11,16 +11,16 @@ namespace Bitmex.Net.Objects
         [JsonProperty("id", Required = Required.Always)]
         public double Id { get; set; }
 
-        [JsonProperty("link", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("link")]
         public string Link { get; set; }
 
-        [JsonProperty("title", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonProperty("content", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("content")]
         public string Content { get; set; }
 
-        [JsonProperty("date", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("date")]
         public System.DateTimeOffset? Date { get; set; }
 
 

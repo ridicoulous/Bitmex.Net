@@ -11,142 +11,142 @@ namespace Bitmex.Net.Objects
 
         public System.Guid ExecID { get; set; }
 
-        [JsonProperty("orderID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("orderID")]
         public System.Guid? OrderID { get; set; }
 
-        [JsonProperty("clOrdID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("clOrdID")]
         public string ClOrdID { get; set; }
 
-        [JsonProperty("clOrdLinkID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("clOrdLinkID")]
         public string ClOrdLinkID { get; set; }
 
-        [JsonProperty("account", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("account")]
         public double? Account { get; set; }
 
-        [JsonProperty("symbol", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("symbol")]
         public string Symbol { get; set; }
 
-        [JsonProperty("side", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("side")]
         public string Side { get; set; }
 
-        [JsonProperty("lastQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("lastQty")]
         public double? LastQty { get; set; }
 
-        [JsonProperty("lastPx", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("lastPx")]
         public double? LastPx { get; set; }
 
-        [JsonProperty("underlyingLastPx", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("underlyingLastPx")]
         public double? UnderlyingLastPx { get; set; }
 
-        [JsonProperty("lastMkt", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("lastMkt")]
         public string LastMkt { get; set; }
 
-        [JsonProperty("lastLiquidityInd", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("lastLiquidityInd")]
         public string LastLiquidityInd { get; set; }
 
-        [JsonProperty("simpleOrderQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("simpleOrderQty")]
         public double? SimpleOrderQty { get; set; }
 
-        [JsonProperty("orderQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("orderQty")]
         public double? OrderQty { get; set; }
 
-        [JsonProperty("price", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("price")]
         public double? Price { get; set; }
 
-        [JsonProperty("displayQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("displayQty")]
         public double? DisplayQty { get; set; }
 
-        [JsonProperty("stopPx", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("stopPx")]
         public double? StopPx { get; set; }
 
-        [JsonProperty("pegOffsetValue", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("pegOffsetValue")]
         public double? PegOffsetValue { get; set; }
 
-        [JsonProperty("pegPriceType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("pegPriceType")]
         public string PegPriceType { get; set; }
 
-        [JsonProperty("currency", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("currency")]
         public string Currency { get; set; }
 
-        [JsonProperty("settlCurrency", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("settlCurrency")]
         public string SettlCurrency { get; set; }
 
-        [JsonProperty("execType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("execType")]
         public string ExecType { get; set; }
 
-        [JsonProperty("ordType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("ordType")]
         public string OrdType { get; set; }
 
-        [JsonProperty("timeInForce", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("timeInForce")]
         public string TimeInForce { get; set; }
 
-        [JsonProperty("execInst", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("execInst")]
         public string ExecInst { get; set; }
 
-        [JsonProperty("contingencyType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("contingencyType")]
         public string ContingencyType { get; set; }
 
-        [JsonProperty("exDestination", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("exDestination")]
         public string ExDestination { get; set; }
 
-        [JsonProperty("ordStatus", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("ordStatus")]
         public string OrdStatus { get; set; }
 
-        [JsonProperty("triggered", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("triggered")]
         public string Triggered { get; set; }
 
-        [JsonProperty("workingIndicator", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("workingIndicator")]
         public bool? WorkingIndicator { get; set; }
 
-        [JsonProperty("ordRejReason", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("ordRejReason")]
         public string OrdRejReason { get; set; }
 
-        [JsonProperty("simpleLeavesQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("simpleLeavesQty")]
         public double? SimpleLeavesQty { get; set; }
 
-        [JsonProperty("leavesQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("leavesQty")]
         public double? LeavesQty { get; set; }
 
-        [JsonProperty("simpleCumQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("simpleCumQty")]
         public double? SimpleCumQty { get; set; }
 
-        [JsonProperty("cumQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("cumQty")]
         public double? CumQty { get; set; }
 
-        [JsonProperty("avgPx", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("avgPx")]
         public double? AvgPx { get; set; }
 
-        [JsonProperty("commission", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("commission")]
         public double? Commission { get; set; }
 
-        [JsonProperty("tradePublishIndicator", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("tradePublishIndicator")]
         public string TradePublishIndicator { get; set; }
 
-        [JsonProperty("multiLegReportingType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("multiLegReportingType")]
         public string MultiLegReportingType { get; set; }
 
-        [JsonProperty("text", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("text")]
         public string Text { get; set; }
 
-        [JsonProperty("trdMatchID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("trdMatchID")]
         public System.Guid? TrdMatchID { get; set; }
 
-        [JsonProperty("execCost", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("execCost")]
         public double? ExecCost { get; set; }
 
-        [JsonProperty("execComm", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("execComm")]
         public double? ExecComm { get; set; }
 
-        [JsonProperty("homeNotional", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("homeNotional")]
         public double? HomeNotional { get; set; }
 
-        [JsonProperty("foreignNotional", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("foreignNotional")]
         public double? ForeignNotional { get; set; }
 
-        [JsonProperty("transactTime", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("transactTime")]
         public System.DateTimeOffset? TransactTime { get; set; }
 
-        [JsonProperty("timestamp", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("timestamp")]
         public System.DateTimeOffset? Timestamp { get; set; }
 
 

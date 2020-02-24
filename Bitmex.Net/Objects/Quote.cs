@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace Bitmex.Net.Objects
 {
@@ -8,23 +9,23 @@ namespace Bitmex.Net.Objects
     {
         [JsonProperty("timestamp", Required = Required.Always)]
 
-        public System.DateTimeOffset Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         [JsonProperty("symbol", Required = Required.Always)]
 
         public string Symbol { get; set; }
 
-        [JsonProperty("bidSize", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? BidSize { get; set; }
+        [JsonProperty("bidSize")]
+        public decimal BidSize { get; set; }
 
-        [JsonProperty("bidPrice", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? BidPrice { get; set; }
+        [JsonProperty("bidPrice")]
+        public decimal BidPrice { get; set; }
 
-        [JsonProperty("askPrice", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? AskPrice { get; set; }
+        [JsonProperty("askPrice")]
+        public decimal AskPrice { get; set; }
 
-        [JsonProperty("askSize", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? AskSize { get; set; }
+        [JsonProperty("askSize")]
+        public decimal AskSize { get; set; }
 
 
     }

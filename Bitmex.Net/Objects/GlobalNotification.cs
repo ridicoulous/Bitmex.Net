@@ -11,8 +11,8 @@ namespace Bitmex.Net.Objects
 
         public class GlobalNotification
     {
-        [JsonProperty("id", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Id { get; set; }
+        [JsonProperty("id")]
+        public decimal Id { get; set; }
 
         [JsonProperty("date", Required = Required.Always)]
       
@@ -29,20 +29,20 @@ namespace Bitmex.Net.Objects
         [JsonProperty("ttl", Required = Required.Always)]
         public decimal Ttl { get; set; }
 
-        [JsonProperty("type", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("type")]
         [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
         public GlobalNotificationType? Type { get; set; }
 
-        [JsonProperty("closable", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("closable")]
         public bool? Closable { get; set; } = true;
 
-        [JsonProperty("persist", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("persist")]
         public bool? Persist { get; set; } = true;
 
-        [JsonProperty("waitForVisibility", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("waitForVisibility")]
         public bool? WaitForVisibility { get; set; } = true;
 
-        [JsonProperty("sound", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("sound")]
         public string Sound { get; set; }
 
 

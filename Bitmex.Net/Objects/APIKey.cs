@@ -21,19 +21,19 @@ namespace Bitmex.Net.Objects
         [JsonProperty("nonce", Required = Required.Always)]
         public double Nonce { get; set; } = 0;
 
-        [JsonProperty("cidr", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("cidr")]
         public string Cidr { get; set; }
 
-        [JsonProperty("permissions", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("permissions")]
         public System.Collections.Generic.ICollection<string> Permissions { get; set; }
 
-        [JsonProperty("enabled", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("enabled")]
         public bool? Enabled { get; set; } = false;
 
         [JsonProperty("userId", Required = Required.Always)]
         public double UserId { get; set; }
 
-        [JsonProperty("created", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("created")]
         public System.DateTimeOffset? Created { get; set; }
 
 

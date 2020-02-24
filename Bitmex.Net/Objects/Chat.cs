@@ -8,7 +8,7 @@ namespace Bitmex.Net.Objects
 
     public class Chat
     {
-        [JsonProperty("id", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("id")]
         public double? Id { get; set; }
 
         [JsonProperty("date", Required = Required.Always)]
@@ -27,10 +27,10 @@ namespace Bitmex.Net.Objects
 
         public string Html { get; set; }
 
-        [JsonProperty("fromBot", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("fromBot")]
         public bool? FromBot { get; set; } = false;
 
-        [JsonProperty("channelID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("channelID")]
         public double? ChannelID { get; set; }
 
 

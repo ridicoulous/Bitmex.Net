@@ -12,11 +12,11 @@ namespace Bitmex.Net.Objects
       
         public string Name { get; set; }
 
-        [JsonProperty("isRealName", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("isRealName")]
         public bool? IsRealName { get; set; }
 
-        [JsonProperty("profit", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Profit { get; set; }
+        [JsonProperty("profit")]
+        public decimal Profit { get; set; }
 
 
     }

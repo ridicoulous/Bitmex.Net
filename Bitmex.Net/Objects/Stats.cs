@@ -10,20 +10,20 @@ namespace Bitmex.Net.Objects
 
         public string RootSymbol { get; set; }
 
-        [JsonProperty("currency", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("currency")]
         public string Currency { get; set; }
 
-        [JsonProperty("volume24h", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Volume24h { get; set; }
+        [JsonProperty("volume24h")]
+        public decimal Volume24h { get; set; }
 
-        [JsonProperty("turnover24h", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Turnover24h { get; set; }
+        [JsonProperty("turnover24h")]
+        public decimal Turnover24h { get; set; }
 
-        [JsonProperty("openInterest", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? OpenInterest { get; set; }
+        [JsonProperty("openInterest")]
+        public decimal OpenInterest { get; set; }
 
-        [JsonProperty("openValue", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? OpenValue { get; set; }
+        [JsonProperty("openValue")]
+        public decimal OpenValue { get; set; }
 
 
     }

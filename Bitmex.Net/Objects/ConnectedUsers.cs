@@ -6,10 +6,10 @@ namespace Bitmex.Net.Objects
 
     public class ConnectedUsers
     {
-        [JsonProperty("users", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("users")]
         public double? Users { get; set; }
 
-        [JsonProperty("bots", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("bots")]
         public double? Bots { get; set; }
 
 

@@ -9,100 +9,100 @@ namespace Bitmex.Net.Objects
 
         public System.Guid OrderID { get; set; }
 
-        [JsonProperty("clOrdID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("clOrdID")]
         public string ClOrdID { get; set; }
 
-        [JsonProperty("clOrdLinkID", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("clOrdLinkID")]
         public string ClOrdLinkID { get; set; }
 
-        [JsonProperty("account", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Account { get; set; }
+        [JsonProperty("account")]
+        public decimal Account { get; set; }
 
-        [JsonProperty("symbol", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("symbol")]
         public string Symbol { get; set; }
 
-        [JsonProperty("side", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("side")]
         public string Side { get; set; }
 
-        [JsonProperty("simpleOrderQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? SimpleOrderQty { get; set; }
+        [JsonProperty("simpleOrderQty")]
+        public decimal SimpleOrderQty { get; set; }
 
-        [JsonProperty("orderQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? OrderQty { get; set; }
+        [JsonProperty("orderQty")]
+        public decimal OrderQty { get; set; }
 
-        [JsonProperty("price", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Price { get; set; }
+        [JsonProperty("price")]
+        public decimal Price { get; set; }
 
-        [JsonProperty("displayQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? DisplayQty { get; set; }
+        [JsonProperty("displayQty")]
+        public decimal DisplayQty { get; set; }
 
-        [JsonProperty("stopPx", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? StopPx { get; set; }
+        [JsonProperty("stopPx")]
+        public decimal StopPx { get; set; }
 
-        [JsonProperty("pegOffsetValue", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? PegOffsetValue { get; set; }
+        [JsonProperty("pegOffsetValue")]
+        public decimal PegOffsetValue { get; set; }
 
-        [JsonProperty("pegPriceType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("pegPriceType")]
         public string PegPriceType { get; set; }
 
-        [JsonProperty("currency", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("currency")]
         public string Currency { get; set; }
 
-        [JsonProperty("settlCurrency", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("settlCurrency")]
         public string SettlCurrency { get; set; }
 
-        [JsonProperty("ordType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("ordType")]
         public string OrdType { get; set; }
 
-        [JsonProperty("timeInForce", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("timeInForce")]
         public string TimeInForce { get; set; }
 
-        [JsonProperty("execInst", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("execInst")]
         public string ExecInst { get; set; }
 
-        [JsonProperty("contingencyType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("contingencyType")]
         public string ContingencyType { get; set; }
 
-        [JsonProperty("exDestination", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("exDestination")]
         public string ExDestination { get; set; }
 
-        [JsonProperty("ordStatus", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("ordStatus")]
         public string OrdStatus { get; set; }
 
-        [JsonProperty("triggered", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("triggered")]
         public string Triggered { get; set; }
 
-        [JsonProperty("workingIndicator", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("workingIndicator")]
         public bool? WorkingIndicator { get; set; }
 
-        [JsonProperty("ordRejReason", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("ordRejReason")]
         public string OrdRejReason { get; set; }
 
-        [JsonProperty("simpleLeavesQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? SimpleLeavesQty { get; set; }
+        [JsonProperty("simpleLeavesQty")]
+        public decimal SimpleLeavesQty { get; set; }
 
-        [JsonProperty("leavesQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? LeavesQty { get; set; }
+        [JsonProperty("leavesQty")]
+        public decimal LeavesQty { get; set; }
 
-        [JsonProperty("simpleCumQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? SimpleCumQty { get; set; }
+        [JsonProperty("simpleCumQty")]
+        public decimal SimpleCumQty { get; set; }
 
-        [JsonProperty("cumQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? CumQty { get; set; }
+        [JsonProperty("cumQty")]
+        public decimal CumQty { get; set; }
 
-        [JsonProperty("avgPx", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? AvgPx { get; set; }
+        [JsonProperty("avgPx")]
+        public decimal AvgPx { get; set; }
 
-        [JsonProperty("multiLegReportingType", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("multiLegReportingType")]
         public string MultiLegReportingType { get; set; }
 
-        [JsonProperty("text", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("text")]
         public string Text { get; set; }
 
-        [JsonProperty("transactTime", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("transactTime")]
         public System.DateTimeOffset? TransactTime { get; set; }
 
-        [JsonProperty("timestamp", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("timestamp")]
         public System.DateTimeOffset? Timestamp { get; set; }
 
 

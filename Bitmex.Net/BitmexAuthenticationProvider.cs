@@ -19,7 +19,7 @@ namespace Bitmex.Net
         private long ApiExpires => (long)(DateTime.UtcNow - EpochTime).TotalSeconds + LifetimeSeconds;
         public BitmexAuthenticationProvider(ApiCredentials credentials, TimeSpan? requestLifeTime = null) : base(credentials)
         {
-            LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 10;
+            LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 100;
 
             encryptor = new HMACSHA256(Encoding.ASCII.GetBytes(credentials.Secret.GetString()));
 
@@ -35,7 +35,7 @@ namespace Bitmex.Net
             string additionalData = String.Empty;
             if (parameters.Any())
             {
-                additionalData = HttpUtility.UrlEncode(JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value)));
+                additionalData = JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
             }
 
             var signature = $"{method.ToString()}{uri.Split(new[] { ".com" }, StringSplitOptions.None)[1]}{apiexpires}{additionalData}";

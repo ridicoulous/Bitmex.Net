@@ -8,22 +8,22 @@ namespace Bitmex.Net.Objects
 
         public System.DateTimeOffset Timestamp { get; set; }
 
-        [JsonProperty("symbol", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("symbol")]
         public string Symbol { get; set; }
 
-        [JsonProperty("indexSymbol", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("indexSymbol")]
         public string IndexSymbol { get; set; }
 
-        [JsonProperty("reference", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("reference")]
         public string Reference { get; set; }
 
-        [JsonProperty("lastPrice", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("lastPrice")]
         public double? LastPrice { get; set; }
 
-        [JsonProperty("weight", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("weight")]
         public double? Weight { get; set; }
 
-        [JsonProperty("logged", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("logged")]
         public System.DateTimeOffset? Logged { get; set; }
 
 

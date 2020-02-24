@@ -15,17 +15,17 @@ namespace Bitmex.Net.Objects
       
         public System.Guid OrderID { get; set; }
 
-        [JsonProperty("symbol", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("symbol")]
         public string Symbol { get; set; }
 
-        [JsonProperty("side", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("side")]
         public string Side { get; set; }
 
-        [JsonProperty("price", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? Price { get; set; }
+        [JsonProperty("price")]
+        public decimal Price { get; set; }
 
-        [JsonProperty("leavesQty", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public decimal? LeavesQty { get; set; }
+        [JsonProperty("leavesQty")]
+        public decimal LeavesQty { get; set; }
 
 
     }

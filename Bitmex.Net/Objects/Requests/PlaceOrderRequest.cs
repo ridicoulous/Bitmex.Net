@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Bitmex.Net.Converters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +11,10 @@ namespace Bitmex.Net.Objects.Requests
     /// </summary>
     public class PlaceOrderRequest
     {
+        public PlaceOrderRequest(string symbol)
+        {
+            Symbol = symbol;
+        }
         /// <summary>
         /// Instrument symbol. e.g. 'XBTUSD'.
         /// </summary>
@@ -18,7 +23,7 @@ namespace Bitmex.Net.Objects.Requests
         /// <summary>
         /// Order side. Valid options: Buy, Sell. Defaults to 'Buy' unless orderQty is negative.
         /// </summary>
-        [JsonProperty("symbol")]
+        [JsonProperty("side"),JsonConverter(typeof(BitmexOrderSideConverter))]
         public BitmexOrderSide? Side { get; set; }
         /// <summary>
         /// Order quantity in units of the instrument(i.e.contracts).
@@ -58,7 +63,7 @@ namespace Bitmex.Net.Objects.Requests
         /// <summary>
         /// Order type. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, Pegged. Defaults to 'Limit' when price is specified. Defaults to 'Stop' when stopPx is specified. Defaults to 'StopLimit' when price and stopPx are specified.
         /// </summary>        
-        [JsonProperty("ordType")]
+        [JsonProperty("ordType"), JsonConverter(typeof(BitmexOrderTypeConverter))]
         public BitmexOrderType? BitmexOrderType { get; set; }
         /// <summary>
         /// Time in force. Valid options: Day, GoodTillCancel, ImmediateOrCancel, FillOrKill.
