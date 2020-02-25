@@ -28,10 +28,10 @@ namespace Bitmex.Net.Objects
         public decimal? SimpleOrderQty { get; set; }
 
         [JsonProperty("orderQty")]
-        public decimal OrderQty { get; set; }
+        public decimal? OrderQty { get; set; }
 
         [JsonProperty("price")]
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         [JsonProperty("displayQty")]
         public decimal? DisplayQty { get; set; }

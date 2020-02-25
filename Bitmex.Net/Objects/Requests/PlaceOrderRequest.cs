@@ -11,6 +11,10 @@ namespace Bitmex.Net.Objects.Requests
     /// </summary>
     public class PlaceOrderRequest
     {
+        public PlaceOrderRequest()
+        {
+
+        }
         public PlaceOrderRequest(string symbol)
         {
             Symbol = symbol;
