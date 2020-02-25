@@ -1,12 +1,12 @@
-﻿using   Bitmex.Net.Client.Objects;
+﻿using Bitmex.Net.Client.Objects;
 using CryptoExchange.Net.Converters;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace   Bitmex.Net.Client.Converters
+namespace Bitmex.Net.Client.Converters
 {
-    internal class BitmexOrderSideConverter : BaseConverter<BitmexOrderSide>
+    public class BitmexOrderSideConverter : BaseConverter<BitmexOrderSide>
     {
         public BitmexOrderSideConverter() : this(true) { }
         public BitmexOrderSideConverter(bool quotes) : base(quotes) { }
@@ -15,7 +15,7 @@ namespace   Bitmex.Net.Client.Converters
         {
             new KeyValuePair<BitmexOrderSide, string>(BitmexOrderSide.Buy, "Buy"),
             new KeyValuePair<BitmexOrderSide, string>(BitmexOrderSide.Sell, "Sell"),
-        
+
         };
     }
 }

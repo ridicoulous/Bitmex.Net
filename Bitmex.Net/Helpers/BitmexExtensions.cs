@@ -1,6 +1,7 @@
 ﻿using Bitmex.Net.Client.Attributes;
 using  Bitmex.Net.Client.Objects;
 using  Bitmex.Net.Client.Objects.Requests;
+using CryptoExchange.Net.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -49,9 +50,15 @@ namespace Bitmex.Net.Client.Helpers
                     key = p.GetCustomAttribute<JsonPropertyAttribute>().PropertyName ?? p.Name;
                 }
                 object value = p.GetValue(source, null);
-                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && value != null && value!=default)
+
+                if (p.IsDefined(typeof(BitmexEnumAttribute)))
                 {
-                    result.Add(key, value.ToString());
+                    var attributeValue = p.GetCustomAttribute<BitmexEnumAttribute>().BitmexValue;
+                    value = String.IsNullOrEmpty(attributeValue) ? value.ToString() : attributeValue;
+                }
+                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && value != null && value!=default)
+                {                                       
+                    result.Add(key, value);
                 }
             }
             return result;

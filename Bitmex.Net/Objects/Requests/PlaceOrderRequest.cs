@@ -1,4 +1,5 @@
-﻿using  Bitmex.Net.Client.Converters;
+﻿using Bitmex.Net.Client.Attributes;
+using  Bitmex.Net.Client.Converters;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ namespace   Bitmex.Net.Client.Objects.Requests
         /// <summary>
         /// Order side. Valid options: Buy, Sell. Defaults to 'Buy' unless orderQty is negative.
         /// </summary>
+        [BitmexEnum]   
         [JsonProperty("side"),JsonConverter(typeof(BitmexOrderSideConverter))]
         public BitmexOrderSide? Side { get; set; }
         /// <summary>
@@ -63,17 +65,20 @@ namespace   Bitmex.Net.Client.Objects.Requests
         /// Optional peg price type. Valid options: LastPeg, MidPricePeg, MarketPeg, PrimaryPeg, TrailingStopPeg.
         /// </summary>
         [JsonProperty("pegPriceType")]
+        [BitmexEnum]
         public BitmexPegPriceType? PegPriceType { get; set; }
         /// <summary>
         /// Order type. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, Pegged. Defaults to 'Limit' when price is specified. Defaults to 'Stop' when stopPx is specified. Defaults to 'StopLimit' when price and stopPx are specified.
         /// </summary>        
         [JsonProperty("ordType"), JsonConverter(typeof(BitmexOrderTypeConverter))]
+        [BitmexEnum]
         public BitmexOrderType? BitmexOrderType { get; set; }
         /// <summary>
         /// Time in force. Valid options: Day, GoodTillCancel, ImmediateOrCancel, FillOrKill.
         /// Defaults to 'GoodTillCancel' for 'Limit', 'StopLimit', and 'LimitIfTouched' orders.
         /// </summary>
         [JsonProperty("timeInForce")]
+        [BitmexEnum]
         public BitmexTimeInForce? TimeInForce { get; set; }
         /// <summary>
         /// Optional execution instructions. Valid options: ParticipateDoNotInitiate, AllOrNone, 

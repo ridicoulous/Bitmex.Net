@@ -6,6 +6,9 @@ using Bitmex.Net.Client.Helpers;
 using System.Linq;
 using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
+using Newtonsoft.Json;
+using Bitmex.Net.Client.Converters;
+using Bitmex.Net.Client.Attributes;
 
 namespace Bitmex.Net.Client.Tests
 {
@@ -35,20 +38,6 @@ namespace Bitmex.Net.Client.Tests
             var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.OrderID, t.Data.OrderID }));
 
             Assert.True(c);
-        }
-        [Fact]
-        public void ShouldCreateDictionaryFromObject()
-        {
-            var result = new TestFlattenOrd("ads");
-            var dict = result.AsDictionary();
-        }
-        public class TestFlattenOrd: PlaceOrderRequest
-        {
-            public TestFlattenOrd(string s) : base(s)
-            {
-
-            }
-            public string Trrt { get; set; } = "42";
-        }
+        }        
     }
 }
