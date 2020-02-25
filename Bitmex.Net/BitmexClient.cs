@@ -6,6 +6,7 @@ using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -241,9 +242,7 @@ namespace Bitmex.Net.Client
         {
             return await SendRequest<List<GlobalNotification>>(GetUrl(GlobalNotificationEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
         }
-
         public WebCallResult<List<Instrument>> GetIndicies() => GetIndiciesAsync().Result;
-
         public async Task<WebCallResult<List<Instrument>>> GetIndiciesAsync(CancellationToken ct = default)
         {
             return await SendRequest<List<Instrument>>(GetUrl(InstrumentIndiciesEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
@@ -263,7 +262,6 @@ namespace Bitmex.Net.Client
         {
             return await SendRequest<List<Insurance>>(GetUrl(InsuranceEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
         }
-
         public WebCallResult<List<Leaderboard>> GetLeaderBoard(string method) => GetLeaderBoardAsync(method).Result;
 
         public async Task<WebCallResult<List<Leaderboard>>> GetLeaderBoardAsync(string method, CancellationToken ct = default)
@@ -278,7 +276,6 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<string>> GetLeaderBoardNameAsync(CancellationToken ct = default)
         {
             return await SendRequest<string>(GetUrl(LeaderBoardEndpoint), HttpMethod.Get, ct, null, true, false).ConfigureAwait(false);
-
         }
         public WebCallResult<List<Liquidation>> GetLiquidations(BitmexRequestWithFilter requestWithFilter = null) => GetLiquidationsAsync(requestWithFilter).Result;
 
@@ -288,11 +285,11 @@ namespace Bitmex.Net.Client
             return await SendRequest<List<Liquidation>>(GetUrl(LiquidationEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
         }
 
-
         public WebCallResult<OrderBookL2> GetOrderBook(string symbol, int depth = 25) => GetOrderBookAsync(symbol, depth).Result;
 
         public async Task<WebCallResult<OrderBookL2>> GetOrderBookAsync(string symbol, int depth = 25, CancellationToken ct = default)
         {
+            symbol.ValidateNotNull(nameof(symbol));
             var parameters = GetParameters();
             parameters.Add("symbol", symbol);
             parameters.Add("depth", depth);
@@ -395,6 +392,7 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<Order>> PlaceOrderAsync(PlaceOrderRequest placeOrderRequest, CancellationToken ct = default)
         {
+            placeOrderRequest.Symbol.ValidateNotNull(nameof(placeOrderRequest.Symbol));
             var parameters = placeOrderRequest.AsDictionary();
             return await SendRequest<Order>(GetUrl(OrderEndpoint), HttpMethod.Post, ct, parameters, true, false).ConfigureAwait(false);
         }
@@ -403,8 +401,9 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<List<Order>>> PlaceOrdersBulkAsync(List<PlaceOrderRequest> placeOrderRequests, CancellationToken ct = default)
         {
+            placeOrderRequests.ValidateNotNull(nameof(placeOrderRequests));
             var parameters = GetParameters();
-            parameters.Add("orders", placeOrderRequests);
+            parameters.Add("orders", placeOrderRequests);            
             return await SendRequest<List<Order>>(GetUrl(OrderBulkEndpoint), HttpMethod.Post, ct, parameters, true, false).ConfigureAwait(false);
         }
 
@@ -422,6 +421,7 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<Position>> SetPositionIsolationAsync(string symbol, bool isolate, CancellationToken ct = default)
         {
+            symbol.ValidateNotNull(nameof(symbol));
             var parameters = GetParameters();
             parameters.Add("symbol", symbol);
             parameters.Add("isolate", isolate);
@@ -432,6 +432,7 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<Position>> SetPositionLeverageAsync(string symbol, decimal leverage, CancellationToken ct = default)
         {
+            symbol.ValidateNotNull(nameof(symbol));
             var parameters = GetParameters();
             parameters.Add("symbol", symbol);
             parameters.Add("leverage", leverage);
@@ -442,6 +443,8 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<Position>> SetPositionRiskLimitAsync(string symbol, decimal riskLimit, CancellationToken ct = default)
         {
+            symbol.ValidateNotNull(nameof(symbol));
+
             var parameters = GetParameters();
             parameters.Add("symbol", symbol);
             parameters.Add("riskLimit", riskLimit);
@@ -451,6 +454,7 @@ namespace Bitmex.Net.Client
         public WebCallResult<Position> SetPositionTransferMargin(string symbol, decimal amount) => SetPositionTransferMarginAsync(symbol, amount).Result;
         public async Task<WebCallResult<Position>> SetPositionTransferMarginAsync(string symbol, decimal amount, CancellationToken ct = default)
         {
+            symbol.ValidateNotNull(nameof(symbol));
             var parameters = GetParameters();
             parameters.Add("symbol", symbol);
             parameters.Add("amount", amount);
@@ -461,7 +465,16 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<Order>> UpdateOrderAsync(UpdateOrderRequest updateOrderRequest, CancellationToken ct = default)
         {
+            if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId))
+            {
+                updateOrderRequest.OrderId.ValidateNotNull(nameof(updateOrderRequest.OrderId));
+            }
+            if (String.IsNullOrEmpty(updateOrderRequest.OrderId))
+            {
+                updateOrderRequest.ClOrdId.ValidateNotNull(nameof(updateOrderRequest.ClOrdId));
+            }
             var parameters = updateOrderRequest.AsDictionary();
+            parameters.ValidateNotNull(nameof(updateOrderRequest));
             return await SendRequest<Order>(GetUrl(OrderEndpoint), HttpMethod.Put, ct, parameters, true, false).ConfigureAwait(false);
         }
 
@@ -471,6 +484,7 @@ namespace Bitmex.Net.Client
         {
             var parameters = GetParameters();
             parameters.Add("orders", ordersToUpdate);
+            parameters.ValidateNotNull(nameof(ordersToUpdate));
             return await SendRequest<List<Order>>(GetUrl(OrderBulkEndpoint), HttpMethod.Put, ct, parameters, true, false).ConfigureAwait(false);
         }
 
@@ -478,5 +492,15 @@ namespace Bitmex.Net.Client
         {
             return new Uri($"{BaseAddress}/{endpoint}");
         }
+        protected override Error ParseErrorResponse(JToken error)
+        {
+            if (error["error"] != null)
+            {
+                var message = $"{(string)error["error"]["name"]}: {(string)error["error"]["message"]}";
+                return new BitmexError(42, message, error);
+            }
+            return null;
+        }
+      
     }
 }

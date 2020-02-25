@@ -54,7 +54,7 @@ namespace Bitmex.Net.Client.Helpers
                 if (p.IsDefined(typeof(BitmexEnumAttribute)))
                 {
                     var attributeValue = p.GetCustomAttribute<BitmexEnumAttribute>().BitmexValue;
-                    value = String.IsNullOrEmpty(attributeValue) ? value.ToString() : attributeValue;
+                    value = String.IsNullOrEmpty(attributeValue) ? value?.ToString() : attributeValue;
                 }
                 if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && value != null && value!=default)
                 {                                       

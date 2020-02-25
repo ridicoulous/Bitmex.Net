@@ -9,12 +9,13 @@ using Bitmex.Net.Client.Objects;
 using Newtonsoft.Json;
 using Bitmex.Net.Client.Converters;
 using Bitmex.Net.Client.Attributes;
+using Newtonsoft.Json.Linq;
 
 namespace Bitmex.Net.Client.Tests
 {
     public class BitmexClientIntegrationTests
     {
-        BitmexClient _client = new BitmexClient(new BitmexClientOptions());
+        BitmexClient _client = new BitmexClient(new BitmexClientOptions("42", "42", true));
         [Fact]
         public void ShouldReturnFourLastBuyTrades()
         {
@@ -28,16 +29,47 @@ namespace Bitmex.Net.Client.Tests
             Assert.True(trades.Data.Count == 4);
             Assert.True(trades.Data.All(c => c.Side == BitmexOrderSide.Buy && c.Symbol == "XBTUSD"));
         }
+        //[Fact]
+        //public void ShouldPlaceOrder()
+        //{
+        //    var t = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
+        //    var t2 = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 27000, Side = BitmexOrderSide.Sell, Quantity = 10 });
+        //    Assert.True(t);
+        //    var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.OrderID));
+        //    Assert.True(update);
+
+        //    var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.OrderID, t.Data.OrderID }));
+
+        //    Assert.True(c);
+        //}        
         [Fact]
-        public void ShouldPlaceOrder()
+        public void ShouldCreateDictionaryFromObject()
         {
-            var t = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
-
-            var t2 = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 27000, Side = BitmexOrderSide.Sell, Quantity = 10 });
-            //   var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.OrderID));
-            var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.OrderID, t.Data.OrderID }));
-
-            Assert.True(c);
-        }        
+            var o = new PlaceOrderRequest("XBTUSD")
+            {
+                BitmexOrderType = BitmexOrderType.Limit,
+                Price = 42,
+                Quantity = 10,
+                Side = BitmexOrderSide.Buy
+            };
+            var dic = o.AsDictionary();
+            Assert.Equal(5, dic.Count);
+        }
+        [Fact]
+        public void ShouldParseBitmexError() 
+        {
+            string error = "{ \"error\": { \"message\": \"Error message\", \"name\": \"Error name\" } }";
+            JToken token = JToken.Parse(error);
+            var e = token["error"];
+            Assert.NotNull(e);
+            Assert.Equal("Error message", e["message"]);
+        }
+        [Fact]
+        public void ShoulThrowError()
+        {
+            var order = _client.PlaceOrder(new PlaceOrderRequest("745242") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
+            Assert.False(order);
+            Assert.NotNull(order.Error);
+        }
     }
 }
