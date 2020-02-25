@@ -1,7 +1,7 @@
-﻿using Bitmex.Net.Helpers;
-using Bitmex.Net.Interfaces;
-using Bitmex.Net.Objects;
-using Bitmex.Net.Objects.Requests;
+﻿using Bitmex.Net.Client.Helpers;
+using Bitmex.Net.Client.Interfaces;
+using  Bitmex.Net.Client.Objects;
+using  Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
@@ -13,7 +13,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bitmex.Net
+namespace Bitmex.Net.Client
 {
     public class BitmexClient : RestClient, IBitmexClient
     {

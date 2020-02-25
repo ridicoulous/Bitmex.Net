@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace Bitmex.Net.Objects
+namespace    Bitmex.Net.Client.Objects
 {
     /// <summary>Individual &amp; Bucketed Trades</summary>
 

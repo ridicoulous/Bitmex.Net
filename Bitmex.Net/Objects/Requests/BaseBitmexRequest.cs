@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 
-namespace Bitmex.Net.Objects.Requests
+namespace   Bitmex.Net.Client.Objects.Requests
 {
     /// <summary>
     /// Base object for filtering results

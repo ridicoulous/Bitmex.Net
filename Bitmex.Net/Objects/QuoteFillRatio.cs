@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Bitmex.Net.Objects
+namespace    Bitmex.Net.Client.Objects
 {
     /// <summary>Daily Quote Fill Ratio Statistic</summary>
 

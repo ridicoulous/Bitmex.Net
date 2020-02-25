@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Bitmex.Net.Objects
+namespace    Bitmex.Net.Client.Objects
 {
   
         /// <summary>Tradeable Contracts, Indices, and History</summary>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitmex.Net.Client.Interfaces
+namespace   Bitmex.Net.Client.Interfaces
 {
     public interface IBitmexSocketClient
     {

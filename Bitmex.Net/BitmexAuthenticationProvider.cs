@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 
-namespace Bitmex.Net
+namespace  Bitmex.Net.Client
 {
     public class BitmexAuthenticationProvider : AuthenticationProvider
     {

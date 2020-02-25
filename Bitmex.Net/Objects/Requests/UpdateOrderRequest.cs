@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitmex.Net.Objects.Requests
+namespace   Bitmex.Net.Client.Objects.Requests
 {  
     /// <summary>
     /// Parameters for order updating

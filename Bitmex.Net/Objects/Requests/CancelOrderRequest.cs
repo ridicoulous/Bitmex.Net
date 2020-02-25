@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Bitmex.Net.Objects.Requests
+namespace   Bitmex.Net.Client.Objects.Requests
 {   
     /// <summary>
     /// Parameters for order cancelling. You must provide orderId

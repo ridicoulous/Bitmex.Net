@@ -1,5 +1,6 @@
-﻿using Bitmex.Net.Objects;
-using Bitmex.Net.Objects.Requests;
+﻿using Bitmex.Net.Client.Attributes;
+using  Bitmex.Net.Client.Objects;
+using  Bitmex.Net.Client.Objects.Requests;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Bitmex.Net.Helpers
+namespace Bitmex.Net.Client.Helpers
 {
     /// <summary>
     /// create dictionary from object and vice versa<see href="https://stackoverflow.com/questions/4943817/mapping-object-to-dictionary-and-vice-versa/4944547#4944547"/>
@@ -30,20 +31,25 @@ namespace Bitmex.Net.Helpers
 
             return someObject;
         }
-    
-        public static Dictionary<string, object> AsDictionary(this object source, BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+
+        public static Dictionary<string, object> AsDictionary(this object source, 
+            BindingFlags bindingAttr = BindingFlags.FlattenHierarchy |
+            BindingFlags.Instance |
+            BindingFlags.NonPublic |
+            BindingFlags.Public |
+            BindingFlags.Static)
         {
             var result = new Dictionary<string, object>();
             var props = source.GetType().GetProperties(bindingAttr);
-            foreach (var p in props.Where(c => !c.IsDefined(typeof(JsonIgnoreAttribute))))
+            foreach (var p in props.Where(c => !c.IsDefined(typeof(BitmexRequestIgnoreAttribute))))
             {
                 string key = p.Name;
                 if (p.IsDefined(typeof(JsonPropertyAttribute)))
                 {
                     key = p.GetCustomAttribute<JsonPropertyAttribute>().PropertyName ?? p.Name;
                 }
-                object value = p.GetValue(source, null);               
-                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key)&&value!=null)
+                object value = p.GetValue(source, null);
+                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && value != null && value!=default)
                 {
                     result.Add(key, value.ToString());
                 }

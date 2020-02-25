@@ -1,16 +1,17 @@
-
-using Bitmex.Net.Objects.Requests;
+using Bitmex.Net.Client.Objects.Requests;
 using System;
 using System.Text.Json;
 using Xunit;
-using Bitmex.Net.Helpers;
+using Bitmex.Net.Client.Helpers;
 using System.Linq;
+using Bitmex.Net.Client.Interfaces;
+using Bitmex.Net.Client.Objects;
 
-namespace Bitmex.Net.Objects.Tests
+namespace Bitmex.Net.Client.Tests
 {
-    public class UnitTest1
+    public class BitmexClientIntegrationTests
     {
-        BitmexClient _client = new BitmexClient(new BitmexClientOptions("", "",true));
+        BitmexClient _client = new BitmexClient(new BitmexClientOptions());
         [Fact]
         public void ShouldReturnFourLastBuyTrades()
         {
@@ -30,10 +31,24 @@ namespace Bitmex.Net.Objects.Tests
             var t = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
 
             var t2 = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 27000, Side = BitmexOrderSide.Sell, Quantity = 10 });
-         //   var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.OrderID));
-            var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.OrderID,t.Data.OrderID}));       
+            //   var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.OrderID));
+            var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.OrderID, t.Data.OrderID }));
 
             Assert.True(c);
+        }
+        [Fact]
+        public void ShouldCreateDictionaryFromObject()
+        {
+            var result = new TestFlattenOrd("ads");
+            var dict = result.AsDictionary();
+        }
+        public class TestFlattenOrd: PlaceOrderRequest
+        {
+            public TestFlattenOrd(string s) : base(s)
+            {
+
+            }
+            public string Trrt { get; set; } = "42";
         }
     }
 }

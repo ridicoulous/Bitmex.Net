@@ -1,5 +1,5 @@
-﻿using Bitmex.Net.Objects;
-using Bitmex.Net.Objects.Requests;
+﻿using    Bitmex.Net.Client.Objects;
+using    Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net.Objects;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bitmex.Net.Interfaces
+namespace  Bitmex.Net.Client.Interfaces
 {
     public interface IBitmexClient
     {

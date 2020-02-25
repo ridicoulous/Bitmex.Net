@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Bitmex.Net.Objects
+namespace    Bitmex.Net.Client.Objects
 {
     
     public class OrderBookL2

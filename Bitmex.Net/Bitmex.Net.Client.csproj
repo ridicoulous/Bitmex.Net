@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.3</Version>
+    <Version>0.0.6</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Bitmex.Net.Client</PackageId>
     <Authors>ridicoulous</Authors>
@@ -10,9 +10,10 @@
     <Product>Bitmex.Net.Client</Product>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>jkorf, ridiclous</Copyright>
-    <RepositoryUrl>https://github.com/ridicoulous/Bitmex.Net</RepositoryUrl>
+    <RepositoryUrl>https://github.com/ridicoulous/Bitmex.Net.Client</RepositoryUrl>
     <PackageProjectUrl>https://www.bitmex.com</PackageProjectUrl>
     <PackageTags>bitmex api-wrapper crypto exchange</PackageTags>
+    <PackageReleaseNotes>fixes object transforming to dictionary</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

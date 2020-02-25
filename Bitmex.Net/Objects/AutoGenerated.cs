@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 
-namespace Bitmex.Net.Objects
+namespace    Bitmex.Net.Client.Objects
 {
     public enum GlobalNotificationType
     {

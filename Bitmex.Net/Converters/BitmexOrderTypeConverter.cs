@@ -1,10 +1,10 @@
-﻿using Bitmex.Net.Objects;
+﻿using    Bitmex.Net.Client.Objects;
 using CryptoExchange.Net.Converters;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bitmex.Net.Converters
+namespace  Bitmex.Net.Client.Converters
 {
     public class BitmexOrderTypeConverter : BaseConverter<BitmexOrderType>
     {

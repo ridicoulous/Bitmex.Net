@@ -13,8 +13,8 @@
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Bitmex.Net\Bitmex.Net.csproj" />
+  <ItemGroup>    
+    <ProjectReference Include="..\Bitmex.Net\Bitmex.Net.Client.csproj" />
   </ItemGroup>
 
 </Project>
