@@ -10,40 +10,57 @@ namespace Bitmex.Net.Objects.Requests
     /// </summary>
     public class UpdateOrderRequest
     {
-        [JsonProperty("orderId")]
+        public UpdateOrderRequest()
+        {
+
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newPrice">new price for order</param>
+        /// <param name="orderId">exchange order id</param>
+        /// <param name="clientOrderId">your order id, sended at posting order</param>
+        public UpdateOrderRequest(decimal newPrice, string orderId=null, string clientOrderId=null)
+        {
+            Price = newPrice;
+            OrderId = orderId;
+            ClOrdId = clientOrderId;
+        }
+       
+        [JsonProperty("orderID")]
         public string OrderId { get; set; }
         /// <summary>
         /// Client Order ID. See POST /order.
         /// </summary>
-        [JsonProperty("origClOrdId")]
+        [JsonProperty("origClOrdID")]
         public string OrigClOrdId { get; set; }
         /// <summary>
         /// Optional new Client Order ID, requires origClOrdID.
         /// </summary>
-        [JsonProperty("clOrdId")]
+        [JsonProperty("clOrdID")]
         public string ClOrdId { get; set; }
         /// <summary>
         /// Optional order quantity in units of the instrument (i.e. contracts).
         /// </summary>
         [JsonProperty("orderQty")] 
-        public decimal OrderQty { get; set; }
+        public decimal? OrderQty { get; set; }
         /// <summary>
         /// Optional leaves quantity in units of the instrument (i.e. contracts). Useful for amending partially filled orders.
         /// </summary>
         [JsonProperty("leavesQty")] 
-        public decimal LeavesQty { get; set; }
+        public decimal? LeavesQty { get; set; }
         /// <summary>
         /// Optional trigger price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders. Use a price below the current price for stop-sell orders and buy-if-touched orders.
         /// </summary>
         [JsonProperty("stopPx")]
-        public decimal StopPx { get; set; }
+        public decimal? StopPx { get; set; }
         /// <summary>
         /// Optional trailing offset from the current price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders; use a negative offset for stop-sell orders and buy-if-touched orders. Optional offset from the peg price for 'Pegged' orders.
         /// </summary>
         [JsonProperty("pegOffsetValue")]
-        public decimal PegOffsetValue { get; set; }
+        public decimal? PegOffsetValue { get; set; }
         [JsonProperty("price")]
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         /// <summary>
         /// Optional amend annotation. e.g. 'Adjust skew'.

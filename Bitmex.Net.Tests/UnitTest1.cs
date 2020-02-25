@@ -27,10 +27,13 @@ namespace Bitmex.Net.Objects.Tests
         [Fact]
         public void ShouldPlaceOrder()
         {
-            var t = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 25000, Side = BitmexOrderSide.Sell, Quantity = 10 });
-            Assert.True(t);
-            var cancel = _client.CancelAllOrders();
-            Assert.True(cancel);
+            var t = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
+
+            var t2 = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 27000, Side = BitmexOrderSide.Sell, Quantity = 10 });
+         //   var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.OrderID));
+            var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.OrderID,t.Data.OrderID}));       
+
+            Assert.True(c);
         }
     }
 }

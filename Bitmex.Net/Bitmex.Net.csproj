@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.1</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Bitmex.Net.Client</PackageId>
+    <Authors>ridicoulous</Authors>
+    <Company>ridicoulous</Company>
+    <Product>Bitmex.Net.Client</Product>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>jkorf, ridiclous</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

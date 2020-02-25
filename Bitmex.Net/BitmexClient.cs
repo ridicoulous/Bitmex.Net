@@ -111,17 +111,17 @@ namespace Bitmex.Net
 
         public async Task<WebCallResult<object>> CancellAllAfterAsync(TimeSpan timeOut, CancellationToken ct = default)
         {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            var parameters = new Dictionary<string, object>();
             parameters.Add("timeOut", (long)timeOut.TotalMilliseconds);
             return await SendRequest<object>(GetUrl(OrderCancelAllAfterEndpoint), HttpMethod.Post, ct, parameters, true, false).ConfigureAwait(false);
         }
 
-        public WebCallResult<Order> CancelOrder(CancelOrderRequest cancelOrderRequest) => CancelOrderAsync(cancelOrderRequest).Result;
+        public WebCallResult<List<Order>> CancelOrder(CancelOrderRequest cancelOrderRequest) => CancelOrderAsync(cancelOrderRequest).Result;
 
-        public async Task<WebCallResult<Order>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct = default)
+        public async Task<WebCallResult<List<Order>>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct = default)
         {
-            Dictionary<string, object> parameters = cancelOrderRequest.AsDictionary();
-            return await SendRequest<Order>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
+            var parameters = cancelOrderRequest.AsDictionary();
+            return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Instrument>> GetActiveInstruments() => GetActiveInstrumentsAsync().Result;

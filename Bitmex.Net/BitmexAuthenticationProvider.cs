@@ -33,7 +33,7 @@ namespace Bitmex.Net
             result.Add("api-key", Credentials.Key.GetString());
             result.Add("api-expires", apiexpires);
             string additionalData = String.Empty;
-            if (parameters.Any())
+            if (parameters.Any()&&method!=HttpMethod.Delete)
             {
                 additionalData = JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
             }

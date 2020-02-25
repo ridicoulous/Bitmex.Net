@@ -329,14 +329,14 @@ namespace Bitmex.Net.Interfaces
         /// </summary>
         /// <param name="cancelOrderRequest"></param>
         /// <returns></returns>
-        WebCallResult<Order> CancelOrder(CancelOrderRequest cancelOrderRequest);
+        WebCallResult<List<Order>> CancelOrder(CancelOrderRequest cancelOrderRequest);
 
         /// <summary>
         /// Cancel order. Either an orderID or a clOrdID must be provided.
         /// </summary>
         /// <param name="cancelOrderRequest"></param>
         /// <returns></returns>
-        Task<WebCallResult<Order>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct=default);
+        Task<WebCallResult<List<Order>>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct=default);
         /// <summary>
         /// Cancels all orders
         /// </summary>
