@@ -102,4 +102,12 @@ namespace Bitmex.Net.Client.Objects
         PrimaryPeg,
         TrailingStopPeg
     }
+    public enum BitmexTickDirection
+    {
+        Undefined,
+        MinusTick,
+        PlusTick,
+        ZeroMinusTick,
+        ZeroPlusTick
+    }
 }

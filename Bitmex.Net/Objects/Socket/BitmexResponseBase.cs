@@ -6,7 +6,7 @@ namespace Bitmex.Net.Client.Objects.Socket
 {
     public class BitmexResponseBase<T> : BitmexResponseBase
     {
-        T Data { get; set; }
+        public List<T> Data { get; set; }
     }
     /// <summary>
     /// Base message for every response

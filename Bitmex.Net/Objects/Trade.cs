@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Bitmex.Net.Client.Converters;
+using Newtonsoft.Json;
 using System;
 
 namespace    Bitmex.Net.Client.Objects
@@ -15,7 +16,7 @@ namespace    Bitmex.Net.Client.Objects
 
         public string Symbol { get; set; }
 
-        [JsonProperty("side")]
+        [JsonProperty("side"), JsonConverter(typeof(BitmexOrderSideConverter))]
         public BitmexOrderSide Side { get; set; }
 
         [JsonProperty("size")]
@@ -24,8 +25,8 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("price")]
         public decimal Price { get; set; }
 
-        [JsonProperty("tickDirection")]
-        public string TickDirection { get; set; }
+        [JsonProperty("tickDirection"), JsonConverter(typeof(BitmexTickDirectionConverter))]
+        public BitmexTickDirection TickDirection { get; set; }
 
         [JsonProperty("trdMatchID")]
         public string TrdMatchID { get; set; }

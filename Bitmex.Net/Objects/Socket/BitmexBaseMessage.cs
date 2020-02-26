@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Bitmex.Net.Client.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,6 +15,7 @@ namespace Bitmex.Net.Client.Objects.Socket
         /// <summary>
         /// Unique operation, is serialized as "op": "command"
         /// </summary>
-        public virtual MessageType Op { get; set; }
+        [JsonProperty("op"),JsonConverter(typeof(BitmexWebSocketOperationConverter))]
+        public virtual BitmexWebSocketOperation Op { get; set; }
     }
 }

@@ -21,13 +21,13 @@ namespace Bitmex.Net.Client.Objects.Socket
         [DataMember(Name = "delete")]
         Delete
     }
-    public enum MessageType
+    public enum BitmexWebSocketOperation
     {
 
         [DataMember(Name = "ping")]
         Ping,
-        [DataMember(Name = "authKey")]
-        AuthKey,
+        [DataMember(Name = "authKeyExpires")]
+        AuthKeyExpires,
         [DataMember(Name = "subscribe")]
         Subscribe,
         [DataMember(Name = "unsubscribe")]
