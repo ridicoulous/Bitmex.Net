@@ -4,6 +4,7 @@ using  Bitmex.Net.Client.Objects;
 using  Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -501,6 +502,13 @@ namespace Bitmex.Net.Client
             }
             return null;
         }
-      
+        protected override IRequest ConstructRequest(Uri uri, HttpMethod method, Dictionary<string, object> parameters, bool signed)
+        {   
+            var req = base.ConstructRequest(uri, method, parameters, signed);
+            req.AddHeader("Connection", "Keep-Alive");
+            req.AddHeader("Keep-Alive", "900000");            
+            return req;
+        }
+
     }
 }
