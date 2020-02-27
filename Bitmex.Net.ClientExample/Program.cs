@@ -2,22 +2,24 @@
 using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using System;
 using System.Threading.Tasks;
-
+using Bitmex.Net.Client.Helpers.Extensions;
 namespace Bitmex.Net.ClientExample
 {
     class Program
     {
         static async Task Main(string[] args)
         {
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(true) { ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials("W4kfhlp9OhwtHquxV0Zsd5WM", "TDvu6R2hfp3Si8gUrsiNuqYZ_llKW5p2CGFUyuJfOLEjM0it") });
-            await Task.Delay(2000);
-            await socket.SubscribeToTradesAsync(OnData, "XBTUSD");
+           
+            var ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("BitmexXBTUSD",tickSize:0.01m));
+            ob.OnBestOffersChanged += Ob_OnBestOffersChanged;
+            ob.Start();           
             Console.ReadLine();
         }
 
-        private static void OnData(BitmexTradeEvent obj)
+        private static void Ob_OnBestOffersChanged(CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg1, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg2)
         {
-            Console.WriteLine(obj.Data[0].Size);    
+            Console.WriteLine($"{arg1.Price}  : {arg2.Price}");
         }
+       
     }
 }

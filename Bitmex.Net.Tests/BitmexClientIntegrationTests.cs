@@ -2,7 +2,7 @@ using Bitmex.Net.Client.Objects.Requests;
 using System;
 using System.Text.Json;
 using Xunit;
-using Bitmex.Net.Client.Helpers;
+using Bitmex.Net.Client.Helpers.Extensions;
 using System.Linq;
 using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
@@ -24,7 +24,7 @@ namespace Bitmex.Net.Client.Tests
                 .WithSymbolFilter("XBTUSD")
                 .WithSideFilter(BitmexOrderSide.Buy)
                 .WithExactDateFilter(new DateTime(2019, 1, 1))
-                .SetResultsCount(4));
+                .WithResultsCount(4));
             Assert.True(trades);
             Assert.True(trades.Data.Count == 4);
             Assert.True(trades.Data.All(c => c.Side == BitmexOrderSide.Buy && c.Symbol == "XBTUSD"));

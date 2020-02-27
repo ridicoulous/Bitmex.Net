@@ -11,7 +11,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
         {
 
         }
-        public BitmexSubscribeRequest(string topic, string symbol="")
+        public BitmexSubscribeRequest(string topic, string symbol = "")
         {
             Op = BitmexWebSocketOperation.Subscribe;
             string table = topic;
@@ -24,7 +24,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
         public BitmexSubscribeRequest(BitmexWebSocketOperation op, params object[] args)
         {
             Op = op;
-            foreach(var a in args)
+            foreach (var a in args)
             {
                 Args.Add(a);
             }

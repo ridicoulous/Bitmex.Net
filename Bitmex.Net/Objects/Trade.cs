@@ -35,10 +35,10 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? GrossValue { get; set; }
 
         [JsonProperty("homeNotional")]
-        public decimal HomeNotional { get; set; }
+        public decimal? HomeNotional { get; set; }
 
         [JsonProperty("foreignNotional")]
-        public decimal ForeignNotional { get; set; }
+        public decimal? ForeignNotional { get; set; }
 
 
     }

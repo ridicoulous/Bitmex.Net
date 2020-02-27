@@ -34,7 +34,7 @@ namespace Bitmex.Net.Client
             result.Add("api-expires", apiexpires.ToString());
 
             string additionalData = String.Empty;
-            if (parameters.Any() && method != HttpMethod.Delete)
+            if (parameters != null && parameters.Any() && method != HttpMethod.Delete)
             {
                 additionalData = JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
             }
@@ -67,7 +67,7 @@ namespace Bitmex.Net.Client
         public object[] CreateWebsocketSignatureParams()
         {
             var apiExp = ApiExpires;
-            return new object[] { Credentials.Key.GetString(), apiExp, Sign(CreateAuthPayload(HttpMethod.Get, "/realtime", apiExp)) };           
+            return new object[] { Credentials.Key.GetString(), apiExp, Sign(CreateAuthPayload(HttpMethod.Get, "/realtime", apiExp)) };
         }
     }
 }

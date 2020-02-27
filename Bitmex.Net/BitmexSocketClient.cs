@@ -1,8 +1,10 @@
 ﻿using Bitmex.Net.Client.Interfaces;
+using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
@@ -10,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +24,7 @@ namespace Bitmex.Net.Client
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
         public BitmexSocketClient() : this(DefaultOptions)
         {
+            this.SocketCombineTarget = 1;
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
             this.SocketCombineTarget = 1;
@@ -28,31 +32,18 @@ namespace Bitmex.Net.Client
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
-            ContinueOnQueryResponse = false;
-            AddGenericHandler("Ping", (connection, token) => { });
-            AddGenericHandler("Info", (connection, token) => { });
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
         }
-
-
+        protected override IWebsocket CreateSocket(string address)
+        {
+            Dictionary<string, string> empty = new Dictionary<string, string>();
+            return SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true));
+        }
         protected override async Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
         {
-            BitmexAuthenticationProvider p = (BitmexAuthenticationProvider)this.authProvider;
-            bool isSucces = false;
-            await s.SendAndWait(new BitmexSubscribeRequest(Objects.Socket.BitmexWebSocketOperation.AuthKeyExpires, p.CreateWebsocketSignatureParams()), TimeSpan.FromSeconds(5),
-                token =>
-                {
-                    var obj = Deserialize<BitmexSubscriptionResponse>(token, false);
-                    isSucces = token.ToString().Contains("success");
-                    log.Write(LogVerbosity.Debug, token.ToString());
-                    return true;
-                });
-            return new CallResult<bool>(isSucces,null);
+            return new CallResult<bool>(true, null);
         }
-
-  
-
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
         {
             callResult = new CallResult<T>(Deserialize<T>(data).Data, null);
@@ -65,11 +56,11 @@ namespace Bitmex.Net.Client
             var greetings = message.ToObject<GreetingsMessage>();
             var response = Deserialize<BitmexSubscriptionResponse>(message, false);
 
-            if (greetings.Info != null)
-            {
-                callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
-                return true;
-            }
+            //if (greetings.Info != null)
+            //{
+            //    callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
+            //    return false;
+            //}
             var bRequest = (BitmexSubscribeRequest)request;
             if (response.Success && response.Data.Success && response.Data.Request?.Op == bRequest.Op)
             {
@@ -97,22 +88,10 @@ namespace Bitmex.Net.Client
 
         protected override bool MessageMatchesHandler(JToken message, object request)
         {
-            //var response = Deserialize<BitmexSubscriptionResponse>(message, false);
             var bRequest = (BitmexSubscribeRequest)request;
-            //if (response.Success && response.Data.Success && response.Data.Request?.Op == bRequest.Op)
-            //{
-            //    foreach (var r in bRequest.Args)
-            //    {
-            //        if (r.ToString().Contains(response.Data.Subscribe) || r.ToString().Contains(response.Data.Unsubscribe))
-            //        {
-            //            return true;
-            //        }
-            //    }
-            //}
-            if (message["error"] != null || (message["success"] != null && !(bool)message["success"]))
-            {
+            if (bRequest == null)
                 return false;
-            }
+            
             foreach (var r in bRequest.Args)
             {
                 if (message["table"] == null)
@@ -122,38 +101,63 @@ namespace Bitmex.Net.Client
                     return true;
                 }
             }
+            if (message["error"] != null || (message["success"] != null && !(bool)message["success"]))
+            {
+                return false;
+            }
             return false;
         }
 
         protected override bool MessageMatchesHandler(JToken message, string identifier)
         {
-            if (message.Type != JTokenType.Object)
-                return false;
-
-            if (identifier == "Ping" && message["op"] != null && (string)message["op"] == "Ping")
-                return true;
-
-            if (identifier == "Info" && message["info"] != null)
-                return true;
-            var subscribe = Deserialize<BitmexSubscriptionResponse>(message, false);
-            if (subscribe)
-            {
-                return subscribe && subscribe.Data.Success;
-            }
-
-            return false;
+            throw new NotImplementedException();
         }
 
         protected override Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
         {
             throw new NotImplementedException();
         }
-
-        public CallResult<UpdateSubscription> SubscribeToTrades(Action<BitmexTradeEvent> onData, string symbol = "") => SubscribeToTradesAsync(onData, symbol).Result;
-
-        public async Task<CallResult<UpdateSubscription>> SubscribeToTradesAsync(Action<BitmexTradeEvent> onData, string symbol = "")
+        /// <summary>
+        /// Subscribe to live trades
+        /// </summary>
+        /// <param name="onData">Handler of trade events</param>
+        /// <param name="symbol">if not setted, trades for each active instrument will be pushed</param>
+        /// <returns></returns>
+        public CallResult<UpdateSubscription> SubscribeToAllTrades(Action<BitmexTradeEvent> onData, string symbol = "") => SubscribeToAllTradesAsync(onData, symbol).Result;
+        /// <summary>
+        /// Subscribe to live trades
+        /// </summary>
+        /// <param name="onData">Handler of trade events</param>
+        /// <param name="symbol">if not setted, trades for each active instrument will be pushed</param>
+        /// <returns></returns>
+        public async Task<CallResult<UpdateSubscription>> SubscribeToAllTradesAsync(Action<BitmexTradeEvent> onData, string symbol = "")
         {
             return await Subscribe(new BitmexSubscribeRequest("trade", symbol), null, true, onData).ConfigureAwait(false);
+        }
+        /// <summary>
+        /// Subscribe to live user orders updates
+        /// </summary>
+        /// <param name="onData">order updates handler</param>
+        /// <param name="symbol">filter orders by symbol or get all updates by all intruments</param>
+        /// <returns></returns>
+        public CallResult<UpdateSubscription> SubscribeToUserOrderUpdates(Action<BitmexOrderUpdateEvent> onData, string symbol = "") => SubscribeToUserOrderUpdatesAsync(onData, symbol).Result;
+        public async Task<CallResult<UpdateSubscription>> SubscribeToUserOrderUpdatesAsync(Action<BitmexOrderUpdateEvent> onData, string symbol = "")
+        {
+            return await Subscribe(new BitmexSubscribeRequest("order", symbol), null, true, onData).ConfigureAwait(false);
+        }
+        /// <summary>
+        /// subscribe to orderbook updates
+        /// </summary>
+        /// <param name="onData">orderbook</param>
+        /// <param name="symbol"></param>
+        /// <param name="orderBookLevelType"></param>
+        /// <returns></returns>
+        public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexOrderBookUpdateEvent> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25") => SubscribeToOrderBookUpdatesAsync(onData, symbol).Result;
+
+        public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexOrderBookUpdateEvent> onData, string symbol = "", string orderBookLevel = "orderBookL2_25")
+        {
+            return await Subscribe(new BitmexSubscribeRequest(orderBookLevel, symbol), null, true, onData).ConfigureAwait(false);
+
         }
     }
 }

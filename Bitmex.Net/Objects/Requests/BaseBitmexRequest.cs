@@ -30,7 +30,8 @@ namespace   Bitmex.Net.Client.Objects.Requests
         ///Note that this method will always return item keys, even when not specified, so you may receive more columns that you expect.
         /// </summary>
         [JsonProperty("columns")]
-        public HashSet<string> Columns { get; set; }
+        public string Columns => String.Join(",", ColumnsFilterInResponse);
+        public HashSet<string> ColumnsFilterInResponse { get; set; } = new HashSet<string>();
         /// <summary>
         /// Number of results to fetch.
         /// </summary>
@@ -59,16 +60,26 @@ namespace   Bitmex.Net.Client.Objects.Requests
         [JsonProperty("endTime")]
         public DateTime? EndTime { get; set; }
 
-        public void AddFilter(string key, string value)
+        public BitmexRequestWithFilter AddFilter(string key, string value)
         {
             if (!Filters.ContainsKey(key))
             {
                 Filters.Add(key, value);
             }
+            return this;
         }
-        public void AddColumnToGetInRequest(string columnName)
+        public BitmexRequestWithFilter AddColumnToGetInRequest(string columnName)
         {
-            Columns.Add(columnName);
+            ColumnsFilterInResponse.Add(columnName);
+            return this;
+        }
+        public BitmexRequestWithFilter AddColumnsToGetInRequest(string[] columnNames)
+        {
+            foreach(var c in columnNames)
+            {
+                ColumnsFilterInResponse.Add(c);
+            }
+            return this;
         }
 
     }

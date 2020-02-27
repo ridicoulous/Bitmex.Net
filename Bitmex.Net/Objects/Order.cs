@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Bitmex.Net.Client.Converters;
+using Newtonsoft.Json;
 
-namespace    Bitmex.Net.Client.Objects
+namespace Bitmex.Net.Client.Objects
 {
     /// <summary>Placement, Cancellation, Amending, and History</summary>
     public class Order
@@ -51,7 +52,7 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("settlCurrency")]
         public string SettlCurrency { get; set; }
 
-        [JsonProperty("ordType")]
+        [JsonProperty("ordType"), JsonConverter(typeof(BitmexOrderTypeConverter))]
         public BitmexOrderType OrdType { get; set; }
 
         [JsonProperty("timeInForce")]

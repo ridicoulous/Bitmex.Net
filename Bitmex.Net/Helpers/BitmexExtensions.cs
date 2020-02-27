@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Bitmex.Net.Client.Helpers
+namespace Bitmex.Net.Client.Helpers.Extensions
 {
     /// <summary>
     /// create dictionary from object and vice versa<see href="https://stackoverflow.com/questions/4943817/mapping-object-to-dictionary-and-vice-versa/4944547#4944547"/>
@@ -76,23 +76,26 @@ namespace Bitmex.Net.Client.Helpers
         }
         public static BitmexRequestWithFilter WithFilter(this BitmexRequestWithFilter filter, string key, string value)
         {
-            filter.AddFilter(key, value);
+            return filter.AddFilter(key, value);            
+        }
+
+        public static BitmexRequestWithFilter WithStartingFrom(this BitmexRequestWithFilter filter, int startingPointToGetch)
+        {
+            filter.Start= startingPointToGetch;
             return filter;
         }
-        public static BitmexRequestWithFilter SetResultsCount(this BitmexRequestWithFilter filter, int count)
-        {
+        public static BitmexRequestWithFilter WithResultsCount(this BitmexRequestWithFilter filter, int count)
+        {            
             filter.Count = count;
             return filter;
         }
         public static BitmexRequestWithFilter WithSymbolFilter(this BitmexRequestWithFilter filter, string symbol)
         {
-            filter.AddFilter("symbol", symbol);
-            return filter;
+            return filter.AddFilter("symbol", symbol);            
         }
         public static BitmexRequestWithFilter WithSideFilter(this BitmexRequestWithFilter filter, BitmexOrderSide side)
         {
-            filter.AddFilter("side", side.ToString());
-            return filter;
+            return filter.AddFilter("side", side.ToString());         
         }
         /// <summary>
         /// use this extension to sort results by time descending
@@ -119,8 +122,7 @@ namespace Bitmex.Net.Client.Helpers
         /// </summary>     
         public static BitmexRequestWithFilter WithStartTimeFilter(this BitmexRequestWithFilter filter, DateTime from)
         {
-            filter.AddFilter("startTime", from.ToString("yyyy-MM-dd HH:mm:ss.zzz"));
-            return filter;
+            return filter.AddFilter("startTime", from.ToString("yyyy-MM-dd HH:mm:ss.zzz"));
         }
 
         /// <summary>
@@ -128,30 +130,25 @@ namespace Bitmex.Net.Client.Helpers
         /// </summary>  
         public static BitmexRequestWithFilter WithEndTimeFilter(this BitmexRequestWithFilter filter, DateTime to)
         {
-            filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm:ss.zzz"));
-            return filter;
+            return filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm:ss.zzz"));           
         }
         /// <summary>
         /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
         /// </summary>  
         public static BitmexRequestWithFilter WithExactDateTimeFilter(this BitmexRequestWithFilter filter, DateTime exactDateTimeFilter)
         {
-            filter.AddFilter("timestamp", exactDateTimeFilter.ToString("yyyy-MM-dd HH:mm:ss"));
-            return filter;
+            return filter.AddFilter("timestamp", exactDateTimeFilter.ToString("yyyy-MM-dd HH:mm:ss"));          
         }
         /// <summary>
         /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
         /// </summary>  
         public static BitmexRequestWithFilter WithExactDateFilter(this BitmexRequestWithFilter filter, DateTime exactDateFilter)
         {
-            filter.AddFilter("timestamp.date", exactDateFilter.ToString("yyyy-MM-dd"));
-            return filter;
-
+            return filter.AddFilter("timestamp.date", exactDateFilter.ToString("yyyy-MM-dd"));
         }
         public static BitmexRequestWithFilter WithExactMonthFilter(this BitmexRequestWithFilter filter, int year, int month)
         {
-            filter.AddFilter("timestamp.month", $"{year}-{month}");
-            return filter;
+            return filter.AddFilter("timestamp.month", $"{year}-{month}");           
         }
     }
 }

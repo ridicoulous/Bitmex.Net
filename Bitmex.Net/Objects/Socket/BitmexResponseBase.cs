@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Bitmex.Net.Client.Converters;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -20,6 +22,8 @@ namespace Bitmex.Net.Client.Objects.Socket
         /// 'insert': Insert a new row.
         /// 'delete': Delete a row.
         /// </summary>
+        [JsonProperty("action"), JsonConverter(typeof(BitmexActionConverter))]
+
         public BitmexAction Action { get; set; }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using Bitmex.Net.Client.Helpers;
+﻿using Bitmex.Net.Client.Helpers.Extensions;
 using Bitmex.Net.Client.Interfaces;
 using  Bitmex.Net.Client.Objects;
 using  Bitmex.Net.Client.Objects.Requests;

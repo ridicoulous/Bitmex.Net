@@ -5,23 +5,16 @@ using System.Text;
 
 namespace Bitmex.Net.Client.Objects.Socket
 {
-    public enum BitmexAction
+ 
+    public enum BitmexAction : byte
     {
         Undefined,
-
-        [DataMember(Name = "partial")]
         Partial,
-
-        [DataMember(Name = "insert")]
         Insert,
-
-        [DataMember(Name = "update")]
         Update,
-
-        [DataMember(Name = "delete")]
         Delete
     }
-    public enum BitmexWebSocketOperation
+    public enum BitmexWebSocketOperation : byte
     {
 
         [DataMember(Name = "ping")]
