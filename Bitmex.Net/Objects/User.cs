@@ -11,7 +11,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal Id { get; set; }
 
         [JsonProperty("ownerId")]
-        public decimal OwnerId { get; set; }
+        public decimal? OwnerId { get; set; }
 
         [JsonProperty("firstname")]
         public string Firstname { get; set; }

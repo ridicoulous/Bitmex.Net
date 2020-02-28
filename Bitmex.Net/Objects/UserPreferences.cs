@@ -14,7 +14,7 @@ namespace    Bitmex.Net.Client.Objects
         public System.DateTimeOffset? AnnouncementsLastSeen { get; set; }
 
         [JsonProperty("chatChannelID")]
-        public decimal ChatChannelID { get; set; }
+        public long? ChatChannelID { get; set; }
 
         [JsonProperty("colorTheme")]
         public string ColorTheme { get; set; }
