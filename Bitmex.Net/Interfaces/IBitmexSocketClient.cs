@@ -11,6 +11,10 @@ namespace   Bitmex.Net.Client.Interfaces
 {
     public interface IBitmexSocketClient
     {
+        CallResult<UpdateSubscription> SubscribeToUserExecutions(Action<BitmexExecutionEvent> onData, string symbol = "");
+        Task<CallResult<UpdateSubscription>> SubscribeToUserExecutionsAsync(Action<BitmexExecutionEvent> onData, string symbol = "");
+
+
         CallResult<UpdateSubscription> SubscribeToAllTrades(Action<BitmexTradeEvent> onData, string symbol = "");
         Task<CallResult<UpdateSubscription>> SubscribeToAllTradesAsync(Action<BitmexTradeEvent> onData, string symbol = "");
         CallResult<UpdateSubscription> SubscribeToUserOrderUpdates(Action<BitmexOrderUpdateEvent> onData, string symbol = "");

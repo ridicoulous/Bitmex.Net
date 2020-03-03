@@ -42,6 +42,11 @@ namespace Bitmex.Net.Client
         }
         protected override async Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
         {
+            if (authProvider == null)
+            {
+                return new CallResult<bool>(false, new ServerError("Need to create auth provider"));
+            }
+
             return new CallResult<bool>(true, null);
         }
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
@@ -56,11 +61,6 @@ namespace Bitmex.Net.Client
             var greetings = message.ToObject<GreetingsMessage>();
             var response = Deserialize<BitmexSubscriptionResponse>(message, false);
 
-            //if (greetings.Info != null)
-            //{
-            //    callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
-            //    return false;
-            //}
             var bRequest = (BitmexSubscribeRequest)request;
             if (response.Success && response.Data.Success && response.Data.Request?.Op == bRequest.Op)
             {
@@ -91,7 +91,7 @@ namespace Bitmex.Net.Client
             var bRequest = (BitmexSubscribeRequest)request;
             if (bRequest == null)
                 return false;
-            
+
             foreach (var r in bRequest.Args)
             {
                 if (message["table"] == null)
@@ -158,6 +158,18 @@ namespace Bitmex.Net.Client
         {
             return await Subscribe(new BitmexSubscribeRequest(orderBookLevel, symbol), null, true, onData).ConfigureAwait(false);
 
+        }
+
+        public CallResult<UpdateSubscription> SubscribeToUserExecutions(Action<BitmexExecutionEvent> onData, string symbol = "") => SubscribeToUserExecutionsAsync(onData, symbol).Result;
+        /// <summary>
+        /// Subscribe to user executions
+        /// </summary>
+        /// <param name="onData"></param>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public async Task<CallResult<UpdateSubscription>> SubscribeToUserExecutionsAsync(Action<BitmexExecutionEvent> onData, string symbol = "")
+        {
+            return await Subscribe(new BitmexSubscribeRequest("execution", symbol), null, true, onData);
         }
     }
 }
