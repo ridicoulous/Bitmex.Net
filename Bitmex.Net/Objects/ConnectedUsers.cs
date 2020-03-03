@@ -7,10 +7,10 @@ namespace    Bitmex.Net.Client.Objects
     public class ConnectedUsers
     {
         [JsonProperty("users")]
-        public double? Users { get; set; }
+        public decimal? Users { get; set; }
 
         [JsonProperty("bots")]
-        public double? Bots { get; set; }
+        public decimal? Bots { get; set; }
 
 
     }

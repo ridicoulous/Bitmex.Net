@@ -7,7 +7,7 @@ namespace    Bitmex.Net.Client.Objects
         public class ChatChannel
     {
         [JsonProperty("id")]
-        public double? Id { get; set; }
+        public decimal? Id { get; set; }
 
         [JsonProperty("name", Required = Required.Always)]
       

@@ -18,10 +18,10 @@ namespace    Bitmex.Net.Client.Objects
         public string Reference { get; set; }
 
         [JsonProperty("lastPrice")]
-        public double? LastPrice { get; set; }
+        public decimal? LastPrice { get; set; }
 
         [JsonProperty("weight")]
-        public double? Weight { get; set; }
+        public decimal? Weight { get; set; }
 
         [JsonProperty("logged")]
         public System.DateTimeOffset? Logged { get; set; }

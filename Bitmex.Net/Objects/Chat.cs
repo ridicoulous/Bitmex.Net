@@ -9,7 +9,7 @@ namespace    Bitmex.Net.Client.Objects
     public class Chat
     {
         [JsonProperty("id")]
-        public double? Id { get; set; }
+        public decimal? Id { get; set; }
 
         [JsonProperty("date", Required = Required.Always)]
 
@@ -31,7 +31,7 @@ namespace    Bitmex.Net.Client.Objects
         public bool? FromBot { get; set; } = false;
 
         [JsonProperty("channelID")]
-        public double? ChannelID { get; set; }
+        public decimal? ChannelID { get; set; }
 
 
     }

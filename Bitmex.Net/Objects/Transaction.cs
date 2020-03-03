@@ -6,7 +6,7 @@ namespace    Bitmex.Net.Client.Objects
     {
         [JsonProperty("transactID", Required = Required.Always)]
 
-        public System.Guid TransactID { get; set; }
+        public string TransactID { get; set; }
 
         [JsonProperty("account")]
         public decimal Account { get; set; }

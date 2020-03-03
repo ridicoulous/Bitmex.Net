@@ -9,11 +9,15 @@ namespace Bitmex.Net.ClientExample
     {
         static async Task Main(string[] args)
         {
-           
-            var ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("BitmexXBTUSD",tickSize:0.01m));
-            ob.OnBestOffersChanged += Ob_OnBestOffersChanged;
-            ob.Start();           
+
+            var socket = new BitmexSocketClient(new BitmexSocketClientOptions("W4kfhlp9OhwtHquxV0Zsd5WM", "TDvu6R2hfp3Si8gUrsiNuqYZ_llKW5p2CGFUyuJfOLEjM0it",true));
+            socket.SubscribeToUserExecutions(Exec, "XBTUSD");
             Console.ReadLine();
+        }
+
+        private static void Exec(BitmexExecutionEvent obj)
+        {
+           
         }
 
         private static void Ob_OnBestOffersChanged(CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg1, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg2)

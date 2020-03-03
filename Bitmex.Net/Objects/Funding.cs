@@ -21,10 +21,10 @@ namespace    Bitmex.Net.Client.Objects
         public System.DateTimeOffset? FundingInterval { get; set; }
 
         [JsonProperty("fundingRate")]
-        public double? FundingRate { get; set; }
+        public decimal? FundingRate { get; set; }
 
         [JsonProperty("fundingRateDaily")]
-        public double? FundingRateDaily { get; set; }
+        public decimal? FundingRateDaily { get; set; }
 
 
     }

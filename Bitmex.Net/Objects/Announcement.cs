@@ -9,7 +9,7 @@ namespace    Bitmex.Net.Client.Objects
     public class Announcement
     {
         [JsonProperty("id", Required = Required.Always)]
-        public double Id { get; set; }
+        public decimal Id { get; set; }
 
         [JsonProperty("link")]
         public string Link { get; set; }

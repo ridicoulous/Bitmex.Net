@@ -19,7 +19,7 @@ namespace    Bitmex.Net.Client.Objects
         public string Name { get; set; }
 
         [JsonProperty("nonce", Required = Required.Always)]
-        public double Nonce { get; set; } = 0;
+        public decimal Nonce { get; set; } = 0;
 
         [JsonProperty("cidr")]
         public string Cidr { get; set; }
@@ -31,7 +31,7 @@ namespace    Bitmex.Net.Client.Objects
         public bool? Enabled { get; set; } = false;
 
         [JsonProperty("userId", Required = Required.Always)]
-        public double UserId { get; set; }
+        public decimal UserId { get; set; }
 
         [JsonProperty("created")]
         public System.DateTimeOffset? Created { get; set; }

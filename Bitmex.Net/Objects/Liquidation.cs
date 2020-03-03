@@ -13,7 +13,7 @@ namespace    Bitmex.Net.Client.Objects
     {
         [JsonProperty("orderID", Required = Required.Always)]
       
-        public System.Guid OrderID { get; set; }
+        public string OrderID { get; set; }
 
         [JsonProperty("symbol")]
         public string Symbol { get; set; }
