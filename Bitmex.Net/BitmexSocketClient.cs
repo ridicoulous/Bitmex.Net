@@ -23,17 +23,15 @@ namespace Bitmex.Net.Client
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
         public BitmexSocketClient() : this(DefaultOptions)
-        {
-            this.SocketCombineTarget = 1;
-            this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
-            this.SocketCombineTarget = 1;
+        {         
+            //this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
+            //this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });         
 
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
-            this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
+            //this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
+            //this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
         }
         protected override IWebsocket CreateSocket(string address)
         {
@@ -157,7 +155,6 @@ namespace Bitmex.Net.Client
         public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexOrderBookUpdateEvent> onData, string symbol = "", string orderBookLevel = "orderBookL2_25")
         {
             return await Subscribe(new BitmexSubscribeRequest(orderBookLevel, symbol), null, true, onData).ConfigureAwait(false);
-
         }
 
         public CallResult<UpdateSubscription> SubscribeToUserExecutions(Action<BitmexExecutionEvent> onData, string symbol = "") => SubscribeToUserExecutionsAsync(onData, symbol).Result;

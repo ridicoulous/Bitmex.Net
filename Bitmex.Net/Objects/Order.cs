@@ -17,7 +17,7 @@ namespace Bitmex.Net.Client.Objects
         public string ClOrdLinkID { get; set; }
 
         [JsonProperty("account")]
-        public decimal Account { get; set; }
+        public long Account { get; set; }
 
         [JsonProperty("symbol")]
         public string Symbol { get; set; }
@@ -83,7 +83,7 @@ namespace Bitmex.Net.Client.Objects
         public decimal? SimpleLeavesQty { get; set; }
 
         [JsonProperty("leavesQty")]
-        public decimal LeavesQty { get; set; }
+        public decimal? LeavesQty { get; set; }
 
         [JsonProperty("simpleCumQty")]
         public decimal? SimpleCumQty { get; set; }
