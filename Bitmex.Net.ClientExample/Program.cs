@@ -16,10 +16,17 @@ namespace Bitmex.Net.ClientExample
 
            var configuration = builder.Build();
             var t = configuration["key"];
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-            socket.SubscribeToUserExecutions(Exec, "XBTUSD");
-            socket.SubscribeToUserOrderUpdates(Exec, "XBTUSD");
+            //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
+            var socket = new BitmexSocketClient();
+            socket.SubscribeToOrderBookUpdates(OnData, "XBTUSD");
+            //socket.SubscribeToUserExecutions(Exec, "XBTUSD");
+            //socket.SubscribeToUserOrderUpdates(Exec, "XBTUSD");
             Console.ReadLine();
+        }
+
+        private static void OnData(BitmexOrderBookUpdateEvent obj)
+        {
+            Console.WriteLine(obj.Action);
         }
 
         private static void Exec(BitmexOrderUpdateEvent obj)

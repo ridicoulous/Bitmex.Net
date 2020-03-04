@@ -24,14 +24,23 @@ namespace Bitmex.Net.Client
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
         public BitmexSocketClient() : this(DefaultOptions)
         {         
-            //this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            //this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });         
+            this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
+            this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });         
 
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
-            //this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            //this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
+            this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
+            this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
+            AddGenericHandler("Info", (c,t) => { GenericInfo(c, t); });
+        }
+        private int limit = 0;
+        private void GenericInfo(SocketConnection socketConnection, JToken token)
+        {
+            if (token["info"] != null)
+            {
+                limit = (int)token["limit"]["remaining"];
+            }
         }
         protected override IWebsocket CreateSocket(string address)
         {
@@ -47,6 +56,7 @@ namespace Bitmex.Net.Client
 
             return new CallResult<bool>(true, null);
         }
+        
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
         {
             callResult = new CallResult<T>(Deserialize<T>(data).Data, null);
@@ -108,7 +118,12 @@ namespace Bitmex.Net.Client
 
         protected override bool MessageMatchesHandler(JToken message, string identifier)
         {
-            throw new NotImplementedException();
+            //if (message["info"] != null&&identifier=="Info")
+            //{
+            //    limit = (int)message["limit"]["remaining"];
+            //    return true;
+            //}
+            return true;
         }
 
         protected override Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
@@ -129,7 +144,7 @@ namespace Bitmex.Net.Client
         /// <param name="symbol">if not setted, trades for each active instrument will be pushed</param>
         /// <returns></returns>
         public async Task<CallResult<UpdateSubscription>> SubscribeToAllTradesAsync(Action<BitmexTradeEvent> onData, string symbol = "")
-        {
+        {          
             return await Subscribe(new BitmexSubscribeRequest("trade", symbol), null, true, onData).ConfigureAwait(false);
         }
         /// <summary>
@@ -140,7 +155,7 @@ namespace Bitmex.Net.Client
         /// <returns></returns>
         public CallResult<UpdateSubscription> SubscribeToUserOrderUpdates(Action<BitmexOrderUpdateEvent> onData, string symbol = "") => SubscribeToUserOrderUpdatesAsync(onData, symbol).Result;
         public async Task<CallResult<UpdateSubscription>> SubscribeToUserOrderUpdatesAsync(Action<BitmexOrderUpdateEvent> onData, string symbol = "")
-        {
+        {           
             return await Subscribe(new BitmexSubscribeRequest("order", symbol), null, true, onData).ConfigureAwait(false);
         }
         /// <summary>
@@ -153,8 +168,8 @@ namespace Bitmex.Net.Client
         public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexOrderBookUpdateEvent> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25") => SubscribeToOrderBookUpdatesAsync(onData, symbol).Result;
 
         public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexOrderBookUpdateEvent> onData, string symbol = "", string orderBookLevel = "orderBookL2_25")
-        {
-            return await Subscribe(new BitmexSubscribeRequest(orderBookLevel, symbol), null, true, onData).ConfigureAwait(false);
+        {           
+            return await Subscribe(new BitmexSubscribeRequest(orderBookLevel, symbol), null, false, onData).ConfigureAwait(false);
         }
 
         public CallResult<UpdateSubscription> SubscribeToUserExecutions(Action<BitmexExecutionEvent> onData, string symbol = "") => SubscribeToUserExecutionsAsync(onData, symbol).Result;
@@ -166,6 +181,7 @@ namespace Bitmex.Net.Client
         /// <returns></returns>
         public async Task<CallResult<UpdateSubscription>> SubscribeToUserExecutionsAsync(Action<BitmexExecutionEvent> onData, string symbol = "")
         {
+           
             return await Subscribe(new BitmexSubscribeRequest("execution", symbol), null, true, onData);
         }
     }
