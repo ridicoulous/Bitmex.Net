@@ -17,8 +17,7 @@ namespace   Bitmex.Net.Client.Interfaces
         event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
         event Action<BitmexSocketEvent<ConnectedUsers>> OnChatConnectionUpdate;
         event Action<BitmexSocketEvent<Funding>> OnFundingUpdate;
-        event Action<BitmexSocketEvent<Instrument>> OnInstrimentUpdate;
-        event Action<BitmexSocketEvent<Position>> OnPositionUpdate;
+        event Action<BitmexSocketEvent<Instrument>> OnInstrimentUpdate;        
         event Action<BitmexSocketEvent<Insurance>> OnInsuranceUpdate;
         event Action<BitmexSocketEvent<Liquidation>> OnLiquidationUpdate;
         event Action<BitmexSocketEvent<BitmexOrderBookEntry>> OnOrderBookL2_25Update;

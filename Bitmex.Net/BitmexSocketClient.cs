@@ -38,10 +38,11 @@ namespace Bitmex.Net.Client
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
             AddGenericHandler("Info", (c, t) => {  });
             bitmexClient = new BitmexClient();
-            var instruments = bitmexClient.GetInstruments();
+            var instruments = bitmexClient.GetInstruments(new Objects.Requests.BitmexRequestWithFilter() { Count = 500 });
             if(instruments)
-            {                
+            {
                 instruments.Data.Reverse();
+                Console.WriteLine(instruments.Data.FindIndex(c => c.Symbol == "XBTUSD"));
                 InstrumentIndicies = instruments.Data.ToDictionary(c => c.Symbol, i => new BitmexInstrumentIndexWithTick(instruments.Data.FindIndex(c => c.Symbol == i.Symbol),i.TickSize));
             }
         }
@@ -209,7 +210,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                             {
                                 if (InstrumentIndicies.Any())
-                                    result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index, InstrumentIndicies[c.Symbol].TickSize));
+                                    result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index,InstrumentIndicies[c.Symbol].TickSize));
                                 OnOrderBookL2_25Update?.Invoke(result.Data);
                             }
                             else

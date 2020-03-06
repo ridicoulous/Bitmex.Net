@@ -22,15 +22,21 @@ namespace Bitmex.Net.ClientExample
             var socket = new BitmexSocketClient();
             socket.OnQuotesUpdate += Socket_OnQuotesUpdate;
             socket.OnTradeUpdate += Socket_OnTradeUpdate;
+            socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
             var res = SocketSubscribeRequestBuilder.CreateEmptySubscribeRequest()
-                .Subscribe(BitmexSubscribtions.Quote);
+                .Subscribe(BitmexSubscribtions.OrderBookL2_25);
             
             await socket.SubscribeAsync(res);
-            await Task.Delay(10000);
-            await socket.SubscribeAsync(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.Trade));
+
+           // await socket.SubscribeAsync(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.Trade));
             //socket.SubscribeToUserExecutions(Exec, "XBTUSD");
             //socket.SubscribeToUserOrderUpdates(Exec, "XBTUSD");
             Console.ReadLine();
+        }
+
+        private static void Socket_OnOrderBookL2_25Update(BitmexSocketEvent<Client.Objects.BitmexOrderBookEntry> obj)
+        {
+            Console.WriteLine($"[OrderBook:]{obj.Data[0].Symbol} : {obj.Data[0].Price}");
         }
 
         private static void Socket_OnTradeUpdate(BitmexSocketEvent<Client.Objects.Trade> obj)
