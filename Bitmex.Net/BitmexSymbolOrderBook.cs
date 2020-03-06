@@ -10,6 +10,7 @@ using Bitmex.Net.Client.Helpers.Extensions;
 using Bitmex.Net.Client.Objects;
 using System.Linq;
 using Bitmex.Net.Client.Objects.Requests;
+using Bitmex.Net.Client.Objects.Socket;
 
 namespace Bitmex.Net.Client
 {
@@ -76,7 +77,7 @@ namespace Bitmex.Net.Client
             return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(null, setResult.Error);
         }
 
-        private void OnUpdate(BitmexOrderBookUpdateEvent update)
+        private void OnUpdate(BitmexSocketEvent<BitmexOrderBookEntry> update)
         {
             if (update.Action == Objects.Socket.BitmexAction.Partial)
             {

@@ -18,8 +18,8 @@ namespace  Bitmex.Net.Client.Converters
             new KeyValuePair<BitmexWebSocketOperation, string>(BitmexWebSocketOperation.CancelAllAfter, "cancelAllAfter"),
             new KeyValuePair<BitmexWebSocketOperation, string>(BitmexWebSocketOperation.Subscribe, "subscribe"),
             new KeyValuePair<BitmexWebSocketOperation, string>(BitmexWebSocketOperation.Unsubscribe, "unsubscribe"),
-            new KeyValuePair<BitmexWebSocketOperation, string>(BitmexWebSocketOperation.Ping, "ping"),   
-            new KeyValuePair<BitmexWebSocketOperation, string>(BitmexWebSocketOperation.Info, "info"),
+            new KeyValuePair<BitmexWebSocketOperation, string>(BitmexWebSocketOperation.Ping, "ping"),
+            new KeyValuePair<BitmexWebSocketOperation, string>(BitmexWebSocketOperation.Undefined, ""),
 
         };
     }

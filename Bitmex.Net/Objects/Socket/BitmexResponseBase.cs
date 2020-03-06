@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bitmex.Net.Client.Objects.Socket
 {
-    public class BitmexResponseBase<T> : BitmexResponseBase
+    public class BitmexSocketEvent<T> : BitmexResponseBase
     {
         public List<T> Data { get; set; }
     }

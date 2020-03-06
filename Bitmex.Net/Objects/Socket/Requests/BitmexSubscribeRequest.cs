@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Bitmex.Net.Client.Converters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
     {
         public BitmexSubscribeRequest()
         {
-
+            Op = BitmexWebSocketOperation.Subscribe;
         }
         public BitmexSubscribeRequest(string topic, string symbol = "")
         {
@@ -29,7 +30,21 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
                 Args.Add(a);
             }
         }
+        public BitmexSubscribeRequest(params object[] args)
+        {
+            Op = BitmexWebSocketOperation.Subscribe;
+        }
         [JsonProperty("args")]
         public virtual List<object> Args { get; set; } = new List<object> { };
+        public BitmexSubscribeRequest Subscribe(BitmexSubscribtions table, string symbol = null)
+        {
+            string endpoint = JsonConvert.SerializeObject(table, new BitmexWebsocketTableConverter(false));
+            if (!String.IsNullOrEmpty(symbol))
+            {
+                endpoint += $":{symbol}";
+            }
+            Args.Add(endpoint);
+            return this;
+        }
     }
 }

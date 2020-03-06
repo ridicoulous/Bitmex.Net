@@ -1,5 +1,7 @@
-﻿using Bitmex.Net.Client.Interfaces;
+﻿using Bitmex.Net.Client.Converters;
+using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
+using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using CryptoExchange.Net;
@@ -20,28 +22,61 @@ namespace Bitmex.Net.Client
 {
     public class BitmexSocketClient : SocketClient, IBitmexSocketClient
     {
+
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
+        private readonly BitmexClient bitmexClient;
         public BitmexSocketClient() : this(DefaultOptions)
-        {         
+        {
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });         
+            this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
 
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
-            AddGenericHandler("Info", (c,t) => { GenericInfo(c, t); });
-        }
-        private int limit = 0;
-        private void GenericInfo(SocketConnection socketConnection, JToken token)
-        {
-            if (token["info"] != null)
-            {
-                limit = (int)token["limit"]["remaining"];
+            AddGenericHandler("Info", (c, t) => {  });
+            bitmexClient = new BitmexClient();
+            var instruments = bitmexClient.GetInstruments();
+            if(instruments)
+            {                
+                instruments.Data.Reverse();
+                InstrumentIndicies = instruments.Data.ToDictionary(c => c.Symbol, i => new BitmexInstrumentIndexWithTick(instruments.Data.FindIndex(c => c.Symbol == i.Symbol),i.TickSize));
             }
         }
+        private readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentIndicies = new Dictionary<string, BitmexInstrumentIndexWithTick>();
+        private int limit = 0;
+        public event Action<BitmexSocketEvent<Announcement>> OnAnnouncementUpdate;
+        public event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
+        public event Action<BitmexSocketEvent<ConnectedUsers>> OnChatConnectionUpdate;
+        public event Action<BitmexSocketEvent<Funding>> OnFundingUpdate;
+        public event Action<BitmexSocketEvent<Instrument>> OnInstrimentUpdate;        
+        public event Action<BitmexSocketEvent<Insurance>> OnInsuranceUpdate;
+        public event Action<BitmexSocketEvent<Liquidation>> OnLiquidationUpdate;
+        public event Action<BitmexSocketEvent<BitmexOrderBookEntry>> OnOrderBookL2_25Update;
+        public event Action<BitmexSocketEvent<BitmexOrderBookEntry>> OnorderBookL2Update;
+        public event Action<BitmexSocketEvent<BitmexOrderBookL10>> OnOrderBook10Update;
+        public event Action<BitmexSocketEvent<GlobalNotification>> OnGlobalNotificationUpdate;
+        public event Action<BitmexSocketEvent<Quote>> OnQuotesUpdate;
+        public event Action<BitmexSocketEvent<Quote>> OnOneMinuteQuoteBinUpdate;
+        public event Action<BitmexSocketEvent<Quote>> OnFiveMinuteQuoteBinUpdate;
+        public event Action<BitmexSocketEvent<Quote>> OnOneHourQuoteBinUpdate;
+        public event Action<BitmexSocketEvent<Quote>> OnDailyQuoteBinUpdate;
+        public event Action<BitmexSocketEvent<Settlement>> OnSettlementUpdate;
+        public event Action<BitmexSocketEvent<Trade>> OnTradeUpdate;
+        public event Action<BitmexSocketEvent<TradeBin>> OnOneMinuteTradeBinUpdate;
+        public event Action<BitmexSocketEvent<TradeBin>> OnFiveMinuteTradeBinUpdate;
+        public event Action<BitmexSocketEvent<TradeBin>> OnOneHourTradeBinUpdate;
+        public event Action<BitmexSocketEvent<TradeBin>> OnDailyTradeBinUpdate;
+        public event Action<BitmexSocketEvent<Affiliate>> OnUserAffiliatesUpdate;
+        public event Action<BitmexSocketEvent<Execution>> OnUserExecutionsUpdate;
+        public event Action<BitmexSocketEvent<Order>> OnUserOrdersUpdate;
+        public event Action<BitmexSocketEvent<Margin>> OnUserMarginUpdate;
+        public event Action<BitmexSocketEvent<Position>> OnUserPositionsUpdate;
+        public event Action<BitmexSocketEvent<Transaction>> OnUserTransactionsUpdate;
+        public event Action<BitmexSocketEvent<Wallet>> OnUserWalletUpdate;
+              
         protected override IWebsocket CreateSocket(string address)
         {
             Dictionary<string, string> empty = new Dictionary<string, string>();
@@ -53,136 +88,342 @@ namespace Bitmex.Net.Client
             {
                 return new CallResult<bool>(false, new ServerError("Need to create auth provider"));
             }
-
             return new CallResult<bool>(true, null);
         }
-        
+
+        protected override Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
+        {            
+            throw new NotImplementedException();
+        }
+
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
         {
-            callResult = new CallResult<T>(Deserialize<T>(data).Data, null);
-            return (data.ToString().Contains("pong")) || (request.ToString() == "Hello" && data["info"] != null);
+            throw new NotImplementedException();
         }
 
         protected override bool HandleSubscriptionResponse(SocketConnection s, SocketSubscription subscription, object request, JToken message, out CallResult<object> callResult)
         {
-            callResult = null;
-            var greetings = message.ToObject<GreetingsMessage>();
-            var response = Deserialize<BitmexSubscriptionResponse>(message, false);
-
-            var bRequest = (BitmexSubscribeRequest)request;
-            if (response.Success && response.Data.Success && response.Data.Request?.Op == bRequest.Op)
-            {
-                foreach (var r in bRequest.Args)
-                {
-                    if (r.ToString().Contains(response.Data.Subscribe) || r.ToString().Contains(response.Data.Unsubscribe))
-                    {
-                        callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
-
-                        return true;
-                    }
-                }
-            }
-            if (message.Type != JTokenType.Object)
-                return false;
-
-            if (!response || !response.Data.Success || bRequest.Args.All(c => c.ToString() != response.Data.Subscribe) || String.IsNullOrEmpty(response.Data.Subscribe) || String.IsNullOrEmpty(response.Data.Unsubscribe))
-            {
-                return false;
-            }
-
-            callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
-            return true;
+            throw new NotImplementedException();
         }
 
         protected override bool MessageMatchesHandler(JToken message, object request)
         {
-            var bRequest = (BitmexSubscribeRequest)request;
-            if (bRequest == null)
-                return false;
-
-            foreach (var r in bRequest.Args)
-            {
-                if (message["table"] == null)
-                    continue;
-                if (r.ToString().Contains((string)message["table"]))
-                {
-                    return true;
-                }
-            }
-            if (message["error"] != null || (message["success"] != null && !(bool)message["success"]))
-            {
-                return false;
-            }
-            return false;
+            throw new NotImplementedException();
         }
 
         protected override bool MessageMatchesHandler(JToken message, string identifier)
         {
-            //if (message["info"] != null&&identifier=="Info")
-            //{
-            //    limit = (int)message["limit"]["remaining"];
-            //    return true;
-            //}
             return true;
         }
+        public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25") => SubscribeToOrderBookUpdatesAsync(onData, symbol, orderBookLevelType).Result;
 
-        protected override Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
+        public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25")
         {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// Subscribe to live trades
-        /// </summary>
-        /// <param name="onData">Handler of trade events</param>
-        /// <param name="symbol">if not setted, trades for each active instrument will be pushed</param>
-        /// <returns></returns>
-        public CallResult<UpdateSubscription> SubscribeToAllTrades(Action<BitmexTradeEvent> onData, string symbol = "") => SubscribeToAllTradesAsync(onData, symbol).Result;
-        /// <summary>
-        /// Subscribe to live trades
-        /// </summary>
-        /// <param name="onData">Handler of trade events</param>
-        /// <param name="symbol">if not setted, trades for each active instrument will be pushed</param>
-        /// <returns></returns>
-        public async Task<CallResult<UpdateSubscription>> SubscribeToAllTradesAsync(Action<BitmexTradeEvent> onData, string symbol = "")
-        {          
-            return await Subscribe(new BitmexSubscribeRequest("trade", symbol), null, true, onData).ConfigureAwait(false);
-        }
-        /// <summary>
-        /// Subscribe to live user orders updates
-        /// </summary>
-        /// <param name="onData">order updates handler</param>
-        /// <param name="symbol">filter orders by symbol or get all updates by all intruments</param>
-        /// <returns></returns>
-        public CallResult<UpdateSubscription> SubscribeToUserOrderUpdates(Action<BitmexOrderUpdateEvent> onData, string symbol = "") => SubscribeToUserOrderUpdatesAsync(onData, symbol).Result;
-        public async Task<CallResult<UpdateSubscription>> SubscribeToUserOrderUpdatesAsync(Action<BitmexOrderUpdateEvent> onData, string symbol = "")
-        {           
-            return await Subscribe(new BitmexSubscribeRequest("order", symbol), null, true, onData).ConfigureAwait(false);
-        }
-        /// <summary>
-        /// subscribe to orderbook updates
-        /// </summary>
-        /// <param name="onData">orderbook</param>
-        /// <param name="symbol"></param>
-        /// <param name="orderBookLevelType"></param>
-        /// <returns></returns>
-        public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexOrderBookUpdateEvent> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25") => SubscribeToOrderBookUpdatesAsync(onData, symbol).Result;
-
-        public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexOrderBookUpdateEvent> onData, string symbol = "", string orderBookLevel = "orderBookL2_25")
-        {           
-            return await Subscribe(new BitmexSubscribeRequest(orderBookLevel, symbol), null, false, onData).ConfigureAwait(false);
+            return await Subscribe(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.OrderBookL2_25, symbol), onData);
         }
 
-        public CallResult<UpdateSubscription> SubscribeToUserExecutions(Action<BitmexExecutionEvent> onData, string symbol = "") => SubscribeToUserExecutionsAsync(onData, symbol).Result;
-        /// <summary>
-        /// Subscribe to user executions
-        /// </summary>
-        /// <param name="onData"></param>
-        /// <param name="symbol"></param>
-        /// <returns></returns>
-        public async Task<CallResult<UpdateSubscription>> SubscribeToUserExecutionsAsync(Action<BitmexExecutionEvent> onData, string symbol = "")
+        public CallResult<UpdateSubscription> Subscribe(BitmexSubscribeRequest bitmexSubscribeRequest) => SubscribeAsync(bitmexSubscribeRequest).Result;
+
+        ResponseTableToDataTypeMapping Map = new ResponseTableToDataTypeMapping();
+        public async Task<CallResult<UpdateSubscription>> SubscribeAsync(BitmexSubscribeRequest bitmexSubscribeRequest)
         {
-           
-            return await Subscribe(new BitmexSubscribeRequest("execution", symbol), null, true, onData);
+            var handler = new Action<string>(data =>
+            {
+                var token = JToken.Parse(data);
+                var table = (string)token["table"];     
+                if (String.IsNullOrEmpty(table) || !Map.Mappings.ContainsKey(table))
+                {
+                    log.Write(LogVerbosity.Warning, $"Unknown table update catched");
+                    return;
+                }
+                BitmexSubscribtions updatedTable = Map.Mappings[table];
+
+                switch (updatedTable)
+                {
+                    case BitmexSubscribtions.Announcements:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Announcement>>(token, false);
+                            if (result.Success)
+                                OnAnnouncementUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Chat:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Chat>>(token, false);
+                            if (result.Success)
+                                OnChatMessageUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Connected:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<ConnectedUsers>>(token, false);
+                            if (result.Success)
+                                OnChatConnectionUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Funding:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Funding>>(token, false);
+                            if (result.Success)
+                                OnFundingUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Instrument:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Instrument>>(token, false);
+                            if (result.Success)
+                                OnInstrimentUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Insurance:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Insurance>>(token, false);
+                            if (result.Success)
+                                OnInsuranceUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Liquidation:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Liquidation>>(token, false);
+                            if (result.Success)
+                                OnLiquidationUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.OrderBookL2_25:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<BitmexOrderBookEntry>>(token, false);
+                            if (result.Success)
+                            {
+                                if (InstrumentIndicies.Any())
+                                    result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index, InstrumentIndicies[c.Symbol].TickSize));
+                                OnOrderBookL2_25Update?.Invoke(result.Data);
+                            }
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.OrderBookL2:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<BitmexOrderBookEntry>>(token, false);
+                            if (result.Success)
+                            {
+                                if(InstrumentIndicies.Any())
+                                    result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index, InstrumentIndicies[c.Symbol].TickSize));
+                                OnorderBookL2Update?.Invoke(result.Data);
+                            }
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.OrderBook10:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<BitmexOrderBookL10>>(token, false);
+                            if (result.Success)
+                                OnOrderBook10Update?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.PublicNotifications:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<GlobalNotification>>(token, false);
+                            if (result.Success)
+                                OnGlobalNotificationUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Quote:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Quote>>(token, false);
+                            if (result.Success)
+                                OnQuotesUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.QuoteBin1m:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Quote>>(token, false);
+                            if (result.Success)
+                                OnOneMinuteQuoteBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.QuoteBin5m:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Quote>>(token, false);
+                            if (result.Success)
+                                OnFiveMinuteQuoteBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.QuoteBin1h:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Quote>>(token, false);
+                            if (result.Success)
+                                OnOneHourQuoteBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.QuoteBin1d:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Quote>>(token, false);
+                            if (result.Success)
+                                OnDailyQuoteBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Settlement:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Settlement>>(token, false);
+                            if (result.Success)
+                                OnSettlementUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Trade:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Trade>>(token, false);
+                            if (result.Success)
+                                OnTradeUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.TradeBin1m:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<TradeBin>>(token, false);
+                            if (result.Success)
+                                OnOneMinuteTradeBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.TradeBin5m:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<TradeBin>>(token, false);
+                            if (result.Success)
+                                OnFiveMinuteTradeBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.TradeBin1h:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<TradeBin>>(token, false);
+                            if (result.Success)
+                                OnOneHourTradeBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.TradeBin1d:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<TradeBin>>(token, false);
+                            if (result.Success)
+                                OnDailyTradeBinUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Affiliate:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Affiliate>>(token, false);
+                            if (result.Success)
+                                OnUserAffiliatesUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Execution:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Execution>>(token, false);
+                            if (result.Success)
+                                OnUserExecutionsUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Order:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Order>>(token, false);
+                            if (result.Success)
+                                OnUserOrdersUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Margin:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Margin>>(token, false);
+                            if (result.Success)
+                                OnUserMarginUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Position:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Position>>(token, false);
+                            if (result.Success)
+                                OnUserPositionsUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Transact:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Transaction>>(token, false);
+                            if (result.Success)
+                                OnUserTransactionsUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    case BitmexSubscribtions.Wallet:
+                        {
+                            var result = Deserialize<BitmexSocketEvent<Wallet>>(token, false);
+                            if (result.Success)
+                                OnUserWalletUpdate?.Invoke(result.Data);
+                            else
+                                log.Write(LogVerbosity.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                            break;
+                        }
+                    default:
+                        {
+                            log.Write(LogVerbosity.Warning, $"Catched inknown table update: {data}");
+                            break;
+                        }
+                }
+            });
+            return await Subscribe(bitmexSubscribeRequest, handler);
         }
+        private async Task<CallResult<UpdateSubscription>> Subscribe<T>(BitmexSubscribeRequest request, Action<T> onData)
+        {
+            request.Args.ValidateNotNull(nameof(request));
+            var url = BaseAddress + $"?{request.Op.ToString().ToLower()}={String.Join(",", request.Args)}";
+            return await Subscribe(url, null, url + NextId(), authProvider != null, onData).ConfigureAwait(false);
+        }
+
     }
 }

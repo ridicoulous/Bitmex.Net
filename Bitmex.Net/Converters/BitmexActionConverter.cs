@@ -19,8 +19,6 @@ namespace  Bitmex.Net.Client.Converters
             new KeyValuePair<BitmexAction, string>(BitmexAction.Partial, "partial"),
             new KeyValuePair<BitmexAction, string>(BitmexAction.Update, "update"),
             new KeyValuePair<BitmexAction, string>(BitmexAction.Delete, "delete"),
-            
-
         };
     }
 }

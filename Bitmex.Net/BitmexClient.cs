@@ -286,22 +286,16 @@ namespace Bitmex.Net.Client
             return await SendRequest<List<Liquidation>>(GetUrl(LiquidationEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
         }
 
-        public WebCallResult<OrderBookL2> GetOrderBook(string symbol, int depth = 25) => GetOrderBookAsync(symbol, depth).Result;
+        public WebCallResult<List<BitmexOrderBookEntry>> GetOrderBook(string symbol, int depth = 25) => GetOrderBookAsync(symbol, depth).Result;
 
-        public async Task<WebCallResult<OrderBookL2>> GetOrderBookAsync(string symbol, int depth = 25, CancellationToken ct = default)
+        public async Task<WebCallResult<List<BitmexOrderBookEntry>>> GetOrderBookAsync(string symbol, int depth = 25, CancellationToken ct = default)
         {
             symbol.ValidateNotNull(nameof(symbol));
             var parameters = GetParameters();
             parameters.Add("symbol", symbol);
             parameters.Add("depth", depth);
-
-            var query = await SendRequest<List<BitmexOrderBookEntry>>(GetUrl(OrderBookL2Endpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
-            OrderBookL2 orderBookL2 = null;
-            if (query && query.Data.Any())
-            {
-                orderBookL2 = new OrderBookL2(query.Data);
-            }
-            return new WebCallResult<OrderBookL2>(query.ResponseStatusCode, query.ResponseHeaders, orderBookL2, query.Error);
+            return await SendRequest<List<BitmexOrderBookEntry>>(GetUrl(OrderBookL2Endpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+           
         }
 
         public WebCallResult<List<Order>> GetOrders(BitmexRequestWithFilter requestWithFilter = null) => GetOrdersAsync().Result;

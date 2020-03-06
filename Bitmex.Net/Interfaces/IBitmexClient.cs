@@ -417,14 +417,14 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <param name="symbol">Instrument symbol. Send a series (e.g. XBT) to get data for the nearest contract in that series.</param>
         /// <param name="depth">Orderbook depth per side. Send 0 for full depth.</param>
         /// <returns></returns>
-        WebCallResult<OrderBookL2> GetOrderBook(string symbol, int depth = 25);
+        WebCallResult<List<BitmexOrderBookEntry>> GetOrderBook(string symbol, int depth = 25);
         /// <summary>
         /// Get orderbook
         /// </summary>
         /// <param name="symbol">Instrument symbol. Send a series (e.g. XBT) to get data for the nearest contract in that series.</param>
         /// <param name="depth">Orderbook depth per side. Send 0 for full depth.</param>
         /// <returns></returns>
-        Task<WebCallResult<OrderBookL2>> GetOrderBookAsync(string symbol, int depth = 25, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexOrderBookEntry>>> GetOrderBookAsync(string symbol, int depth = 25, CancellationToken ct = default);
         /// <summary>
         /// The fields largely follow the <see href="http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_AP_6580.html"> FIX spec definitions</see>.
         /// </summary>

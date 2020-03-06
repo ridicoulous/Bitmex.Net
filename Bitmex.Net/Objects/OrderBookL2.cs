@@ -1,4 +1,5 @@
 ﻿using Bitmex.Net.Client.Converters;
+using CryptoExchange.Net.Converters;
 using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using Newtonsoft.Json;
@@ -7,27 +8,22 @@ using System.Collections.Generic;
 namespace Bitmex.Net.Client.Objects
 {
 
-    public class OrderBookL2
+    public class BitmexOrderBookL10
     {
-        public OrderBookL2(List<BitmexOrderBookEntry> entries)
-        {
-            foreach (var e in entries)
-            {
-                if (e.Side == OrderBookEntryType.Bid)
-                {
-                    Bids.Add(e);
-                }
-                else
-                {
-                    Asks.Add(e);
-                }
-            }
-        }
+        public string Symbol { get; set; }
+        [JsonProperty("asks")]
+        public List<BitmexOrderBook10entry> Asks { get; set; } = new List<BitmexOrderBook10entry>();
+        [JsonProperty("bids")]
+        public List<BitmexOrderBook10entry> Bids { get; set; } = new List<BitmexOrderBook10entry>();
 
-        public List<BitmexOrderBookEntry> Asks { get; set; } = new List<BitmexOrderBookEntry>(100);
-        public List<BitmexOrderBookEntry> Bids { get; set; } = new List<BitmexOrderBookEntry>(100);
-
-
+    }
+    [JsonConverter(typeof(ArrayConverter))]
+    public class BitmexOrderBook10entry : ISymbolOrderBookEntry
+    {
+        [ArrayProperty(0)]
+        public decimal Price { get; set; }
+        [ArrayProperty(1)]
+        public decimal Quantity { get; set; }
     }
     public class BitmexOrderBookEntry : ISymbolOrderBookEntry
     {
@@ -51,10 +47,15 @@ namespace Bitmex.Net.Client.Objects
 
         public decimal Price { get => _price ?? 0; set => _price = value; }
 
-        public void SetPrice(int instrumentIndex, decimal tickSize=0.01m)
+        public void SetPrice(int instrumentIndex, decimal tickSize = 0.01m)
         {
+            if (instrumentIndex == 88)
+            {
+                tickSize = 0.01m;
+            }
             Price = ((1e8m * instrumentIndex) - Id) * tickSize;
         }
     }
+
 }
 
