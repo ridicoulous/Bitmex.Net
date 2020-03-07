@@ -1,6 +1,6 @@
 ﻿using Bitmex.Net.Client.Attributes;
-using  Bitmex.Net.Client.Objects;
-using  Bitmex.Net.Client.Objects.Requests;
+using Bitmex.Net.Client.Objects;
+using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -33,7 +33,7 @@ namespace Bitmex.Net.Client.Helpers.Extensions
             return someObject;
         }
 
-        public static Dictionary<string, object> AsDictionary(this object source, 
+        public static Dictionary<string, object> AsDictionary(this object source,
             BindingFlags bindingAttr = BindingFlags.FlattenHierarchy |
             BindingFlags.Instance |
             BindingFlags.NonPublic |
@@ -49,15 +49,9 @@ namespace Bitmex.Net.Client.Helpers.Extensions
                 {
                     key = p.GetCustomAttribute<JsonPropertyAttribute>().PropertyName ?? p.Name;
                 }
-                object value = p.GetValue(source, null);
-
-                if (p.IsDefined(typeof(BitmexEnumAttribute)))
+                object value = p.GetValue(source, null);                
+                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && value != null && value != default && !String.IsNullOrEmpty(value.ToString()))
                 {
-                    var attributeValue = p.GetCustomAttribute<BitmexEnumAttribute>().BitmexValue;
-                    value = String.IsNullOrEmpty(attributeValue) ? value?.ToString() : attributeValue;
-                }
-                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && value != null && value!=default)
-                {                                       
                     result.Add(key, value);
                 }
             }
@@ -76,26 +70,26 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         }
         public static BitmexRequestWithFilter WithFilter(this BitmexRequestWithFilter filter, string key, string value)
         {
-            return filter.AddFilter(key, value);            
+            return filter.AddFilter(key, value);
         }
 
         public static BitmexRequestWithFilter WithStartingFrom(this BitmexRequestWithFilter filter, int startingPointToGetch)
         {
-            filter.Start= startingPointToGetch;
+            filter.Start = startingPointToGetch;
             return filter;
         }
         public static BitmexRequestWithFilter WithResultsCount(this BitmexRequestWithFilter filter, int count)
-        {            
+        {
             filter.Count = count;
             return filter;
         }
         public static BitmexRequestWithFilter WithSymbolFilter(this BitmexRequestWithFilter filter, string symbol)
         {
-            return filter.AddFilter("symbol", symbol);            
+            return filter.AddFilter("symbol", symbol);
         }
         public static BitmexRequestWithFilter WithSideFilter(this BitmexRequestWithFilter filter, BitmexOrderSide side)
         {
-            return filter.AddFilter("side", side.ToString());         
+            return filter.AddFilter("side", side.ToString());
         }
         /// <summary>
         /// use this extension to sort results by time descending
@@ -130,14 +124,14 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         /// </summary>  
         public static BitmexRequestWithFilter WithEndTimeFilter(this BitmexRequestWithFilter filter, DateTime to)
         {
-            return filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm:ss.zzz"));           
+            return filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm:ss.zzz"));
         }
         /// <summary>
         /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
         /// </summary>  
         public static BitmexRequestWithFilter WithExactDateTimeFilter(this BitmexRequestWithFilter filter, DateTime exactDateTimeFilter)
         {
-            return filter.AddFilter("timestamp", exactDateTimeFilter.ToString("yyyy-MM-dd HH:mm:ss"));          
+            return filter.AddFilter("timestamp", exactDateTimeFilter.ToString("yyyy-MM-dd HH:mm:ss"));
         }
         /// <summary>
         /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
@@ -148,7 +142,7 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         }
         public static BitmexRequestWithFilter WithExactMonthFilter(this BitmexRequestWithFilter filter, int year, int month)
         {
-            return filter.AddFilter("timestamp.month", $"{year}-{month}");           
+            return filter.AddFilter("timestamp.month", $"{year}-{month}");
         }
     }
 }

@@ -6,6 +6,8 @@ using Bitmex.Net.Client.Helpers.Extensions;
 using Microsoft.Extensions.Configuration;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using Bitmex.Net.Client.Objects.Socket;
+using System.Threading;
+using System.Globalization;
 
 namespace Bitmex.Net.ClientExample
 {
@@ -13,22 +15,31 @@ namespace Bitmex.Net.ClientExample
     {
         static async Task Main(string[] args)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
 
             var configuration = builder.Build();
+            var ddd = configuration["key"];
+            var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
+
+            var ns = client.GetInstruments(new Client.Objects.Requests.BitmexRequestWithFilter().WithSymbolFilter("XBTUSD"));
+
+            var positions = client.GetPositions();
             //var t = configuration["key"];
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-            var socket = new BitmexSocketClient();
-            socket.OnQuotesUpdate += Socket_OnQuotesUpdate;
-            socket.OnTradeUpdate += Socket_OnTradeUpdate;
-            socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
-            var res = SocketSubscribeRequestBuilder.CreateEmptySubscribeRequest()
-                .Subscribe(BitmexSubscribtions.OrderBookL2_25);
-            
-            await socket.SubscribeAsync(res);
+            //var socket = new BitmexSocketClient();
+            //socket.OnQuotesUpdate += Socket_OnQuotesUpdate;
+            //socket.OnTradeUpdate += Socket_OnTradeUpdate;
+            //socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
+            //var res = SocketSubscribeRequestBuilder.CreateEmptySubscribeRequest()
+            //    .Subscribe(BitmexSubscribtions.OrderBookL2_25);
+            Console.WriteLine();
+            var positions2 = client.GetPositions();
 
-           // await socket.SubscribeAsync(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.Trade));
+            //  await socket.SubscribeAsync(res);
+
+            // await socket.SubscribeAsync(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.Trade));
             //socket.SubscribeToUserExecutions(Exec, "XBTUSD");
             //socket.SubscribeToUserOrderUpdates(Exec, "XBTUSD");
             Console.ReadLine();
