@@ -23,9 +23,13 @@ namespace Bitmex.Net.ClientExample
             var ddd = configuration["key"];
             var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
 
-            var ns = client.GetInstruments(new Client.Objects.Requests.BitmexRequestWithFilter().WithSymbolFilter("XBTUSD"));
-
-            var positions = client.GetPositions();
+            var ns = client.PlaceOrder(new Client.Objects.Requests.PlaceOrderRequest("XBTUSD")
+            {
+                Side = Client.Objects.BitmexOrderSide.Buy,
+                Quantity = 1,
+                BitmexOrderType = Client.Objects.BitmexOrderType.Limit,
+                Price = 9090
+            });
             //var t = configuration["key"];
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
             //var socket = new BitmexSocketClient();

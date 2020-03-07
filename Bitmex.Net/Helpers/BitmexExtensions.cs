@@ -48,9 +48,17 @@ namespace Bitmex.Net.Client.Helpers.Extensions
                 if (p.IsDefined(typeof(JsonPropertyAttribute)))
                 {
                     key = p.GetCustomAttribute<JsonPropertyAttribute>().PropertyName ?? p.Name;
+                }              
+                object value = p.GetValue(source, null);
+                if (value == null)
+                {
+                    continue;
                 }
-                object value = p.GetValue(source, null);                
-                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && value != null && value != default && !String.IsNullOrEmpty(value.ToString()))
+                if (value.GetType().IsEnum)
+                {                    
+                    value = value?.ToString();
+                }
+                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && !String.IsNullOrEmpty(value.ToString()))
                 {
                     result.Add(key, value);
                 }
