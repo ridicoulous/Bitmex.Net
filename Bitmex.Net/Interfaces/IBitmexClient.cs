@@ -301,7 +301,7 @@ namespace  Bitmex.Net.Client.Interfaces
         Task<WebCallResult<Order>> PlaceOrderAsync(PlaceOrderRequest placeOrderRequest, CancellationToken ct=default);
         /// <summary>
         /// Update order.
-        /// Send an orderID or origClOrdID to identify the order you wish to amend.
+        /// Send an OrderId or origClOrdID to identify the order you wish to amend.
         /// Both order quantity and price can be amended.Only one qty field can be used to amend.
         /// Use the leavesQty field to specify how much of the order you wish to remain open. This can be useful if you want to adjust your position's delta by a certain amount,
         /// regardless of how much of the order has already filled.
@@ -314,7 +314,7 @@ namespace  Bitmex.Net.Client.Interfaces
 
         /// <summary>
         /// Update order.
-        /// Send an orderID or origClOrdID to identify the order you wish to amend.
+        /// Send an OrderId or origClOrdID to identify the order you wish to amend.
         /// Both order quantity and price can be amended.Only one qty field can be used to amend.
         /// Use the leavesQty field to specify how much of the order you wish to remain open. This can be useful if you want to adjust your position's delta by a certain amount,
         /// regardless of how much of the order has already filled.
@@ -325,14 +325,14 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <returns></returns>
         Task<WebCallResult<Order>> UpdateOrderAsync(UpdateOrderRequest updateOrderRequest, CancellationToken ct=default);
         /// <summary>
-        /// Cancel order. Either an orderID or a clOrdID must be provided.
+        /// Cancel order. Either an OrderIdId or a clOrdID must be provided.
         /// </summary>
         /// <param name="cancelOrderRequest"></param>
         /// <returns></returns>
         WebCallResult<List<Order>> CancelOrder(CancelOrderRequest cancelOrderRequest);
 
         /// <summary>
-        /// Cancel order. Either an orderID or a clOrdID must be provided.
+        /// Cancel order. Either an Id or a clOrdID must be provided.
         /// </summary>
         /// <param name="cancelOrderRequest"></param>
         /// <returns></returns>

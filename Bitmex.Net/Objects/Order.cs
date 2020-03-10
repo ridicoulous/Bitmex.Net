@@ -8,7 +8,7 @@ namespace Bitmex.Net.Client.Objects
     {
         [JsonProperty("orderID", Required = Required.Always)]
 
-        public string OrderID { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("clOrdID")]
         public string ClOrdID { get; set; }

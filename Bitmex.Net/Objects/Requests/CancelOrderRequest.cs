@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace   Bitmex.Net.Client.Objects.Requests
-{   
+{
     /// <summary>
     /// Parameters for order cancelling. You must provide orderId
     /// </summary>
@@ -17,9 +17,9 @@ namespace   Bitmex.Net.Client.Objects.Requests
         /// <param name="exchangeOrderId">Id assigned from bitmex</param>
         /// <param name="clientOrderId">Your own id assigned at posting order</param>
         /// <param name="text">optional reason for cancelling</param>
-        public CancelOrderRequest(string exchangeOrderId=null, string clientOrderId=null, string text=null)
+        public CancelOrderRequest(string exchangeOrderId = null, string clientOrderId = null, string text = null)
         {
-            OrderId = exchangeOrderId;
+            Id = exchangeOrderId;
             ClientOrderId = clientOrderId;
             Text = text;
         }
@@ -29,23 +29,23 @@ namespace   Bitmex.Net.Client.Objects.Requests
         /// <param name="exchangeOrderIds"></param>
         /// <param name="clientOrderIds"></param>
         /// <param name="text"></param>
-        public CancelOrderRequest(string[] exchangeOrderIds, string[] clientOrderIds=null, string text=null)
+        public CancelOrderRequest(string[] exchangeOrderIds, string[] clientOrderIds = null, string text = null)
         {
-            if (exchangeOrderIds!=null && exchangeOrderIds.Any())
+            if (exchangeOrderIds != null && exchangeOrderIds.Any())
             {
-                OrderId = String.Join(",", exchangeOrderIds);
+                Id = String.Join(",", exchangeOrderIds);
             }
             if (clientOrderIds != null && clientOrderIds.Any())
             {
                 ClientOrderId = String.Join(",", exchangeOrderIds);
             }
         }
-       
+
         /// <summary>
         /// Order ID(s).
         /// </summary>
         [JsonProperty("orderID")]
-        public string OrderId { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// Client Order ID(s). See POST /order.
         /// </summary>

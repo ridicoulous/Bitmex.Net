@@ -463,9 +463,9 @@ namespace Bitmex.Net.Client
         {
             if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId))
             {
-                updateOrderRequest.OrderId.ValidateNotNull(nameof(updateOrderRequest.OrderId));
+                updateOrderRequest.Id.ValidateNotNull(nameof(updateOrderRequest.Id));
             }
-            if (String.IsNullOrEmpty(updateOrderRequest.OrderId))
+            if (String.IsNullOrEmpty(updateOrderRequest.Id))
             {
                 updateOrderRequest.ClOrdId.ValidateNotNull(nameof(updateOrderRequest.ClOrdId));
             }

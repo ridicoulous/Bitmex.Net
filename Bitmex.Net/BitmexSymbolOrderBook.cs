@@ -29,27 +29,38 @@ namespace Bitmex.Net.Client
 
             _bitmexSocketClient = new BitmexSocketClient();
             _bitmexClient = new BitmexClient();
-            var allInstruments = _bitmexClient.GetInstruments(new BitmexRequestWithFilter()
-                .AddColumnsToGetInRequest(new string[] { "tickSize", "symbol" })
-                .WithResultsCount(500)
-                .WithStartingFrom(0));
-            if (allInstruments)
+            if (Symbol == "XBTUSD")
             {
-                allInstruments.Data.Reverse();
-                InstrumentIndex = allInstruments.Data.FindIndex(c => c.Symbol == symbol);
-                if (InstrumentIndex <= 0)
-                {
-                    throw new ArgumentException($"Can not find {symbol} index in instruments");
-                }
-                else
-                {
-                    InstrumentTickSize = options.TickSize ?? allInstruments.Data[InstrumentIndex].TickSize ?? 0.01m;
-                }
+                InstrumentIndex = 88;
+                InstrumentTickSize = 0.01m;
+
             }
             else
             {
-                throw new ArgumentException($"Can not load instruments from Bitmex: {allInstruments.Error.Message}");
+                var allInstruments = _bitmexClient.GetInstruments(new BitmexRequestWithFilter()
+               .AddColumnsToGetInRequest(new string[] { "tickSize", "symbol" })
+               .WithResultsCount(500)
+               .WithStartingFrom(0));
+                if (allInstruments)
+                {
+                    allInstruments.Data.Reverse();
+                    InstrumentIndex = allInstruments.Data.FindIndex(c => c.Symbol == symbol);
+                    if (InstrumentIndex <= 0)
+                    {
+                        throw new ArgumentException($"Can not find {symbol} index in instruments");
+                    }
+                    else
+                    {
+                        InstrumentTickSize = options.TickSize ?? allInstruments.Data[InstrumentIndex].TickSize ?? 0.01m;
+                        log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, $"Instrument {Symbol} tick size  setted to {InstrumentTickSize}");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException($"Can not load instruments from Bitmex: {allInstruments.Error.Message}");
+                }
             }
+
         }
 
         public override void Dispose()
@@ -68,7 +79,7 @@ namespace Bitmex.Net.Client
 
         protected override async Task<CallResult<UpdateSubscription>> DoStart()
         {
-            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol, IsFull?"orderBookL2":"orderBookL2_25").ConfigureAwait(false);
+            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol).ConfigureAwait(false);
             if (!subscriptionResult)
             {
                 return subscriptionResult;

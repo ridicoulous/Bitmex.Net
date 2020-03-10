@@ -1,18 +1,14 @@
 ﻿using Newtonsoft.Json;
 
-namespace    Bitmex.Net.Client.Objects
+namespace Bitmex.Net.Client.Objects
 {
-   
 
+    /// <summary>Active Liquidations</summary>
 
-   
-    
-        /// <summary>Active Liquidations</summary>
-
-        public class Liquidation
+    public class Liquidation
     {
         [JsonProperty("orderID", Required = Required.Always)]
-      
+
         public string OrderID { get; set; }
 
         [JsonProperty("symbol")]

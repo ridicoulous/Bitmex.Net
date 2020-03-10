@@ -20,15 +20,15 @@ namespace   Bitmex.Net.Client.Objects.Requests
         /// <param name="newPrice">new price for order</param>
         /// <param name="orderId">exchange order id</param>
         /// <param name="clientOrderId">your order id, sended at posting order</param>
-        public UpdateOrderRequest(decimal newPrice, string orderId=null, string clientOrderId=null)
+        public UpdateOrderRequest(decimal newPrice, string orderId = null, string clientOrderId = null)
         {
             Price = newPrice;
-            OrderId = orderId;
+            Id = orderId;
             ClOrdId = clientOrderId;
         }
        
         [JsonProperty("orderID")]
-        public string OrderId { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// Client Order ID. See POST /order.
         /// </summary>

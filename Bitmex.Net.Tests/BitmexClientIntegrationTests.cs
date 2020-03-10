@@ -35,10 +35,10 @@ namespace Bitmex.Net.Client.Tests
         //    var t = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
         //    var t2 = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 27000, Side = BitmexOrderSide.Sell, Quantity = 10 });
         //    Assert.True(t);
-        //    var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.OrderID));
+        //    var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.Id));
         //    Assert.True(update);
 
-        //    var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.OrderID, t.Data.OrderID }));
+        //    var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.Id, t.Data.Id }));
 
         //    Assert.True(c);
         //}        

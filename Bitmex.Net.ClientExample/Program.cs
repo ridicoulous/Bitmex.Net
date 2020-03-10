@@ -8,11 +8,14 @@ using Bitmex.Net.Client.Objects.Socket.Requests;
 using Bitmex.Net.Client.Objects.Socket;
 using System.Threading;
 using System.Globalization;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace Bitmex.Net.ClientExample
 {
     class Program
     {
+        static BitmexSymbolOrderBook ob;
         static async Task Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
@@ -21,32 +24,51 @@ namespace Bitmex.Net.ClientExample
 
             var configuration = builder.Build();
             var ddd = configuration["key"];
-            var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-
-            var ns = client.PlaceOrder(new Client.Objects.Requests.PlaceOrderRequest("XBTUSD")
-            {
-                Side = Client.Objects.BitmexOrderSide.Buy,
-                Quantity = 1,
-                BitmexOrderType = Client.Objects.BitmexOrderType.Limit,
-                Price = 9090
-            });
-            //var t = configuration["key"];
+            // var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
+            ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("ИЧІО", false, 0.01m));
+            ob.OnBestOffersChanged+= Ob_OnOrderBookUpdate;
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-            //var socket = new BitmexSocketClient();
+            var socket = new BitmexSocketClient();
+            //socket.OnUserPositionsUpdate += Socket_OnUserPositionsUpdate;
+           // socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update1;
+            socket.OnQuotesUpdate += Socket_OnQuotesUpdate1;
+            ob.Start();
+
+            socket.Subscribe(new BitmexSubscribeRequest()/*.Subscribe(BitmexSubscribtions.OrderBookL2_25, "XBTUSD")*/.Subscribe(BitmexSubscribtions.Quote,"XBTUSD"));
             //socket.OnQuotesUpdate += Socket_OnQuotesUpdate;
             //socket.OnTradeUpdate += Socket_OnTradeUpdate;
             //socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
             //var res = SocketSubscribeRequestBuilder.CreateEmptySubscribeRequest()
             //    .Subscribe(BitmexSubscribtions.OrderBookL2_25);
-            Console.WriteLine();
-            var positions2 = client.GetPositions();
-
+          
             //  await socket.SubscribeAsync(res);
 
             // await socket.SubscribeAsync(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.Trade));
             //socket.SubscribeToUserExecutions(Exec, "XBTUSD");
             //socket.SubscribeToUserOrderUpdates(Exec, "XBTUSD");
             Console.ReadLine();
+        }
+
+        private static void Ob_OnOrderBookUpdate(CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg1, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg2)
+        {
+            Console.WriteLine($"Б {ob.BestAsk.Price}$: {ob.BestAsk.Quantity} {ob.LastOrderBookUpdate.ToString("HH:mm:ss.fffff")}");
+        }
+
+        private static void Socket_OnQuotesUpdate1(BitmexSocketEvent<Client.Objects.Quote> obj)
+        {
+            Console.WriteLine($"К {obj.Data[0].AskPrice}$: {obj.Data[0].AskSize} {DateTime.Now.ToString("HH:mm:ss.fffff")}");
+        }
+
+        private static void Socket_OnOrderBookL2_25Update1(BitmexSocketEvent<Client.Objects.BitmexOrderBookEntry> obj)
+        {
+            if(obj.Action==BitmexAction.Insert||obj.Action==BitmexAction.Update && obj.Data.Any(c=>c.Side==CryptoExchange.Net.Objects.OrderBookEntryType.Ask))
+                Console.WriteLine($"OB: {String.Join(",",obj.Data.Select(c=>c.Size))} {DateTime.Now.ToString("HH:mm:ss.fffff")}");
+            //throw new NotImplementedException();
+        }
+
+        private static void Socket_OnUserPositionsUpdate(BitmexSocketEvent<Client.Objects.Position> obj)
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(obj.AsDictionary()));
         }
 
         private static void Socket_OnOrderBookL2_25Update(BitmexSocketEvent<Client.Objects.BitmexOrderBookEntry> obj)
