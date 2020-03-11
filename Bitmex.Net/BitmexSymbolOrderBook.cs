@@ -15,52 +15,17 @@ using Bitmex.Net.Client.Objects.Socket;
 namespace Bitmex.Net.Client
 {
     public class BitmexSymbolOrderBook : SymbolOrderBook
-    {
-        private readonly BitmexClient _bitmexClient;
+    {      
         private readonly BitmexSocketClient _bitmexSocketClient;
         private readonly int InstrumentIndex;
-        private readonly decimal InstrumentTickSize;
-        private readonly string OrderBookResultType;
+        private readonly decimal InstrumentTickSize;        
         private bool IsInititalBookSetted;
-        private bool IsFull;
+        
         public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options) : base(symbol, options)
-        {
-            IsFull = options.IsFull;
-
-            _bitmexSocketClient = new BitmexSocketClient();
-            _bitmexClient = new BitmexClient();
-            if (Symbol == "XBTUSD")
-            {
-                InstrumentIndex = 88;
-                InstrumentTickSize = 0.01m;
-
-            }
-            else
-            {
-                var allInstruments = _bitmexClient.GetInstruments(new BitmexRequestWithFilter()
-               .AddColumnsToGetInRequest(new string[] { "tickSize", "symbol" })
-               .WithResultsCount(500)
-               .WithStartingFrom(0));
-                if (allInstruments)
-                {
-                    allInstruments.Data.Reverse();
-                    InstrumentIndex = allInstruments.Data.FindIndex(c => c.Symbol == symbol);
-                    if (InstrumentIndex <= 0)
-                    {
-                        throw new ArgumentException($"Can not find {symbol} index in instruments");
-                    }
-                    else
-                    {
-                        InstrumentTickSize = options.TickSize ?? allInstruments.Data[InstrumentIndex].TickSize ?? 0.01m;
-                        log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, $"Instrument {Symbol} tick size  setted to {InstrumentTickSize}");
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException($"Can not load instruments from Bitmex: {allInstruments.Error.Message}");
-                }
-            }
-
+        {          
+            _bitmexSocketClient = new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
+            InstrumentIndex = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
+            InstrumentTickSize = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
         }
 
         public override void Dispose()
@@ -68,7 +33,7 @@ namespace Bitmex.Net.Client
             processBuffer.Clear();
             asks.Clear();
             bids.Clear();
-            _bitmexClient.Dispose();
+           // _bitmexClient.Dispose();
             _bitmexSocketClient.Dispose();
         }
 
@@ -110,10 +75,12 @@ namespace Bitmex.Net.Client
         {
             if (IsInititalBookSetted)
             {
-                foreach (var e in entries)
+                foreach (var e in entries.Where(c=>c.Price==0))
                 {
                     e.SetPrice(InstrumentIndex, InstrumentTickSize);
+                   // log.Write(CryptoExchange.Net.Logging.LogVerbosity.Warning, $"Price for orderboook level {e.Id} was not setted");
                 }
+
                 UpdateOrderBook(DateTime.UtcNow.Ticks, entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
             }
         }

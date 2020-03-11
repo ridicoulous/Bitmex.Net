@@ -22,37 +22,42 @@ namespace Bitmex.Net.Client
 {
     public class BitmexSocketClient : SocketClient, IBitmexSocketClient
     {
-
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
-        private readonly BitmexClient bitmexClient;
+        public readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
+
         public BitmexSocketClient() : this(DefaultOptions)
         {
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
-
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
-            AddGenericHandler("Info", (c, t) => {  });
-            bitmexClient = new BitmexClient();
-            var instruments = bitmexClient.GetInstruments(new Objects.Requests.BitmexRequestWithFilter() { Count = 500 });
-            if(instruments)
+            AddGenericHandler("Info", (c, t) => { });
+            using (var bitmexClient = new BitmexClient(new BitmexClientOptions(bitmexSocketClientOptions.IsTestnet)))
             {
-                instruments.Data.Reverse();
-                Console.WriteLine(instruments.Data.FindIndex(c => c.Symbol == "XBTUSD"));
-                InstrumentIndicies = instruments.Data.ToDictionary(c => c.Symbol, i => new BitmexInstrumentIndexWithTick(instruments.Data.FindIndex(c => c.Symbol == i.Symbol),i.TickSize));
+                var instruments = bitmexClient.GetInstruments(new Objects.Requests.BitmexRequestWithFilter() { Count = 500 });
+                if (instruments)
+                {
+                    if (!bitmexSocketClientOptions.IsTestnet)
+                    {
+                        instruments.Data.Reverse();
+                    }
+                    InstrumentsIndexesAndTicks = instruments.Data.ToDictionary(c => c.Symbol, i => new BitmexInstrumentIndexWithTick(instruments.Data.FindIndex(c => c.Symbol == i.Symbol), i.TickSize));
+                }
+                else
+                {
+                    log.Write(LogVerbosity.Error, "Instrument indicies and price ticks for calculation was not obtained");
+                }
             }
         }
-        private readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentIndicies = new Dictionary<string, BitmexInstrumentIndexWithTick>();
-        private int limit = 0;
         public event Action<BitmexSocketEvent<Announcement>> OnAnnouncementUpdate;
         public event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
         public event Action<BitmexSocketEvent<ConnectedUsers>> OnChatConnectionUpdate;
         public event Action<BitmexSocketEvent<Funding>> OnFundingUpdate;
-        public event Action<BitmexSocketEvent<Instrument>> OnInstrimentUpdate;        
+        public event Action<BitmexSocketEvent<Instrument>> OnInstrimentUpdate;
         public event Action<BitmexSocketEvent<Insurance>> OnInsuranceUpdate;
         public event Action<BitmexSocketEvent<Liquidation>> OnLiquidationUpdate;
         public event Action<BitmexSocketEvent<BitmexOrderBookEntry>> OnOrderBookL2_25Update;
@@ -77,7 +82,7 @@ namespace Bitmex.Net.Client
         public event Action<BitmexSocketEvent<Position>> OnUserPositionsUpdate;
         public event Action<BitmexSocketEvent<Transaction>> OnUserTransactionsUpdate;
         public event Action<BitmexSocketEvent<Wallet>> OnUserWalletUpdate;
-              
+
         protected override IWebsocket CreateSocket(string address)
         {
             Dictionary<string, string> empty = new Dictionary<string, string>();
@@ -93,7 +98,7 @@ namespace Bitmex.Net.Client
         }
 
         protected override Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
-        {            
+        {
             throw new NotImplementedException();
         }
 
@@ -131,7 +136,7 @@ namespace Bitmex.Net.Client
             var handler = new Action<string>(data =>
             {
                 var token = JToken.Parse(data);
-                var table = (string)token["table"];     
+                var table = (string)token["table"];
                 if (String.IsNullOrEmpty(table) || !Map.Mappings.ContainsKey(table))
                 {
                     log.Write(LogVerbosity.Warning, $"Unknown table update catched");
@@ -209,8 +214,15 @@ namespace Bitmex.Net.Client
                             var result = Deserialize<BitmexSocketEvent<BitmexOrderBookEntry>>(token, false);
                             if (result.Success)
                             {
-                                if (InstrumentIndicies.Any())
-                                    result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index,InstrumentIndicies[c.Symbol].TickSize));
+                                if (InstrumentsIndexesAndTicks.Any())
+                                {
+                                    //  result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index, InstrumentIndicies[c.Symbol].TickSize));
+                                    foreach (var level in result.Data.Data.Where(c=>c.Price==0))
+                                    {
+                                        var symbolTickInfo = InstrumentsIndexesAndTicks[level.Symbol];
+                                        level.SetPrice(symbolTickInfo.Index, symbolTickInfo.TickSize);
+                                    }
+                                }
                                 OnOrderBookL2_25Update?.Invoke(result.Data);
                             }
                             else
@@ -222,8 +234,14 @@ namespace Bitmex.Net.Client
                             var result = Deserialize<BitmexSocketEvent<BitmexOrderBookEntry>>(token, false);
                             if (result.Success)
                             {
-                                if(InstrumentIndicies.Any())
-                                    result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index, InstrumentIndicies[c.Symbol].TickSize));
+                                if (InstrumentsIndexesAndTicks.Any())
+                                {                                    
+                                    foreach (var level in result.Data.Data.Where(c => c.Price == 0))
+                                    {
+                                        var symbolTickInfo = InstrumentsIndexesAndTicks[level.Symbol];
+                                        level.SetPrice(symbolTickInfo.Index, symbolTickInfo.TickSize);
+                                    }
+                                }
                                 OnorderBookL2Update?.Invoke(result.Data);
                             }
                             else

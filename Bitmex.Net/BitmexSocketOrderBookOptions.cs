@@ -12,6 +12,9 @@ namespace Bitmex.Net.Client
         /// "orderBookL2" - Full level 2 order book; 
         /// </summary>
         public readonly bool IsFull;
+
+        public readonly bool IsTestnet;
+
         /// <summary>
         /// Use it carefully. 
         /// </summary>
@@ -31,9 +34,9 @@ namespace Bitmex.Net.Client
         /// these instruments, you must use their original tick as part of your calculations. If not, this can be ignored,
         /// and you can use `instrument.tickSize` directly. For example, XBTUSD has 88
         /// </param>
-        public BitmexSocketOrderBookOptions(string name, bool isFull = false, decimal? tickSize = null) : base(name, false)
+        public BitmexSocketOrderBookOptions(string name, bool isTest = false, decimal? tickSize = null) : base(name, false)
         {
-            IsFull = isFull;
+            IsTestnet = isTest;          
             TickSize = tickSize;
         }
     }

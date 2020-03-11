@@ -49,7 +49,7 @@ namespace Bitmex.Net.Client.Objects
 
         public void SetPrice(int instrumentIndex, decimal tickSize = 0.01m)
         {
-            if (instrumentIndex == 88)
+            if (tickSize == 0.5m)
             {
                 tickSize = 0.01m;
             }

@@ -25,16 +25,17 @@ namespace Bitmex.Net.ClientExample
             var configuration = builder.Build();
             var ddd = configuration["key"];
             // var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-            ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("ИЧІО", false, 0.01m));
-            ob.OnBestOffersChanged+= Ob_OnOrderBookUpdate;
+            ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("sdsfgsdfg", true));
+           // ob.OnBestOffersChanged+= Ob_OnOrderBookUpdate;
+            ob.OnOrderBookUpdate += Ob_OnOrderBookUpdate1;
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-            var socket = new BitmexSocketClient();
+           // var socket = new BitmexSocketClient();
             //socket.OnUserPositionsUpdate += Socket_OnUserPositionsUpdate;
            // socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update1;
-            socket.OnQuotesUpdate += Socket_OnQuotesUpdate1;
-            ob.Start();
+           // socket.OnQuotesUpdate += Socket_OnQuotesUpdate1;
+           await ob.StartAsync();
 
-            socket.Subscribe(new BitmexSubscribeRequest()/*.Subscribe(BitmexSubscribtions.OrderBookL2_25, "XBTUSD")*/.Subscribe(BitmexSubscribtions.Quote,"XBTUSD"));
+          //  socket.Subscribe(new BitmexSubscribeRequest()/*.Subscribe(BitmexSubscribtions.OrderBookL2_25, "XBTUSD")*/.Subscribe(BitmexSubscribtions.Quote,"XBTUSD"));
             //socket.OnQuotesUpdate += Socket_OnQuotesUpdate;
             //socket.OnTradeUpdate += Socket_OnTradeUpdate;
             //socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
@@ -47,6 +48,15 @@ namespace Bitmex.Net.ClientExample
             //socket.SubscribeToUserExecutions(Exec, "XBTUSD");
             //socket.SubscribeToUserOrderUpdates(Exec, "XBTUSD");
             Console.ReadLine();
+        }
+
+        private static void Ob_OnOrderBookUpdate1(System.Collections.Generic.IEnumerable<CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry> arg1, System.Collections.Generic.IEnumerable<CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry> arg2)
+        {
+            if(arg1==null||arg2==null)
+            {
+                return;
+            }
+            Console.WriteLine($"[{ob.BestAsk.Price}] - [{ob.BestBid.Price}]");
         }
 
         private static void Ob_OnOrderBookUpdate(CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg1, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg2)
