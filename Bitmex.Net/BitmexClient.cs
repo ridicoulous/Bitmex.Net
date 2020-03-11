@@ -303,7 +303,7 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Order>>> GetOrdersAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
+            return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Get, ct, parameters, true, true).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Position>> GetPositions(BitmexRequestWithFilter requestWithFilter = null) => GetPositionsAsync(requestWithFilter).Result;

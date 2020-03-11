@@ -62,7 +62,7 @@ namespace Bitmex.Net.Client.Objects.Requests
         [JsonProperty("endTime")]
         public DateTime? EndTime { get; set; }
 
-        public BitmexRequestWithFilter AddFilter(string key, string value)
+        public BitmexRequestWithFilter AddFilter(string key, object value)
         {
             if (!Filters.ContainsKey(key))
             {

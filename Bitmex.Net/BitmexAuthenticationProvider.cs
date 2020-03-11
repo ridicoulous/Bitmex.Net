@@ -28,13 +28,12 @@ namespace Bitmex.Net.Client
 
             if (!signed)
                 return new Dictionary<string, string>();
-
             var result = new Dictionary<string, string>();
             result.Add("api-key", Credentials.Key.GetString());
             result.Add("api-expires", apiexpires.ToString());
 
             string additionalData = String.Empty;
-            if (parameters != null && parameters.Any() && method != HttpMethod.Delete)
+            if (parameters != null && parameters.Any() && method != HttpMethod.Delete && method != HttpMethod.Get)
             {
                 additionalData = JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
             }

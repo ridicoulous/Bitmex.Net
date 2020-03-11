@@ -23,25 +23,27 @@ namespace Bitmex.Net.ClientExample
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
 
             var configuration = builder.Build();
-            var ddd = configuration["key"];
-            // var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-            ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("sdsfgsdfg", true));
-           // ob.OnBestOffersChanged+= Ob_OnOrderBookUpdate;
-            ob.OnOrderBookUpdate += Ob_OnOrderBookUpdate1;
+            var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
+            //var order = await client.PlaceOrderAsync(new Client.Objects.Requests.PlaceOrderRequest("XBTUSD") { BitmexOrderType = Client.Objects.BitmexOrderType.Limit, Quantity = -1, Price=25000 });
+            var p = await client.GetOrdersAsync(new Client.Objects.Requests.BitmexRequestWithFilter().WithSymbolFilter("XBTUSD").WithOnlyActiveOrders());
+            Console.WriteLine();
+            //   ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("sdsfgsdfg", true));
+            // ob.OnBestOffersChanged+= Ob_OnOrderBookUpdate;
+            // ob.OnOrderBookUpdate += Ob_OnOrderBookUpdate1;
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
-           // var socket = new BitmexSocketClient();
+            // var socket = new BitmexSocketClient();
             //socket.OnUserPositionsUpdate += Socket_OnUserPositionsUpdate;
-           // socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update1;
-           // socket.OnQuotesUpdate += Socket_OnQuotesUpdate1;
-           await ob.StartAsync();
+            // socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update1;
+            // socket.OnQuotesUpdate += Socket_OnQuotesUpdate1;
+            // await ob.StartAsync();
 
-          //  socket.Subscribe(new BitmexSubscribeRequest()/*.Subscribe(BitmexSubscribtions.OrderBookL2_25, "XBTUSD")*/.Subscribe(BitmexSubscribtions.Quote,"XBTUSD"));
+            //  socket.Subscribe(new BitmexSubscribeRequest()/*.Subscribe(BitmexSubscribtions.OrderBookL2_25, "XBTUSD")*/.Subscribe(BitmexSubscribtions.Quote,"XBTUSD"));
             //socket.OnQuotesUpdate += Socket_OnQuotesUpdate;
             //socket.OnTradeUpdate += Socket_OnTradeUpdate;
             //socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
             //var res = SocketSubscribeRequestBuilder.CreateEmptySubscribeRequest()
             //    .Subscribe(BitmexSubscribtions.OrderBookL2_25);
-          
+
             //  await socket.SubscribeAsync(res);
 
             // await socket.SubscribeAsync(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.Trade));
@@ -52,7 +54,7 @@ namespace Bitmex.Net.ClientExample
 
         private static void Ob_OnOrderBookUpdate1(System.Collections.Generic.IEnumerable<CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry> arg1, System.Collections.Generic.IEnumerable<CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry> arg2)
         {
-            if(arg1==null||arg2==null)
+            if (arg1 == null || arg2 == null)
             {
                 return;
             }
@@ -71,8 +73,8 @@ namespace Bitmex.Net.ClientExample
 
         private static void Socket_OnOrderBookL2_25Update1(BitmexSocketEvent<Client.Objects.BitmexOrderBookEntry> obj)
         {
-            if(obj.Action==BitmexAction.Insert||obj.Action==BitmexAction.Update && obj.Data.Any(c=>c.Side==CryptoExchange.Net.Objects.OrderBookEntryType.Ask))
-                Console.WriteLine($"OB: {String.Join(",",obj.Data.Select(c=>c.Size))} {DateTime.Now.ToString("HH:mm:ss.fffff")}");
+            if (obj.Action == BitmexAction.Insert || obj.Action == BitmexAction.Update && obj.Data.Any(c => c.Side == CryptoExchange.Net.Objects.OrderBookEntryType.Ask))
+                Console.WriteLine($"OB: {String.Join(",", obj.Data.Select(c => c.Size))} {DateTime.Now.ToString("HH:mm:ss.fffff")}");
             //throw new NotImplementedException();
         }
 

@@ -95,6 +95,10 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         {
             return filter.AddFilter("symbol", symbol);
         }
+        public static BitmexRequestWithFilter WithOnlyActiveOrders(this BitmexRequestWithFilter filter)
+        {
+            return filter.AddFilter("open", true);
+        }
         public static BitmexRequestWithFilter WithSideFilter(this BitmexRequestWithFilter filter, BitmexOrderSide side)
         {
             return filter.AddFilter("side", side.ToString());
