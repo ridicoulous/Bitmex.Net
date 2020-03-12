@@ -15,25 +15,23 @@ using Bitmex.Net.Client.Objects.Socket;
 namespace Bitmex.Net.Client
 {
     public class BitmexSymbolOrderBook : SymbolOrderBook
-    {      
+    {
         private readonly BitmexSocketClient _bitmexSocketClient;
         private readonly int InstrumentIndex;
-        private readonly decimal InstrumentTickSize;        
+        private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
-        
         public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options) : base(symbol, options)
-        {          
+        {
             _bitmexSocketClient = new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
-            InstrumentIndex = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
-            InstrumentTickSize = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
+            InstrumentIndex =  _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
+            InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
         }
 
         public override void Dispose()
         {
             processBuffer.Clear();
             asks.Clear();
-            bids.Clear();
-           // _bitmexClient.Dispose();
+            bids.Clear();    
             _bitmexSocketClient.Dispose();
         }
 
@@ -75,10 +73,10 @@ namespace Bitmex.Net.Client
         {
             if (IsInititalBookSetted)
             {
-                foreach (var e in entries.Where(c=>c.Price==0))
+                foreach (var e in entries)
                 {
                     e.SetPrice(InstrumentIndex, InstrumentTickSize);
-                   // log.Write(CryptoExchange.Net.Logging.LogVerbosity.Warning, $"Price for orderboook level {e.Id} was not setted");
+                    // log.Write(CryptoExchange.Net.Logging.LogVerbosity.Warning, $"Price for orderboook level {e.Id} was not setted");
                 }
 
                 UpdateOrderBook(DateTime.UtcNow.Ticks, entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));

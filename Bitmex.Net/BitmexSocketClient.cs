@@ -1,4 +1,5 @@
 ﻿using Bitmex.Net.Client.Converters;
+using Bitmex.Net.Client.Helpers.Extensions;
 using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Socket;
@@ -36,22 +37,25 @@ namespace Bitmex.Net.Client
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
             AddGenericHandler("Info", (c, t) => { });
-            using (var bitmexClient = new BitmexClient(new BitmexClientOptions(bitmexSocketClientOptions.IsTestnet)))
+            if (bitmexSocketClientOptions.LoadInstruments)
             {
-                var instruments = bitmexClient.GetInstruments(new Objects.Requests.BitmexRequestWithFilter() { Count = 500 });
-                if (instruments)
+                using (var bitmexClient = new BitmexClient(new BitmexClientOptions(bitmexSocketClientOptions.IsTestnet)))
                 {
-                    if (!bitmexSocketClientOptions.IsTestnet)
+                    var instruments = bitmexClient.GetInstruments(new Objects.Requests.BitmexRequestWithFilter().WithResultsCount(500).AddColumnsToGetInRequest(new string[] { "symbol","tickSize" }));
+                    if (instruments)
                     {
-                        instruments.Data.Reverse();
+                        for (int i = 0; i < instruments.Data.Count; i++)
+                        {
+                            InstrumentsIndexesAndTicks.Add(instruments.Data[i].Symbol, new BitmexInstrumentIndexWithTick(i, instruments.Data[i].TickSize));
+                        }
                     }
-                    InstrumentsIndexesAndTicks = instruments.Data.ToDictionary(c => c.Symbol, i => new BitmexInstrumentIndexWithTick(instruments.Data.FindIndex(c => c.Symbol == i.Symbol), i.TickSize));
-                }
-                else
-                {
-                    log.Write(LogVerbosity.Error, "Instrument indicies and price ticks for calculation was not obtained");
+                    else
+                    {
+                        log.Write(LogVerbosity.Error, "Instrument indicies and price ticks for calculation was not obtained");
+                    }
                 }
             }
+
         }
         public event Action<BitmexSocketEvent<Announcement>> OnAnnouncementUpdate;
         public event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
@@ -121,11 +125,12 @@ namespace Bitmex.Net.Client
         {
             return true;
         }
-        public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25") => SubscribeToOrderBookUpdatesAsync(onData, symbol, orderBookLevelType).Result;
+        public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", bool full = false) => SubscribeToOrderBookUpdatesAsync(onData, symbol, full).Result;
 
-        public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25")
+        public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", bool full = false)
         {
-            return await Subscribe(new BitmexSubscribeRequest().Subscribe(BitmexSubscribtions.OrderBookL2_25, symbol), onData);
+            BitmexSubscribtions orderbookType = full ? BitmexSubscribtions.OrderBookL2 : BitmexSubscribtions.OrderBookL2_25;
+            return await Subscribe(new BitmexSubscribeRequest().Subscribe(orderbookType, symbol), onData);
         }
 
         public CallResult<UpdateSubscription> Subscribe(BitmexSubscribeRequest bitmexSubscribeRequest) => SubscribeAsync(bitmexSubscribeRequest).Result;
@@ -217,7 +222,7 @@ namespace Bitmex.Net.Client
                                 if (InstrumentsIndexesAndTicks.Any())
                                 {
                                     //  result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index, InstrumentIndicies[c.Symbol].TickSize));
-                                    foreach (var level in result.Data.Data.Where(c=>c.Price==0))
+                                    foreach (var level in result.Data.Data)
                                     {
                                         var symbolTickInfo = InstrumentsIndexesAndTicks[level.Symbol];
                                         level.SetPrice(symbolTickInfo.Index, symbolTickInfo.TickSize);
@@ -235,8 +240,8 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                             {
                                 if (InstrumentsIndexesAndTicks.Any())
-                                {                                    
-                                    foreach (var level in result.Data.Data.Where(c => c.Price == 0))
+                                {
+                                    foreach (var level in result.Data.Data)
                                     {
                                         var symbolTickInfo = InstrumentsIndexesAndTicks[level.Symbol];
                                         level.SetPrice(symbolTickInfo.Index, symbolTickInfo.TickSize);

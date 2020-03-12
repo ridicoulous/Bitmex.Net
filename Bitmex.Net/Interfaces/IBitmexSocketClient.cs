@@ -44,31 +44,25 @@ namespace   Bitmex.Net.Client.Interfaces
         event Action<BitmexSocketEvent<Transaction>> OnUserTransactionsUpdate;
         event Action<BitmexSocketEvent<Wallet>> OnUserWalletUpdate;
 
-
-
         CallResult<UpdateSubscription> Subscribe(BitmexSubscribeRequest bitmexSubscribeRequest);
         Task<CallResult<UpdateSubscription>> SubscribeAsync(BitmexSubscribeRequest bitmexSubscribeRequest);
 
         /// <summary>
         /// subscribe to orderbook updates
         /// </summary>
-        /// <param name="onData">orderbook</param>
-        /// <param name="symbol"></param>
-        /// <param name="orderBookLevelType">
-        /// allowed: orderBookL2_25 - Top 25 levels of level 2 order book;
-        /// orderBookL2 - Full level 2 order book;
-        /// orderBook10 - Top 10 levels using traditional full book push;
-        /// </param>
+        /// <param name="onData">orderbook updates handler</param>
+        /// <param name="symbol">Symbol to subscribe. Live it empty, if you want to subscribe for each book updates</param>
+        /// <param name="full">If true, subscribe to full orderbook, else - to top 25 levels </param>
         /// <returns></returns>
-        CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol="", string orderBookLevelType= "orderBookL2_25");
+        CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol="", bool full=false);
         /// <summary>
         /// subscribe to orderbook updates
         /// </summary>
         /// <param name="onData">orderbook</param>
         /// <param name="symbol"></param>
-        /// <param name="orderBookLevelType"></param>
+        /// <param name="full">If true, subscribe to full orderbook, else - to top 25 levels</param>
         /// <returns></returns>
-        Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", string orderBookLevelType = "orderBookL2_25");
+        Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", bool full = false);
 
         
     }
