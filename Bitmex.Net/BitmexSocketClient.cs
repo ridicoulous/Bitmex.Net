@@ -28,15 +28,14 @@ namespace Bitmex.Net.Client
         public readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
 
         public BitmexSocketClient() : this(DefaultOptions)
-        {
-            this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
+        {           
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
+
             this.log.Level = CryptoExchange.Net.Logging.LogVerbosity.Debug;
             this.log.UpdateWriters(new List<System.IO.TextWriter>() { new DebugTextWriter() });
-            AddGenericHandler("Info", (c, t) => { });
+            SendPeriodic(TimeSpan.FromSeconds(10), conn => "ping");
             if (bitmexSocketClientOptions.LoadInstruments)
             {
                 using (var bitmexClient = new BitmexClient(new BitmexClientOptions(bitmexSocketClientOptions.IsTestnet)))
@@ -57,6 +56,7 @@ namespace Bitmex.Net.Client
             }
 
         }
+        public event Action OnPongReceived;
         public event Action<BitmexSocketEvent<Announcement>> OnAnnouncementUpdate;
         public event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
         public event Action<BitmexSocketEvent<ConnectedUsers>> OnChatConnectionUpdate;
@@ -123,6 +123,7 @@ namespace Bitmex.Net.Client
 
         protected override bool MessageMatchesHandler(JToken message, string identifier)
         {
+            
             return true;
         }
         public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", bool full = false) => SubscribeToOrderBookUpdatesAsync(onData, symbol, full).Result;
@@ -140,11 +141,18 @@ namespace Bitmex.Net.Client
         {
             var handler = new Action<string>(data =>
             {
-                var token = JToken.Parse(data);
+                if (data == "pong")
+                {
+                    OnPongReceived?.Invoke();
+                    return;
+                }
+
+                var token = JToken.Parse(data);             
+
                 var table = (string)token["table"];
                 if (String.IsNullOrEmpty(table) || !Map.Mappings.ContainsKey(table))
                 {
-                    log.Write(LogVerbosity.Warning, $"Unknown table update catched");
+                    log.Write(LogVerbosity.Warning, $"Unknown table [{table}] update catched at data {data}");
                     return;
                 }
                 BitmexSubscribtions updatedTable = Map.Mappings[table];
