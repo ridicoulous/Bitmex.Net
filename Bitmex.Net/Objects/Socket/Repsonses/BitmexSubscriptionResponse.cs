@@ -24,8 +24,8 @@ namespace Bitmex.Net.Client.Objects.Socket.Repsonses
         /// </summary>
         [JsonProperty("success")]
         public bool Success { get; set; }
-        [JsonProperty("request")]
-        public BitmexSubscribeRequest Request { get; set; }
+        //[JsonProperty("request")]
+        //public BitmexSubscribeRequest Request { get; set; }
     }
 
 }

@@ -26,7 +26,10 @@ namespace Bitmex.Net.Client
             InstrumentIndex =  _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
             InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
         }
-
+        public void Ping()
+        {
+            _bitmexSocketClient.Ping();
+        }
         public override void Dispose()
         {
             processBuffer.Clear();
@@ -73,6 +76,10 @@ namespace Bitmex.Net.Client
         {
             if (IsInititalBookSetted)
             {
+                if(entries==null||!entries.Any())
+                {
+                    return;
+                }
                 foreach (var e in entries)
                 {
                     e.SetPrice(InstrumentIndex, InstrumentTickSize);
