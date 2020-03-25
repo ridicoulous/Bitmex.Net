@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitmex.Net.Client", "Bitmex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitmex.Net.Tests", "Bitmex.Net.Tests\Bitmex.Net.Tests.csproj", "{E79E7122-28A2-427E-AD85-14988D241692}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitmex.Net.ClientExample", "Bitmex.Net.ClientExample\Bitmex.Net.ClientExample.csproj", "{BC5277BC-080C-46E7-B7C3-D3C959E108C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bitmex.Net.ClientExample", "Bitmex.Net.ClientExample\Bitmex.Net.ClientExample.csproj", "{BC5277BC-080C-46E7-B7C3-D3C959E108C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
