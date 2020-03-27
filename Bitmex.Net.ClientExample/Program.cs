@@ -23,11 +23,11 @@ namespace Bitmex.Net.ClientExample
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
-            ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("XBT") { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Info });
-            ob.OnBestOffersChanged += Ob_OnBestOffersChanged;
+            //ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("XBT") { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Info });
+            //ob.OnBestOffersChanged += Ob_OnBestOffersChanged;
 
 
-            await ob.StartAsync();
+            //await ob.StartAsync();
             //while(true)
             //{
             //    ob.Ping();
@@ -36,30 +36,31 @@ namespace Bitmex.Net.ClientExample
             var configuration = builder.Build();
 
 
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(false) { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug });
+            //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(false) { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug });
 
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])) { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug });
 
-            socket.OnUserOrdersUpdate += OnBitmexOrderUpdate;
-            socket.OnUserExecutionsUpdate += OnExecution;
-            socket.OnUserPositionsUpdate += BitmexSocketClient_OnUserPositionsUpdate;
-            socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
-            socket.OnTradeUpdate += Socket_OnTradeUpdate;
-            socket.OnSocketClose += Socket_OnSocketClose;
-            socket.OnSocketException += Socket_OnSocketException;
-            socket.OnChatMessageUpdate += Socket_OnChatMessageUpdate;
-            socket.Subscribe(new BitmexSubscribeRequest()
-                //.AddSubscription(BitmexSubscribtions.Order, "XBTUSD")
-                //.AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
-                //.AddSubscription(BitmexSubscribtions.Position, "XBTUSD")
-                .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD")
-                .AddSubscription(BitmexSubscribtions.Chat)
-                .AddSubscription(BitmexSubscribtions.OrderBookL2_25, "XBTUSD"));
+            //socket.OnUserOrdersUpdate += OnBitmexOrderUpdate;
+            //socket.OnUserExecutionsUpdate += OnExecution;
+            //socket.OnUserPositionsUpdate += BitmexSocketClient_OnUserPositionsUpdate;
+            //socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
+            //socket.OnTradeUpdate += Socket_OnTradeUpdate;
+            //socket.OnSocketClose += Socket_OnSocketClose;
+            //socket.OnSocketException += Socket_OnSocketException;
+            //socket.OnChatMessageUpdate += Socket_OnChatMessageUpdate;
+            //socket.Subscribe(new BitmexSubscribeRequest()
+            //    .AddSubscription(BitmexSubscribtions.Order, "XBTUSD")
+            //    .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
+            //    .AddSubscription(BitmexSubscribtions.Position, "XBTUSD")
+            //    .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD")
+            //    .AddSubscription(BitmexSubscribtions.Chat)
+            //    .AddSubscription(BitmexSubscribtions.OrderBookL2_25, "XBTUSD"));
             //socket.Subscribe(new BitmexSubscribeRequest()
             //   .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD"));
             //socket.Subscribe(new BitmexSubscribeRequest()
             //    .AddSubscription(BitmexSubscribtions.OrderBookL2_25, "XBTUSD"));
-            // var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
+             var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
+            var w = client.GetUserWallet();
             //  var posit = client.GetExecutions(new BitmexRequestWithFilter().WithSymbolFilter("XBTUSD").WithOldestFirst().WithResultsCount(19));
             //string id = posit.Data.FirstOrDefault().OrderID;
             //var order = client.GetOrders(new BitmexRequestWithFilter().WithSymbolFilter("XBTUSD").WithOldestFirst().WithResultsCount(1));
@@ -73,7 +74,8 @@ namespace Bitmex.Net.ClientExample
 
         private static void Socket_OnChatMessageUpdate(BitmexSocketEvent<Chat> obj)
         {
-            Console.WriteLine($"{obj.Data[0].Date}{obj.Data[0].Message}");
+            if(obj.Data.Any())
+            Console.WriteLine($"{obj.Data[0]?.Date}{obj.Data[0]?.Message}");
         }
 
         private static void Socket_OnSocketException(Exception obj)
@@ -95,6 +97,7 @@ namespace Bitmex.Net.ClientExample
         private static void Socket_OnOrderBookL2_25Update(BitmexSocketEvent<BitmexOrderBookEntry> obj)
         {
             Console.WriteLine($"{DateTime.UtcNow}:ob");
+           // throw new Exception();
         }
 
         private static void BitmexSocketClient_OnUserPositionsUpdate(BitmexSocketEvent<Position> obj)

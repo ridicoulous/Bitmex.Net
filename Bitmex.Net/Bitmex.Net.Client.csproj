@@ -3,7 +3,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.3.6</Version>
+    <Version>0.3.8</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Bitmex.Net.Client</PackageId>
     <Authors>ridicoulous</Authors>

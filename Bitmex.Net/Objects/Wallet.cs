@@ -1,14 +1,14 @@
 ﻿using Newtonsoft.Json;
 
-namespace    Bitmex.Net.Client.Objects
+namespace Bitmex.Net.Client.Objects
 {
-        public class Wallet
+    public class Wallet
     {
         [JsonProperty("account", Required = Required.Always)]
         public decimal Account { get; set; }
 
         [JsonProperty("currency", Required = Required.Always)]
-      
+
         public string Currency { get; set; }
 
         [JsonProperty("prevDeposited")]
@@ -80,6 +80,7 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("withdrawalLock")]
         public System.Collections.Generic.ICollection<string> WithdrawalLock { get; set; }
 
+        public decimal BtcAmount => Amount / 10e7m;
 
     }
 

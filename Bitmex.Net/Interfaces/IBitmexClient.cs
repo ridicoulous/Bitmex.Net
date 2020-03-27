@@ -640,6 +640,15 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <param name="ct"></param>
         /// <returns></returns>
         Task<WebCallResult<User>> GetUserAccountAsync(CancellationToken ct = default);
+        WebCallResult<Wallet> GetUserWallet(string currency = "XBt");
+        /// <summary>
+        /// Get your current wallet information
+        /// </summary>
+        /// <param name="currency"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task<WebCallResult<Wallet>> GetUserWalletAsync(string currency="XBt",CancellationToken ct = default);
+
 
     }
 }

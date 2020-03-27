@@ -10,6 +10,8 @@ namespace Bitmex.Net.Client
     {
         public bool IsTestnet;
         public readonly bool LoadInstruments;
+        public bool SendPingManually =false;
+
         public BitmexSocketClientOptions():base("wss://www.bitmex.com/realtime")
         {
             IsTestnet = false;

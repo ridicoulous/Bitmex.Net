@@ -484,6 +484,15 @@ namespace Bitmex.Net.Client
             return await SendRequest<List<Order>>(GetUrl(OrderBulkEndpoint), HttpMethod.Put, ct, parameters, true, false).ConfigureAwait(false);
         }
 
+        public WebCallResult<Wallet> GetUserWallet(string currency = "XBt") => GetUserWalletAsync(currency).Result;
+
+        public async Task<WebCallResult<Wallet>> GetUserWalletAsync(string currency = "XBt", CancellationToken ct = default)
+        {
+            var parameters = GetParameters();
+            parameters.Add("currency", currency);
+            return await SendRequest<Wallet>(GetUrl(UserWalletEndpoint), HttpMethod.Get, ct, parameters, true, true);
+        }
+
         protected Uri GetUrl(string endpoint)
         {
             return new Uri($"{BaseAddress}/{endpoint}");
@@ -505,5 +514,6 @@ namespace Bitmex.Net.Client
             return req;
         }
 
+      
     }
 }

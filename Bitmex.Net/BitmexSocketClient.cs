@@ -34,8 +34,11 @@ namespace Bitmex.Net.Client
 
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
-            AddGenericHandler("ping", OnPong);
-            SendPeriodic(TimeSpan.FromSeconds(10), connection => "ping");
+            if (bitmexSocketClientOptions.SendPingManually)
+            {
+                AddGenericHandler("ping", OnPong);
+                SendPeriodic(TimeSpan.FromSeconds(10), connection => "ping");
+            }
             if (bitmexSocketClientOptions.LoadInstruments)
             {
                 using (var bitmexClient = new BitmexClient(new BitmexClientOptions(bitmexSocketClientOptions.IsTestnet)))
@@ -98,7 +101,6 @@ namespace Bitmex.Net.Client
         public event Action<Exception> OnSocketException;
         public event Action OnSocketClose;
         public event Action OnSocketOpened;
-        private bool isBrocked = false;
 
 
         protected override IWebsocket CreateSocket(string address)
@@ -109,19 +111,11 @@ namespace Bitmex.Net.Client
             s.OnClose += S_OnClose;
             s.OnError += S_OnError;
             s.OnOpen += S_OnOpen;
-
             return s;
         }
 
         private void S_OnOpen()
         {
-            //if (isBrocked)
-            //{
-            //    foreach (var s in this.sockets)
-            //    {
-            //        s.Value.Send("ping");
-            //    }
-            //}
             log.Write(LogVerbosity.Debug, $"Socket opened");
             OnSocketOpened?.Invoke();
         }
@@ -135,28 +129,7 @@ namespace Bitmex.Net.Client
 
         private void S_OnClose()
         {
-            // isBrocked = true;
             OnSocketClose?.Invoke();
-            //try
-            //{
-            //    foreach (var s in this.sockets.Values)
-            //    {
-            //        if (!s.Connected || !s.Socket.IsOpen || s.Socket.IsClosed)
-            //        {
-            //            log.Write(LogVerbosity.Error, $"socket {s.Socket.Id} was closed, try to reconnect it and send ping");                       // s.Socket.Reset();
-
-            //            s.Socket.Connect();                        
-            //            s.Socket.Send("ping");
-
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.Write(LogVerbosity.Error, $"On closing socket error catched: {ex.ToString()}");
-            //    OnSocketException?.Invoke(ex);
-            //}
-
         }
 
         protected override async Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
