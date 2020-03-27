@@ -11,6 +11,7 @@ using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -30,12 +31,11 @@ namespace Bitmex.Net.Client
         public BitmexSocketClient() : this(DefaultOptions)
         {
         }
-        
+
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
-            //var rest = Query<GreetingsMessage>("ping", false).Result;
-            
-            //SendPeriodic(TimeSpan.FromSeconds(10), conn => "ping");
+            AddGenericHandler("ping", OnPong);
+            SendPeriodic(TimeSpan.FromSeconds(10), connection => "ping");
             if (bitmexSocketClientOptions.LoadInstruments)
             {
                 using (var bitmexClient = new BitmexClient(new BitmexClientOptions(bitmexSocketClientOptions.IsTestnet)))
@@ -56,6 +56,15 @@ namespace Bitmex.Net.Client
             }
 
         }
+
+        private void OnPong(SocketConnection arg1, JToken arg2)
+        {
+            if (arg2.Type == JTokenType.String && (string)arg2 == "pong")
+            {
+                OnPongReceived?.Invoke();
+            }
+        }
+
         public event Action OnPongReceived;
         public event Action<BitmexSocketEvent<Announcement>> OnAnnouncementUpdate;
         public event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
@@ -86,15 +95,70 @@ namespace Bitmex.Net.Client
         public event Action<BitmexSocketEvent<Position>> OnUserPositionsUpdate;
         public event Action<BitmexSocketEvent<Transaction>> OnUserTransactionsUpdate;
         public event Action<BitmexSocketEvent<Wallet>> OnUserWalletUpdate;
+        public event Action<Exception> OnSocketException;
+        public event Action OnSocketClose;
+        public event Action OnSocketOpened;
+        private bool isBrocked = false;
+
 
         protected override IWebsocket CreateSocket(string address)
         {
             Dictionary<string, string> empty = new Dictionary<string, string>();
-            var s = SocketFactory.CreateWebsocket(this.log, address, empty, 
-                this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true));
-            s.Origin = $"https://{(isTestnet?"testnet":"www")}.bitmex.com";            
+            var s = SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true));
+            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";
+            s.OnClose += S_OnClose;
+            s.OnError += S_OnError;
+            s.OnOpen += S_OnOpen;
+
             return s;
         }
+
+        private void S_OnOpen()
+        {
+            //if (isBrocked)
+            //{
+            //    foreach (var s in this.sockets)
+            //    {
+            //        s.Value.Send("ping");
+            //    }
+            //}
+            log.Write(LogVerbosity.Debug, $"Socket opened");
+            OnSocketOpened?.Invoke();
+        }
+
+        private void S_OnError(Exception obj)
+        {
+            log.Write(LogVerbosity.Debug, $"Socket catched exception {obj.ToString()}");
+
+            OnSocketException?.Invoke(obj);
+        }
+
+        private void S_OnClose()
+        {
+            // isBrocked = true;
+            OnSocketClose?.Invoke();
+            //try
+            //{
+            //    foreach (var s in this.sockets.Values)
+            //    {
+            //        if (!s.Connected || !s.Socket.IsOpen || s.Socket.IsClosed)
+            //        {
+            //            log.Write(LogVerbosity.Error, $"socket {s.Socket.Id} was closed, try to reconnect it and send ping");                       // s.Socket.Reset();
+
+            //            s.Socket.Connect();                        
+            //            s.Socket.Send("ping");
+
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.Write(LogVerbosity.Error, $"On closing socket error catched: {ex.ToString()}");
+            //    OnSocketException?.Invoke(ex);
+            //}
+
+        }
+
         protected override async Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
         {
             if (authProvider == null)
@@ -105,12 +169,12 @@ namespace Bitmex.Net.Client
         }
 
         protected override async Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
-        {            
-            if(s.Request is BitmexSubscribeRequest)
+        {
+            if (s.Request is BitmexSubscribeRequest)
             {
                 var unsub = s.Request as BitmexSubscribeRequest;
                 unsub.Op = BitmexWebSocketOperation.Unsubscribe;
-                var handler = new Action<string>(data=> 
+                var handler = new Action<string>(data =>
                 {
                     log.Write(LogVerbosity.Debug, data);
                 });
@@ -131,22 +195,12 @@ namespace Bitmex.Net.Client
 
             if (message.Type == JTokenType.String && (string)message == "pong")
             {
-                //callResult = new CallResult<object>(, null);
                 return true;
             }
-           
-            // var greetings = message.ToObject<GreetingsMessage>();
             var response = Deserialize<BitmexSubscriptionResponse>(message, false);
-
             var bRequest = (BitmexSubscribeRequest)request;
             if (response.Success && response.Data.Success)
             {
-                //if (response.Data.Request.Args.Contains(response.Data.Subscribe) || response.Data.Request.Args.Contains(response.Data.Unsubscribe))
-                //{
-                //    callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
-
-                //    return true;
-                //}
                 if (bRequest.Args.Contains(response.Data.Subscribe))
                 {
                     callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
@@ -201,8 +255,16 @@ namespace Bitmex.Net.Client
                 var table = (string)token["table"];
                 if (String.IsNullOrEmpty(table) || !Map.Mappings.ContainsKey(table))
                 {
-                    log.Write(LogVerbosity.Warning, $"Unknown table [{table}] update catched at data {data}");
-                    return;
+                    if (data.Contains("info") || data.StartsWith("{\r\n  \"success\": true"))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        log.Write(LogVerbosity.Warning, $"Unknown table [{table}] update catched at data {data}");
+                        return;
+                    }
+
                 }
                 BitmexSubscribtions updatedTable = Map.Mappings[table];
 
@@ -503,7 +565,7 @@ namespace Bitmex.Net.Client
         {
             request.Args.ValidateNotNull(nameof(request));
             var url = BaseAddress + $"?{request.Op.ToString().ToLower()}={String.Join(",", request.Args)}";
-            return await Subscribe(url, request, url + NextId(), authProvider != null, onData).ConfigureAwait(false);
+            return await Subscribe(url, null, url + NextId(), authProvider != null, onData).ConfigureAwait(false);
         }
         public void Ping()
         {

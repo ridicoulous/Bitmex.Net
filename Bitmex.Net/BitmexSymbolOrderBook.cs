@@ -20,10 +20,12 @@ namespace Bitmex.Net.Client
         private readonly int InstrumentIndex;
         private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
-        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options) : base(symbol, options)
+        private bool isTestnet;
+        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient? bitmexSocketClient = null) : base(symbol, options)
         {
-            _bitmexSocketClient = new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
-            InstrumentIndex =  _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
+            isTestnet = options.IsTestnet;
+            _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
+            InstrumentIndex = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
             InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
         }
         public void Ping()
@@ -34,7 +36,7 @@ namespace Bitmex.Net.Client
         {
             processBuffer.Clear();
             asks.Clear();
-            bids.Clear();    
+            bids.Clear();
             _bitmexSocketClient.Dispose();
         }
 
@@ -53,9 +55,11 @@ namespace Bitmex.Net.Client
             var setResult = await WaitForSetOrderBook(10000).ConfigureAwait(false);
             return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(null, setResult.Error);
         }
-
+        public DateTime LastOrderBookMessage;
+        public DateTime LastAction;
         private void OnUpdate(BitmexSocketEvent<BitmexOrderBookEntry> update)
         {
+            LastOrderBookMessage = DateTime.UtcNow;
             if (update.Action == Objects.Socket.BitmexAction.Partial)
             {
                 Create(update.Data);
@@ -63,6 +67,7 @@ namespace Bitmex.Net.Client
             }
             Update(update.Data);
         }
+        
         /// <summary>
         /// You may receive other messages before the partial comes through. In that case, drop any messages received until you have received the partial.
         /// </summary>
@@ -71,22 +76,44 @@ namespace Bitmex.Net.Client
         {
             SetInitialOrderBook(DateTime.UtcNow.Ticks, entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
             IsInititalBookSetted = true;
+
         }
         private void Update(List<BitmexOrderBookEntry> entries)
         {
-            if (IsInititalBookSetted)
+            try
             {
-                if(entries==null||!entries.Any())
+                if (IsInititalBookSetted)
                 {
-                    return;
+                    if (entries == null || !entries.Any())
+                    {
+                        return;
+                    }
+                    foreach (var e in entries)
+                    {
+                        e.SetPrice(InstrumentIndex, InstrumentTickSize);
+                    }
+                    UpdateOrderBook(DateTime.UtcNow.Ticks, entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
+                    LastAction = DateTime.UtcNow;
                 }
-                foreach (var e in entries)
+                else
                 {
-                    e.SetPrice(InstrumentIndex, InstrumentTickSize);
-                    // log.Write(CryptoExchange.Net.Logging.LogVerbosity.Warning, $"Price for orderboook level {e.Id} was not setted");
-                }
+                    log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated cause not initiated");
+                    using (var client = new BitmexClient(new BitmexClientOptions(isTestnet)))
+                    {
+                        log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, $"Setting orderdbook through api");
 
-                UpdateOrderBook(DateTime.UtcNow.Ticks, entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
+                        var ob = client.GetOrderBook(Symbol);
+                        if (ob)
+                        {
+                            SetInitialOrderBook(DateTime.UtcNow.Ticks, ob.Data.Where(x => x.Side == OrderBookEntryType.Bid), ob.Data.Where(x => x.Side == OrderBookEntryType.Ask));
+                            IsInititalBookSetted = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated {ex.ToString()}");                
             }
         }
     }
