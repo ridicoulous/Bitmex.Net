@@ -26,10 +26,11 @@ namespace Bitmex.Net.Client
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
         public readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
-
+        private bool isTestnet;
         public BitmexSocketClient() : this(DefaultOptions)
         {
         }
+        
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
             //var rest = Query<GreetingsMessage>("ping", false).Result;
@@ -89,8 +90,9 @@ namespace Bitmex.Net.Client
         protected override IWebsocket CreateSocket(string address)
         {
             Dictionary<string, string> empty = new Dictionary<string, string>();
-            var s = SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true));
-            
+            var s = SocketFactory.CreateWebsocket(this.log, address, empty, 
+                this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true));
+            s.Origin = $"https://{(isTestnet?"testnet":"www")}.bitmex.com";            
             return s;
         }
         protected override async Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
