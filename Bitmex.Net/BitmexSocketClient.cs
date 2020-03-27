@@ -119,24 +119,27 @@ namespace Bitmex.Net.Client
 
         private void S_OnOpen()
         {
-            if (isBrocked)
-            {
-                foreach (var s in this.sockets)
-                {
-                    s.Value.Send("ping");
-                }
-            }
+            //if (isBrocked)
+            //{
+            //    foreach (var s in this.sockets)
+            //    {
+            //        s.Value.Send("ping");
+            //    }
+            //}
+            log.Write(LogVerbosity.Debug, $"Socket opened");
             OnSocketOpened?.Invoke();
         }
 
         private void S_OnError(Exception obj)
         {
+            log.Write(LogVerbosity.Debug, $"Socket catched exception {obj.ToString()}");
+
             OnSocketException?.Invoke(obj);
         }
 
         private void S_OnClose()
         {
-            isBrocked = true;
+           // isBrocked = true;
             OnSocketClose?.Invoke();
             //try
             //{
