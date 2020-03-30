@@ -37,8 +37,9 @@ namespace   Bitmex.Net.Client.Objects.Requests
             }
             if (clientOrderIds != null && clientOrderIds.Any())
             {
-                ClientOrderId = String.Join(",", exchangeOrderIds);
+                ClientOrderId = String.Join(",", clientOrderIds);
             }
+            Text = text;
         }
 
         /// <summary>

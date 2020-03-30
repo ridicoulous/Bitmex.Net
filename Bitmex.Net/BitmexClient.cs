@@ -461,13 +461,13 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<Order>> UpdateOrderAsync(UpdateOrderRequest updateOrderRequest, CancellationToken ct = default)
         {
-            if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId))
+            if (String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId))
             {
-                updateOrderRequest.Id.ValidateNotNull(nameof(updateOrderRequest.Id));
+                updateOrderRequest.Id.ValidateNotNull(nameof(updateOrderRequest.Id)+" (you have to send order id received from Bitmex or your own identifier, sended on order posting");
             }
             if (String.IsNullOrEmpty(updateOrderRequest.Id))
             {
-                updateOrderRequest.ClOrdId.ValidateNotNull(nameof(updateOrderRequest.ClOrdId));
+                updateOrderRequest.OrigClOrdId.ValidateNotNull(nameof(updateOrderRequest.OrigClOrdId) + " (you have to send order id received from Bitmex or your own identifier, sended on order posting");
             }
             var parameters = updateOrderRequest.AsDictionary();
             parameters.ValidateNotNull(nameof(updateOrderRequest));
@@ -514,6 +514,14 @@ namespace Bitmex.Net.Client
             return req;
         }
 
-      
+        public Task<WebCallResult<List<Transaction>>> GetUserWalletTransactionsAsync(string currency = "XBt", CancellationToken ct = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public WebCallResult<List<Transaction>> GetUserWalletTransactions(string currency = "XBt")
+        {
+            throw new NotImplementedException();
+        }
     }
 }

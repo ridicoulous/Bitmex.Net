@@ -24,7 +24,7 @@ namespace   Bitmex.Net.Client.Objects.Requests
         {
             Price = newPrice;
             Id = orderId;
-            ClOrdId = clientOrderId;
+            OrigClOrdId = clientOrderId;
         }
        
         [JsonProperty("orderID")]
