@@ -25,7 +25,7 @@ namespace Bitmex.Net.Client
         {
             isTestnet = options.IsTestnet;
             _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
-            InstrumentIndex = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
+            InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
             InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
         }
         public void Ping()
@@ -59,6 +59,10 @@ namespace Bitmex.Net.Client
         public DateTime LastAction;
         private void OnUpdate(BitmexSocketEvent<BitmexOrderBookEntry> update)
         {
+            if (update.Data[0].Symbol != Symbol)
+            {
+                return;
+            }
             LastOrderBookMessage = DateTime.UtcNow;
             if (update.Action == Objects.Socket.BitmexAction.Partial)
             {
@@ -67,7 +71,7 @@ namespace Bitmex.Net.Client
             }
             Update(update.Data);
         }
-        
+
         /// <summary>
         /// You may receive other messages before the partial comes through. In that case, drop any messages received until you have received the partial.
         /// </summary>
@@ -113,7 +117,7 @@ namespace Bitmex.Net.Client
             }
             catch (Exception ex)
             {
-                log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated {ex.ToString()}");                
+                log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated {ex.ToString()}");
             }
         }
     }

@@ -24,7 +24,7 @@ namespace Bitmex.Net.Client
         /// <summary>
         /// This value is used for price calculation by orderbook entry id. Set it carefully. 
         /// </summary>
-        public readonly decimal? InstrumentIndex;
+        public readonly int? InstrumentIndex;
 
         /// <summary>
         /// 

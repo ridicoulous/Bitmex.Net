@@ -61,11 +61,16 @@ namespace Bitmex.Net.ClientExample
             //    .AddSubscription(BitmexSubscribtions.OrderBookL2_25, "XBTUSD"));
              var client = new BitmexClient(new BitmexClientOptions(configuration["key"], configuration["secret"], bool.Parse(configuration["testnet"])));
             //var o = await client.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, ClientOrderId = Guid.NewGuid().ToString(), Side = BitmexOrderSide.Sell, Quantity = 50, Price = 20000, Symbol="XBTUSD" });
-            var up = new UpdateOrderRequest() { OrigClOrdId = "cc75b825-acfb-447b-b497-2a41c65b30b5", OrderQty=101};
+            //var up = new UpdateOrderRequest() { OrigClOrdId = "cc75b825-acfb-447b-b497-2a41c65b30b5", OrderQty=101};
+            var o = await client.GetOrdersAsync(new BitmexRequestWithFilter().WithSymbolFilter("XBTUSD").WithNewestFirst().WithResultsCount(20));
+            foreach(var i in o.Data)
+            {
+                Console.WriteLine(i.Timestamp+" "+i.Symbol);
+            }
             //var dic = up.AsDictionary();
-            var update = await client.UpdateOrderAsync(up);
+            //var update = await client.UpdateOrderAsync(up);
 
-            Console.WriteLine(update.Data.Id);
+//            Console.WriteLine(update.Data.Id);
            // var dsf = await client.CancelOrderAsync(new CancelOrderRequest() { ClientOrderId = o.Data.ClOrdID });
             //  var posit = client.GetExecutions(new BitmexRequestWithFilter().WithSymbolFilter("XBTUSD").WithOldestFirst().WithResultsCount(19));
             //string id = posit.Data.FirstOrDefault().OrderID;

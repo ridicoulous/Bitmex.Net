@@ -3,6 +3,7 @@ using CryptoExchange.Net.Authentication;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -15,8 +16,25 @@ namespace Bitmex.Net.Client
     {
         private readonly HMACSHA256 encryptor;
         private readonly int LifetimeSeconds;
-        private static readonly DateTime EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private long ApiExpires => (long)(DateTime.UtcNow - EpochTime).TotalSeconds + LifetimeSeconds;
+
+        private static readonly object nonceLock = new object();
+        private long lastNonce;
+        internal string ApiExpires
+        {
+            get
+            {
+                lock (nonceLock)
+                {
+                    var nonce = (long)Math.Round((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds + LifetimeSeconds);
+                    if (nonce == lastNonce)
+                        nonce += 1;
+
+                    lastNonce = nonce;
+                    return lastNonce.ToString(CultureInfo.InvariantCulture);
+                }
+            }
+        }
+        //  private long ApiExpires => (long)(DateTime.UtcNow - EpochTime).TotalSeconds + LifetimeSeconds;
         public BitmexAuthenticationProvider(ApiCredentials credentials, TimeSpan? requestLifeTime = null) : base(credentials)
         {
             LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 42;
@@ -30,7 +48,7 @@ namespace Bitmex.Net.Client
                 return new Dictionary<string, string>();
             var result = new Dictionary<string, string>();
             result.Add("api-key", Credentials.Key.GetString());
-            result.Add("api-expires", apiexpires.ToString());
+            result.Add("api-expires", apiexpires);
 
             string additionalData = String.Empty;
             if (parameters != null && parameters.Any() && method != HttpMethod.Delete && method != HttpMethod.Get)
@@ -59,14 +77,10 @@ namespace Bitmex.Net.Client
         /// <param name="methodAndUrl">GET/api/v1/orderBookL2 (for websocketauth - GET/realtime)</param>
         /// <param name="additionalData">optinal request data</param>
         /// <returns></returns>
-        public string CreateAuthPayload(HttpMethod method, string requestUrl, long apiExpires, string additionalData = "")
+        public string CreateAuthPayload(HttpMethod method, string requestUrl, string apiExpires, string additionalData = "")
         {
             return $"{method.ToString()}{requestUrl}{apiExpires}{additionalData}";
         }
-        public object[] CreateWebsocketSignatureParams()
-        {
-            var apiExp = ApiExpires;
-            return new object[] { Credentials.Key.GetString(), apiExp, Sign(CreateAuthPayload(HttpMethod.Get, "/realtime", apiExp)) };
-        }
+
     }
 }
