@@ -25,7 +25,7 @@ namespace Bitmex.Net.Client
             {
                 lock (nonceLock)
                 {
-                    var nonce = (long)Math.Round((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds + LifetimeSeconds);
+                    var nonce = (long)Math.Round((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + LifetimeSeconds);
                     if (nonce == lastNonce)
                         nonce += 1;
 
@@ -37,7 +37,7 @@ namespace Bitmex.Net.Client
         //  private long ApiExpires => (long)(DateTime.UtcNow - EpochTime).TotalSeconds + LifetimeSeconds;
         public BitmexAuthenticationProvider(ApiCredentials credentials, TimeSpan? requestLifeTime = null) : base(credentials)
         {
-            LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 42;
+            LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 60;
             encryptor = new HMACSHA256(Encoding.ASCII.GetBytes(credentials.Secret.GetString()));
         }
         public override Dictionary<string, string> AddAuthenticationToHeaders(string uri, HttpMethod method, Dictionary<string, object> parameters, bool signed)
