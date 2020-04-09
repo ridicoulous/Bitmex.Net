@@ -59,7 +59,11 @@ namespace Bitmex.Net.Client
         public DateTime LastAction;
         private void OnUpdate(BitmexSocketEvent<BitmexOrderBookEntry> update)
         {
-            if (update.Data[0].Symbol != Symbol)
+            if (update.Action == BitmexAction.Undefined || update.Data == null || !update.Data.Any())
+            {
+                return;
+            }
+            if (update.Data[0]?.Symbol != Symbol)
             {
                 return;
             }
