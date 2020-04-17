@@ -33,8 +33,7 @@ namespace Bitmex.Net.Client
                     return lastNonce.ToString(CultureInfo.InvariantCulture);
                 }
             }
-        }
-        //  private long ApiExpires => (long)(DateTime.UtcNow - EpochTime).TotalSeconds + LifetimeSeconds;
+        }        
         public BitmexAuthenticationProvider(ApiCredentials credentials, TimeSpan? requestLifeTime = null) : base(credentials)
         {
             LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 60;

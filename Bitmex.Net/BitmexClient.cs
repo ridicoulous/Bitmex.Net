@@ -298,7 +298,7 @@ namespace Bitmex.Net.Client
            
         }
 
-        public WebCallResult<List<Order>> GetOrders(BitmexRequestWithFilter requestWithFilter = null) => GetOrdersAsync().Result;
+        public WebCallResult<List<Order>> GetOrders(BitmexRequestWithFilter requestWithFilter = null) => GetOrdersAsync(requestWithFilter).Result;
 
         public async Task<WebCallResult<List<Order>>> GetOrdersAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
