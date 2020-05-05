@@ -4,12 +4,12 @@ namespace    Bitmex.Net.Client.Objects
 {
     public class Transaction
     {
-        [JsonProperty("transactID", Required = Required.Always)]
+        [JsonProperty("transactID")]
 
         public string TransactID { get; set; }
 
         [JsonProperty("account")]
-        public decimal Account { get; set; }
+        public long Account { get; set; }
 
         [JsonProperty("currency")]
         public string Currency { get; set; }
@@ -18,10 +18,10 @@ namespace    Bitmex.Net.Client.Objects
         public string TransactType { get; set; }
 
         [JsonProperty("amount")]
-        public decimal Amount { get; set; }
+        public decimal? Amount { get; set; }
 
         [JsonProperty("fee")]
-        public decimal Fee { get; set; }
+        public decimal? Fee { get; set; }
 
         [JsonProperty("transactStatus")]
         public string TransactStatus { get; set; }

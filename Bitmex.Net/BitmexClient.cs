@@ -1,7 +1,7 @@
 ﻿using Bitmex.Net.Client.Helpers.Extensions;
 using Bitmex.Net.Client.Interfaces;
-using  Bitmex.Net.Client.Objects;
-using  Bitmex.Net.Client.Objects.Requests;
+using Bitmex.Net.Client.Objects;
+using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Interfaces;
@@ -295,7 +295,7 @@ namespace Bitmex.Net.Client
             parameters.Add("symbol", symbol);
             parameters.Add("depth", depth);
             return await SendRequest<List<BitmexOrderBookEntry>>(GetUrl(OrderBookL2Endpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
-           
+
         }
 
         public WebCallResult<List<Order>> GetOrders(BitmexRequestWithFilter requestWithFilter = null) => GetOrdersAsync(requestWithFilter).Result;
@@ -311,7 +311,7 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Position>>> GetPositionsAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            
+
             return await SendRequest<List<Position>>(GetUrl(PositionEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
         }
 
@@ -399,7 +399,7 @@ namespace Bitmex.Net.Client
         {
             placeOrderRequests.ValidateNotNull(nameof(placeOrderRequests));
             var parameters = GetParameters();
-            parameters.Add("orders", placeOrderRequests);            
+            parameters.Add("orders", placeOrderRequests);
             return await SendRequest<List<Order>>(GetUrl(OrderBulkEndpoint), HttpMethod.Post, ct, parameters, true, false).ConfigureAwait(false);
         }
 
@@ -463,7 +463,7 @@ namespace Bitmex.Net.Client
         {
             if (String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId))
             {
-                updateOrderRequest.Id.ValidateNotNull(nameof(updateOrderRequest.Id)+" (you have to send order id received from Bitmex or your own identifier, sended on order posting");
+                updateOrderRequest.Id.ValidateNotNull(nameof(updateOrderRequest.Id) + " (you have to send order id received from Bitmex or your own identifier, sended on order posting");
             }
             if (String.IsNullOrEmpty(updateOrderRequest.Id))
             {
@@ -507,21 +507,31 @@ namespace Bitmex.Net.Client
             return null;
         }
         protected override IRequest ConstructRequest(Uri uri, HttpMethod method, Dictionary<string, object> parameters, bool signed)
-        {   
+        {
             var req = base.ConstructRequest(uri, method, parameters, signed);
             req.AddHeader("Connection", "Keep-Alive");
-            req.AddHeader("Keep-Alive", "900000");            
+            req.AddHeader("Keep-Alive", "900000");
             return req;
         }
 
-        public Task<WebCallResult<List<Transaction>>> GetUserWalletTransactionsAsync(string currency = "XBt", CancellationToken ct = default)
+        public async Task<WebCallResult<List<Transaction>>> GetUserWalletHistoryAsync(string currency = "XBt", int count = 100, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var parameters = GetParameters();
+            parameters.Add("currency", currency);
+            parameters.Add("count", count);
+
+            return await SendRequest<List<Transaction>>(GetUrl(UserWalletHistoryEndpoint), HttpMethod.Get, ct, parameters, true);
         }
 
-        public WebCallResult<List<Transaction>> GetUserWalletTransactions(string currency = "XBt")
-        {
-            throw new NotImplementedException();
-        }
+
+        public WebCallResult<List<Transaction>> GetUserWalletHistory(string currency = "XBt", int count = 100) => GetUserWalletHistoryAsync(currency, count).Result;
+
+        //public WebCallResult<List<Transaction>> GetUserWalletSummary(string currency = "XBt") => GetUserWalletSummaryAsync(currency).Result;
+        //public async Task<WebCallResult<List<Transaction>>> GetUserWalletSummaryAsync(string currency = "XBt", CancellationToken ct = default)
+        //{
+        //    var parameters = GetParameters();
+        //    parameters.Add("currency", currency);
+        //    return await SendRequest<List<Transaction>>(GetUrl(UserWalletSummaryEndpoint), HttpMethod.Get, ct, parameters, true);
+        //}
     }
 }
