@@ -18,22 +18,23 @@ namespace Bitmex.Net.ClientExample
     class Program
     {
         static BitmexSymbolOrderBook ob;
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
             //ob = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("XBT") { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Info });
             //ob.OnBestOffersChanged += Ob_OnBestOffersChanged;
-
+            var t = new PlaceOrderRequest() { Price = 8050.500000000000000m, Quantity = 432.0000m };
+            var r = t.AsDictionary();
 
             var configuration = builder.Build();
-            var c = new BitmexClient(new BitmexClientOptions(true) { ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]) });
-                var b = c.GetUserWalletHistory(count:5);
+            //var c = new BitmexClient(new BitmexClientOptions(true) { ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]) });
+            //    var b = c.GetUserWalletHistory(count:5);
            // var res = b.Data.Where(c => c.TransactType == "Total").Sum(c => c.Amount) - b.Data.Where(c => c.TransactType == "RealisedPNL").Sum(c => c.Amount);
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(false) { LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug });
 
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
+            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["key"], configuration["secret"], isTestnet: true)
             {
                 LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
                 //SocketNoDataTimeout = TimeSpan.FromSeconds(45)

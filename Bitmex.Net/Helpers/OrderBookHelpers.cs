@@ -10,5 +10,7 @@ namespace Bitmex.Net.Client.Helpers
         {
             return (100000000 * instrumentIndex - id) * tickSize;
         }
+        //https://stackoverflow.com/questions/4525854/remove-trailing-zeros/7983330#7983330
+       
     }
 }
