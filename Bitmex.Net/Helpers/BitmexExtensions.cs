@@ -12,11 +12,20 @@ using System.Text;
 
 namespace Bitmex.Net.Client.Helpers.Extensions
 {
+    
     /// <summary>
     /// create dictionary from object and vice versa<see href="https://stackoverflow.com/questions/4943817/mapping-object-to-dictionary-and-vice-versa/4944547#4944547"/>
     /// </summary>
     public static class ObjectExtensions
     {
+        public static decimal? Normalize(this decimal? value)
+        {
+            if (value == null)
+            {
+                return value;
+            }
+            return value / 1.000000000000000000000000000000000m;
+        }
         public static T ToObject<T>(this IDictionary<string, object> source)
         where T : class, new()
         {
@@ -32,7 +41,7 @@ namespace Bitmex.Net.Client.Helpers.Extensions
 
             return someObject;
         }
-
+       
         public static Dictionary<string, object> AsDictionary(this object source,
             BindingFlags bindingAttr = BindingFlags.FlattenHierarchy |
             BindingFlags.Instance |
@@ -40,30 +49,44 @@ namespace Bitmex.Net.Client.Helpers.Extensions
             BindingFlags.Public |
             BindingFlags.Static)
         {
-            var result = new Dictionary<string, object>();
-            var props = source.GetType().GetProperties(bindingAttr);
-            foreach (var p in props.Where(c => !c.IsDefined(typeof(BitmexRequestIgnoreAttribute))))
+            try
             {
-                string key = p.Name;
-                if (p.IsDefined(typeof(JsonPropertyAttribute)))
+                var result = new Dictionary<string, object>();
+                var props = source.GetType().GetProperties(bindingAttr);
+                foreach (var p in props.Where(c => !c.IsDefined(typeof(BitmexRequestIgnoreAttribute))))
                 {
-                    key = p.GetCustomAttribute<JsonPropertyAttribute>().PropertyName ?? p.Name;
-                }              
-                object value = p.GetValue(source, null);
-                if (value == null)
-                {
-                    continue;
+                    string key = p.Name;
+                    if (p.IsDefined(typeof(JsonPropertyAttribute)))
+                    {
+                        key = p.GetCustomAttribute<JsonPropertyAttribute>().PropertyName ?? p.Name;
+                    }
+                    object value = p.GetValue(source, null);
+
+                    if (value == null)
+                    {
+                        continue;
+                    }
+                    if (value is decimal || value is decimal?)
+                    {
+                        value = (value as decimal?).Normalize();
+                    }
+                    if (value.GetType().IsEnum)
+                    {
+                        value = value?.ToString();
+                    }
+                    if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && !String.IsNullOrEmpty(value.ToString()))
+                    {
+                        result.Add(key, value);
+                    }
                 }
-                if (value.GetType().IsEnum)
-                {                    
-                    value = value?.ToString();
-                }
-                if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && !String.IsNullOrEmpty(value.ToString()))
-                {
-                    result.Add(key, value);
-                }
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                throw ex;
+                //return new Dictionary<string, object>() { { "error", ex.Message } };
+              
+            }
         }
     }
     public static class BitmexRequestExtensions
