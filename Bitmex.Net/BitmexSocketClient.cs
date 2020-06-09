@@ -106,7 +106,7 @@ namespace Bitmex.Net.Client
         protected override IWebsocket CreateSocket(string address)
         {
             Dictionary<string, string> empty = new Dictionary<string, string>();
-            var s = SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true));
+            var s = SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true,PostParameters.InUri,ArrayParametersSerialization.MultipleValues));
             s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";            
             s.OnClose += S_OnClose;
             s.OnError += S_OnError;

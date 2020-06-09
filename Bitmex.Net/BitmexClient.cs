@@ -506,13 +506,15 @@ namespace Bitmex.Net.Client
             }
             return null;
         }
-        protected override IRequest ConstructRequest(Uri uri, HttpMethod method, Dictionary<string, object> parameters, bool signed)
+        protected override IRequest ConstructRequest(Uri uri, HttpMethod method, Dictionary<string, object> parameters, bool signed, PostParameters postPosition, ArrayParametersSerialization arraySerialization)
         {
-            var req = base.ConstructRequest(uri, method, parameters, signed);
+            var req = base.ConstructRequest(uri, method, parameters, signed,postParametersPosition,arraySerialization);
             req.AddHeader("Connection", "Keep-Alive");
             req.AddHeader("Keep-Alive", "900000");
             return req;
+           
         }
+      
 
         public async Task<WebCallResult<List<Transaction>>> GetUserWalletHistoryAsync(string currency = "XBt", int count = 100, CancellationToken ct = default)
         {
