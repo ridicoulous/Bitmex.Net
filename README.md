@@ -89,9 +89,16 @@ After doing either of above steps you should now be ready to actually start usin
 ## Getting started
 After  it's time to actually use it. To get started we have to add the Bitmex.Net.Client namespace:  `using Bitmex.Net.Client;`.
 
-Bitmex.Net.Client provides two clients to interact with the Bitmex API. The `BitmexClient` provides all rest API calls. The `BitmexSocketClient` provides functions to interact with the websocket provided by the Bitmex API.
+Bitmex.Net.Client provides three clients to interact with the Bitmex API:
+
+The `BitmexClient` provides all rest API calls.
+
+The `BitmexSocketClient` provides functions to interact with the websocket provided by the Bitmex API.
+
+The `BitmexHistoricalTradesLoader` provides ability to bulk load historical trading data from [Bitmex public data endpoint](https://www.bitmex.com/app/apiOverview#Historical-Data)
 
 See examples at Bitmex.Net.ClientExample. Add your own appconfig.json and set up connection to [testnet](https://testnet.bitmex.com/) or [production](https://bitmex.com/) Bitmex API:
+
 ```
 {
   "testnet": {
@@ -104,7 +111,3 @@ See examples at Bitmex.Net.ClientExample. Add your own appconfig.json and set up
   }  
 }
 ```
-
-## Release notes
-* Version 0.4.6 - 1 Jul 2020
-  initial release
