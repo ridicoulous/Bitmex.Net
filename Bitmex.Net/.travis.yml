@@ -1,7 +1,0 @@
-language: csharp
-mono: none
-solution: Bitmex.Net.sln
-dotnet: 3.1
-script:
- - dotnet build Bitmex.Net/Bitmex.Net.Client.csproj --framework "netstandard2.1"
- - dotnet test Bitmex.Net.Tests/Bitmex.Net.Tests.csproj
