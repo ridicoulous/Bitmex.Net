@@ -124,7 +124,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal WithdrawableMargin { get; set; } = 0;
 
         [JsonProperty("timestamp")]
-        public System.DateTimeOffset? Timestamp { get; set; }
+        public System.DateTime? Timestamp { get; set; }
 
         [JsonProperty("grossLastValue")]
         public decimal GrossLastValue { get; set; } = 0;

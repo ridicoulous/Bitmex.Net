@@ -44,7 +44,7 @@ namespace    Bitmex.Net.Client.Objects
 
         [JsonProperty("created", Required = Required.Always)]
 
-        public System.DateTimeOffset Created { get; set; }
+        public System.DateTime Created { get; set; }
 
 
     }

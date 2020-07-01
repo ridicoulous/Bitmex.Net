@@ -9,7 +9,7 @@ namespace    Bitmex.Net.Client.Objects
     {
         [JsonProperty("timestamp", Required = Required.Always)]
 
-        public DateTimeOffset Timestamp { get; set; }
+        public DateTime Timestamp { get; set; }
 
         [JsonProperty("symbol", Required = Required.Always)]
 

@@ -101,10 +101,10 @@ namespace Bitmex.Net.Client.Objects
         public string Text { get; set; }
 
         [JsonProperty("transactTime")]
-        public System.DateTimeOffset? TransactTime { get; set; }
+        public System.DateTime? TransactTime { get; set; }
 
         [JsonProperty("timestamp")]
-        public System.DateTimeOffset? Timestamp { get; set; }
+        public System.DateTime? Timestamp { get; set; }
 
 
     }

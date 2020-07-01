@@ -27,7 +27,7 @@ namespace Bitmex.Net.Client.Objects
         public decimal PrevAmount { get; set; }
 
         [JsonProperty("prevTimestamp")]
-        public System.DateTimeOffset? PrevTimestamp { get; set; }
+        public System.DateTime? PrevTimestamp { get; set; }
 
         [JsonProperty("deltaDeposited")]
         public decimal DeltaDeposited { get; set; }
@@ -69,7 +69,7 @@ namespace Bitmex.Net.Client.Objects
         public decimal ConfirmedDebit { get; set; }
 
         [JsonProperty("timestamp")]
-        public System.DateTimeOffset? Timestamp { get; set; }
+        public System.DateTime? Timestamp { get; set; }
 
         [JsonProperty("addr")]
         public string Addr { get; set; }

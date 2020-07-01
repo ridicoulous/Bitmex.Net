@@ -56,7 +56,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? PrevClosePrice { get; set; } = 0;
 
         [JsonProperty("openingTimestamp")]
-        public System.DateTimeOffset? OpeningTimestamp { get; set; }
+        public System.DateTime? OpeningTimestamp { get; set; }
 
         [JsonProperty("openingQty")]
         public decimal? OpeningQty { get; set; } = 0;
@@ -107,7 +107,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? ExecComm { get; set; } = 0;
 
         [JsonProperty("currentTimestamp")]
-        public System.DateTimeOffset? CurrentTimestamp { get; set; }
+        public System.DateTime? CurrentTimestamp { get; set; }
 
         [JsonProperty("currentQty")]
         public decimal? CurrentQty { get; set; } = 0;
@@ -272,7 +272,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? BankruptPrice { get; set; } = 0;
 
         [JsonProperty("timestamp")]
-        public System.DateTimeOffset? Timestamp { get; set; }
+        public System.DateTime? Timestamp { get; set; }
 
         [JsonProperty("lastPrice")]
         public decimal? LastPrice { get; set; } = 0;

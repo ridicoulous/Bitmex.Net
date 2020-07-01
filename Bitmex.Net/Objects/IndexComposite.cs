@@ -6,7 +6,7 @@ namespace    Bitmex.Net.Client.Objects
     {
         [JsonProperty("timestamp", Required = Required.Always)]
 
-        public System.DateTimeOffset Timestamp { get; set; }
+        public System.DateTime Timestamp { get; set; }
 
         [JsonProperty("symbol")]
         public string Symbol { get; set; }
@@ -24,7 +24,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? Weight { get; set; }
 
         [JsonProperty("logged")]
-        public System.DateTimeOffset? Logged { get; set; }
+        public System.DateTime? Logged { get; set; }
 
 
     }

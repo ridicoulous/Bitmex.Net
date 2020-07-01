@@ -21,19 +21,19 @@ namespace    Bitmex.Net.Client.Objects
         public string Typ { get; set; }
 
         [JsonProperty("listing")]
-        public System.DateTimeOffset? Listing { get; set; }
+        public System.DateTime? Listing { get; set; }
 
         [JsonProperty("front")]
-        public System.DateTimeOffset? Front { get; set; }
+        public System.DateTime? Front { get; set; }
 
         [JsonProperty("expiry")]
-        public System.DateTimeOffset? Expiry { get; set; }
+        public System.DateTime? Expiry { get; set; }
 
         [JsonProperty("settle")]
-        public System.DateTimeOffset? Settle { get; set; }
+        public System.DateTime? Settle { get; set; }
 
         [JsonProperty("relistInterval")]
-        public System.DateTimeOffset? RelistInterval { get; set; }
+        public System.DateTime? RelistInterval { get; set; }
 
         [JsonProperty("inverseLeg")]
         public string InverseLeg { get; set; }
@@ -75,13 +75,13 @@ namespace    Bitmex.Net.Client.Objects
         public string ReferenceSymbol { get; set; }
 
         [JsonProperty("calcInterval")]
-        public System.DateTimeOffset? CalcInterval { get; set; }
+        public System.DateTime? CalcInterval { get; set; }
 
         [JsonProperty("publishInterval")]
-        public System.DateTimeOffset? PublishInterval { get; set; }
+        public System.DateTime? PublishInterval { get; set; }
 
         [JsonProperty("publishTime")]
-        public System.DateTimeOffset? PublishTime { get; set; }
+        public System.DateTime? PublishTime { get; set; }
 
         [JsonProperty("maxOrderQty")]
         public decimal? MaxOrderQty { get; set; }
@@ -162,10 +162,10 @@ namespace    Bitmex.Net.Client.Objects
         public string FundingPremiumSymbol { get; set; }
 
         [JsonProperty("fundingTimestamp")]
-        public System.DateTimeOffset? FundingTimestamp { get; set; }
+        public System.DateTime? FundingTimestamp { get; set; }
 
         [JsonProperty("fundingInterval")]
-        public System.DateTimeOffset? FundingInterval { get; set; }
+        public System.DateTime? FundingInterval { get; set; }
 
         [JsonProperty("fundingRate")]
         public decimal? FundingRate { get; set; }
@@ -174,19 +174,19 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? IndicativeFundingRate { get; set; }
 
         [JsonProperty("rebalanceTimestamp")]
-        public System.DateTimeOffset? RebalanceTimestamp { get; set; }
+        public System.DateTime? RebalanceTimestamp { get; set; }
 
         [JsonProperty("rebalanceInterval")]
-        public System.DateTimeOffset? RebalanceInterval { get; set; }
+        public System.DateTime? RebalanceInterval { get; set; }
 
         [JsonProperty("openingTimestamp")]
-        public System.DateTimeOffset? OpeningTimestamp { get; set; }
+        public System.DateTime? OpeningTimestamp { get; set; }
 
         [JsonProperty("closingTimestamp")]
-        public System.DateTimeOffset? ClosingTimestamp { get; set; }
+        public System.DateTime? ClosingTimestamp { get; set; }
 
         [JsonProperty("sessionInterval")]
-        public System.DateTimeOffset? SessionInterval { get; set; }
+        public System.DateTime? SessionInterval { get; set; }
 
         [JsonProperty("prevClosePrice")]
         public decimal? PrevClosePrice { get; set; }
@@ -315,7 +315,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? SettledPrice { get; set; }
 
         [JsonProperty("timestamp")]
-        public System.DateTimeOffset? Timestamp { get; set; }
+        public System.DateTime? Timestamp { get; set; }
 
 
     }

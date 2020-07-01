@@ -28,20 +28,7 @@ namespace Bitmex.Net.Client.Tests
             Assert.True(trades);
             Assert.True(trades.Data.Count == 4);
             Assert.True(trades.Data.All(c => c.Side == BitmexOrderSide.Buy && c.Symbol == "XBTUSD"));
-        }
-        //[Fact]
-        //public void ShouldPlaceOrder()
-        //{
-        //    var t = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
-        //    var t2 = _client.PlaceOrder(new PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 27000, Side = BitmexOrderSide.Sell, Quantity = 10 });
-        //    Assert.True(t);
-        //    var update = _client.UpdateOrder(new UpdateOrderRequest(42000,t2.Data.Id));
-        //    Assert.True(update);
-
-        //    var c = _client.CancelOrder(new CancelOrderRequest(new string[] { t2.Data.Id, t.Data.Id }));
-
-        //    Assert.True(c);
-        //}        
+        }          
         [Fact]
         public void ShouldCreateDictionaryFromObject()
         {

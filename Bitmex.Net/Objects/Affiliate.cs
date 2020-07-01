@@ -21,7 +21,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? PrevComm { get; set; }
 
         [JsonProperty("prevTimestamp")]
-        public System.DateTimeOffset? PrevTimestamp { get; set; }
+        public System.DateTime? PrevTimestamp { get; set; }
 
         [JsonProperty("execTurnover")]
         public decimal? ExecTurnover { get; set; }
@@ -45,7 +45,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? PendingPayout { get; set; }
 
         [JsonProperty("timestamp")]
-        public System.DateTimeOffset? Timestamp { get; set; }
+        public System.DateTime? Timestamp { get; set; }
 
         [JsonProperty("referrerAccount")]
         public decimal? ReferrerAccount { get; set; }

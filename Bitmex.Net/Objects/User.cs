@@ -31,10 +31,10 @@ namespace    Bitmex.Net.Client.Objects
         public string Phone { get; set; }
 
         [JsonProperty("created")]
-        public System.DateTimeOffset? Created { get; set; }
+        public System.DateTime? Created { get; set; }
 
         [JsonProperty("lastUpdated")]
-        public System.DateTimeOffset? LastUpdated { get; set; }
+        public System.DateTime? LastUpdated { get; set; }
 
         [JsonProperty("preferences")]
         public UserPreferences Preferences { get; set; }
@@ -50,7 +50,7 @@ namespace    Bitmex.Net.Client.Objects
         public string PgpPubKey { get; set; }
 
         [JsonProperty("pgpPubKeyCreated")]
-        public System.DateTimeOffset? PgpPubKeyCreated { get; set; }
+        public System.DateTime? PgpPubKeyCreated { get; set; }
 
         [JsonProperty("country")]
 

@@ -21,7 +21,7 @@ namespace    Bitmex.Net.Client.Objects
         public string Content { get; set; }
 
         [JsonProperty("date")]
-        public System.DateTimeOffset? Date { get; set; }
+        public System.DateTime? Date { get; set; }
 
 
     }

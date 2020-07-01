@@ -8,7 +8,7 @@ namespace    Bitmex.Net.Client.Objects
     {
         [JsonProperty("date", Required = Required.Always)]
 
-        public System.DateTimeOffset Date { get; set; }
+        public System.DateTime Date { get; set; }
 
         [JsonProperty("account")]
         public decimal Account { get; set; }

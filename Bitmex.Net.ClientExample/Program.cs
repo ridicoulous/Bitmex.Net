@@ -12,6 +12,7 @@ using System.Linq;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using System.Reactive.Linq;
+using Bitmex.Net.Client.HistoricalData;
 
 namespace Bitmex.Net.ClientExample
 {
@@ -19,6 +20,9 @@ namespace Bitmex.Net.ClientExample
     {       
         static async Task Main(string[] args)
         {
+            BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
+            var data = await bitmexHistoricalTradesLoader.GetDailyTrades(new DateTime(2020, 5, 20),default,"ETHUSD");
+            Console.WriteLine($"{data.Count()}");
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);

@@ -11,7 +11,7 @@ namespace    Bitmex.Net.Client.Objects
         public bool? AnimationsEnabled { get; set; }
 
         [JsonProperty("announcementsLastSeen")]
-        public System.DateTimeOffset? AnnouncementsLastSeen { get; set; }
+        public System.DateTime? AnnouncementsLastSeen { get; set; }
 
         [JsonProperty("chatChannelID")]
         public long? ChatChannelID { get; set; }

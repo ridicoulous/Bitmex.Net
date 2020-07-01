@@ -12,7 +12,7 @@ namespace    Bitmex.Net.Client.Objects
 
         [JsonProperty("timestamp", Required = Required.Always)]
       
-        public System.DateTimeOffset Timestamp { get; set; }
+        public System.DateTime Timestamp { get; set; }
 
         [JsonProperty("walletBalance")]
         public decimal WalletBalance { get; set; }

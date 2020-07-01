@@ -34,7 +34,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal UserId { get; set; }
 
         [JsonProperty("created")]
-        public System.DateTimeOffset? Created { get; set; }
+        public System.DateTime? Created { get; set; }
 
 
     }

@@ -11,14 +11,14 @@ namespace    Bitmex.Net.Client.Objects
     {
         [JsonProperty("timestamp", Required = Required.Always)]
       
-        public System.DateTimeOffset Timestamp { get; set; }
+        public System.DateTime Timestamp { get; set; }
 
         [JsonProperty("symbol", Required = Required.Always)]
       
         public string Symbol { get; set; }
 
         [JsonProperty("fundingInterval")]
-        public System.DateTimeOffset? FundingInterval { get; set; }
+        public System.DateTime? FundingInterval { get; set; }
 
         [JsonProperty("fundingRate")]
         public decimal? FundingRate { get; set; }

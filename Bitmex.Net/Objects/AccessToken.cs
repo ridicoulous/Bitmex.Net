@@ -13,7 +13,7 @@ namespace Bitmex.Net.Client.Objects
         public decimal Ttl { get; set; } = 1209600m;
 
         [JsonProperty("created")]
-        public System.DateTimeOffset? Created { get; set; }
+        public System.DateTime? Created { get; set; }
 
         [JsonProperty("userId")]
         public decimal UserId { get; set; }
