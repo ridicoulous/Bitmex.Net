@@ -16,16 +16,10 @@ namespace Bitmex.Net.Client.Objects.Socket
     }
     public enum BitmexWebSocketOperation : byte
     {
-
-        [DataMember(Name = "ping")]
         Ping,
-        [DataMember(Name = "authKeyExpires")]
         AuthKeyExpires,
-        [DataMember(Name = "subscribe")]
         Subscribe,
-        [DataMember(Name = "unsubscribe")]
         Unsubscribe,
-        [DataMember(Name = "cancelAllAfter")]
         CancelAllAfter,
         Undefined
     }

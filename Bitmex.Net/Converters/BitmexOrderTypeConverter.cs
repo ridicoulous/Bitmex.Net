@@ -18,8 +18,7 @@ namespace  Bitmex.Net.Client.Converters
             new KeyValuePair<BitmexOrderType, string>(BitmexOrderType.Market, "Market"),
             new KeyValuePair<BitmexOrderType, string>(BitmexOrderType.MarketIfTouched, "MarketIfTouched"),
             new KeyValuePair<BitmexOrderType, string>(BitmexOrderType.Stop, "Stop"),
-            new KeyValuePair<BitmexOrderType, string>(BitmexOrderType.StopLimit, "StopLimit"),
-
+            new KeyValuePair<BitmexOrderType, string>(BitmexOrderType.StopLimit, "StopLimit")
         };
     }
 }

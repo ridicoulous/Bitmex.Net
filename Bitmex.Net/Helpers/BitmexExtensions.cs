@@ -1,14 +1,11 @@
 ﻿using Bitmex.Net.Client.Attributes;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
-using CryptoExchange.Net.Converters;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Bitmex.Net.Client.Helpers.Extensions
 {
@@ -84,8 +81,6 @@ namespace Bitmex.Net.Client.Helpers.Extensions
             catch (Exception ex)
             {
                 throw ex;
-                //return new Dictionary<string, object>() { { "error", ex.Message } };
-              
             }
         }
     }

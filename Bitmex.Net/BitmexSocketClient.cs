@@ -540,15 +540,6 @@ namespace Bitmex.Net.Client
             request.Args.ValidateNotNull(nameof(request));
             var url = BaseAddress + $"?{request.Op.ToString().ToLower()}={String.Join(",", request.Args)}";
             return await Subscribe(url, null, url + NextId(), authProvider != null, onData).ConfigureAwait(false);
-        }
-        public void Ping()
-        {
-            PingAsync().Wait();
-        }
-        public async Task PingAsync()
-        {
-            await Query<string>("ping", false);
-        }
-
+        }    
     }
 }

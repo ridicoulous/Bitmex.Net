@@ -1,9 +1,7 @@
 ﻿using Bitmex.Net.Client.Objects;
 using CryptoExchange.Net.Converters;
 using CryptoExchange.Net.Objects;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Bitmex.Net.Client.Converters
 {
@@ -16,7 +14,7 @@ namespace Bitmex.Net.Client.Converters
         {
             new KeyValuePair<BitmexOrderSide, string>(BitmexOrderSide.Buy, "Buy"),
             new KeyValuePair<BitmexOrderSide, string>(BitmexOrderSide.Sell, "Sell"),
-
+            new KeyValuePair<BitmexOrderSide, string>(BitmexOrderSide.Undefined, ""),
         };
     }
     public class BitmexOrderSideToOrderBookEntryTypeConverter : BaseConverter<OrderBookEntryType>
@@ -27,8 +25,7 @@ namespace Bitmex.Net.Client.Converters
         protected override List<KeyValuePair<OrderBookEntryType, string>> Mapping => new List<KeyValuePair<OrderBookEntryType, string>>
         {
             new KeyValuePair<OrderBookEntryType, string>(OrderBookEntryType.Bid, "Buy"),
-            new KeyValuePair<OrderBookEntryType, string>(OrderBookEntryType.Ask, "Sell"),
-
+            new KeyValuePair<OrderBookEntryType, string>(OrderBookEntryType.Ask, "Sell")
         };
     }
 }

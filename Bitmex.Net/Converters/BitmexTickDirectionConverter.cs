@@ -17,7 +17,7 @@ namespace  Bitmex.Net.Client.Converters
             new KeyValuePair<BitmexTickDirection, string>(BitmexTickDirection.PlusTick, "PlusTick"),
             new KeyValuePair<BitmexTickDirection, string>(BitmexTickDirection.Undefined, "Undefined"),
             new KeyValuePair<BitmexTickDirection, string>(BitmexTickDirection.ZeroMinusTick, "ZeroMinusTick"),
-            new KeyValuePair<BitmexTickDirection, string>(BitmexTickDirection.ZeroPlusTick, "ZeroPlusTick"),
+            new KeyValuePair<BitmexTickDirection, string>(BitmexTickDirection.ZeroPlusTick, "ZeroPlusTick")
         };
     }
 }

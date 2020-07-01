@@ -25,8 +25,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
         {
             Op = BitmexWebSocketOperation.Subscribe;
         }
-        [JsonProperty("args")]
-        //public virtual string Args { get =>JsonConvert.SerializeObject(_args).Replace("\\",""); set => _args = value.Split(',').ToList(); } 
+        [JsonProperty("args")]        
         public List<string> Args { get; set; } = new List<string> { };
 
         public BitmexSubscribeRequest AddSubscription(BitmexSubscribtions table, string symbol = null)

@@ -27,11 +27,7 @@ namespace Bitmex.Net.Client
             _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
             InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
             InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
-        }
-        public void Ping()
-        {
-            _bitmexSocketClient.Ping();
-        }
+        }        
         public override void Dispose()
         {
             processBuffer.Clear();
