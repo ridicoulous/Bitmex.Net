@@ -23,6 +23,7 @@ namespace Bitmex.Net.ClientExample
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
             var data = await bitmexHistoricalTradesLoader.GetDailyTrades(new DateTime(2020, 5, 20),default,"ETHUSD");
             Console.WriteLine($"{data.Count()}");
+
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
