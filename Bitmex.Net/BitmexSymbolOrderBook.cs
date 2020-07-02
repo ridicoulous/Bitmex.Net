@@ -21,7 +21,7 @@ namespace Bitmex.Net.Client
         private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
         private bool isTestnet;
-        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient? bitmexSocketClient = null) : base(symbol, options)
+        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base(symbol, options)
         {
             isTestnet = options.IsTestnet;
             _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));

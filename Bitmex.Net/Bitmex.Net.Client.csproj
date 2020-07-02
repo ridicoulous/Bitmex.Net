@@ -14,8 +14,7 @@
     <RepositoryUrl>https://github.com/ridicoulous/Bitmex.Net.Client</RepositoryUrl>
     <PackageProjectUrl>https://www.bitmex.com</PackageProjectUrl>
     <PackageTags>bitmex api-wrapper crypto exchange</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes></PackageReleaseNotes>  
   </PropertyGroup>
 
   <ItemGroup>
