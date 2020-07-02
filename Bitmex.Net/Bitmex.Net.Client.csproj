@@ -22,12 +22,6 @@
     <PackageReference Include="CsvHelper" Version="15.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\..\..\..\OneDrive\Изображения\icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+  
 
 </Project>
