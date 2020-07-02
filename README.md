@@ -7,6 +7,7 @@ Bitmex.Net.Client is a .Net wrapper for the Bitmex API as described on [Bitmex](
 * Placing and managing orders
 * Reading balances and funds
 * Live updates using the websocket
+* Loading historical data
 
 Additionally it adds some convenience features like:
 * Configurable rate limiting
@@ -63,12 +64,6 @@ Other CryptoExchange.Net implementations:
 </tr>
 </table>
 
-## Donations
-Donations are greatly appreciated and a motivation to keep improving.
-
-**Btc**:  14nuXrFEKTrvyhHWYW7RgRt4zVxBfwff5V  
-**Eth**:  0x7CD82F45b173891e36d68ea4311B8b13A11a3B4b
-
 ## Installation
 ![Nuget version](https://img.shields.io/nuget/v/Bitmex.Net.Client.svg) ![Nuget downloads](https://img.shields.io/nuget/dt/Bitmex.Net.Client.svg)
 
@@ -111,3 +106,9 @@ See examples at Bitmex.Net.ClientExample. Add your own appconfig.json and set up
   }  
 }
 ```
+
+## Donations
+Donations are greatly appreciated and a motivation to keep improving.
+
+**Btc**:  14nuXrFEKTrvyhHWYW7RgRt4zVxBfwff5V  
+**Eth**:  0x7CD82F45b173891e36d68ea4311B8b13A11a3B4b
