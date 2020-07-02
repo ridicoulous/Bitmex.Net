@@ -19,7 +19,7 @@ jobs:
           # NuGet package id, used for version detection & defaults to project name
           PACKAGE_NAME: Bitmex.Net.Client          
           # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
-          VERSION_FILE_PATH: common.props
+          #VERSION_FILE_PATH: common.props
           # Regex pattern to extract version info in a capturing group
           VERSION_REGEX: <Version>(.*)<\/Version>          
           # API key to authenticate with NuGet server
