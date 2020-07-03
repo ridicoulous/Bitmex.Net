@@ -19,7 +19,6 @@ namespace Bitmex.Net.Client.Tests
         [Fact]
         public void ShouldReturnFourLastBuyTrades()
         {
-            var t = _client.GetTrades();
             var trades = _client.GetTrades(new BitmexRequestWithFilter()
                 .WithSymbolFilter("XBTUSD")
                 .WithSideFilter(BitmexOrderSide.Buy)
@@ -28,7 +27,18 @@ namespace Bitmex.Net.Client.Tests
             Assert.True(trades);
             Assert.True(trades.Data.Count == 4);
             Assert.True(trades.Data.All(c => c.Side == BitmexOrderSide.Buy && c.Symbol == "XBTUSD"));
-        }          
+        }
+        [Fact]
+        public void ShouldReturnFourLastTradeBins()
+        {
+            var tradeBuckets = _client.GetTradesBucketed("1m", true, new BitmexRequestWithFilter()
+                .WithSymbolFilter("XBTUSD")
+                .WithNewestFirst()
+                .WithResultsCount(402));
+            Assert.True(tradeBuckets);
+            Assert.True(tradeBuckets.Data.Count == 402);
+            Assert.True(tradeBuckets.Data.All(c => c.Symbol == "XBTUSD"&&c.Close    >0));
+        }
         [Fact]
         public void ShouldCreateDictionaryFromObject()
         {
@@ -43,7 +53,7 @@ namespace Bitmex.Net.Client.Tests
             Assert.Equal(5, dic.Count);
         }
         [Fact]
-        public void ShouldParseBitmexError() 
+        public void ShouldParseBitmexError()
         {
             string error = "{ \"error\": { \"message\": \"Error message\", \"name\": \"Error name\" } }";
             JToken token = JToken.Parse(error);
