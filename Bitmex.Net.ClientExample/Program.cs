@@ -1,5 +1,6 @@
 ﻿using Bitmex.Net.Client;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Bitmex.Net.Client.Helpers.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +9,6 @@ using Bitmex.Net.Client.Objects.Socket;
 using System.Threading;
 using System.Globalization;
 using Newtonsoft.Json;
-using System.Linq;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using System.Reactive.Linq;
@@ -21,9 +21,11 @@ namespace Bitmex.Net.ClientExample
         static async Task Main(string[] args)
         {
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
-            var data = await bitmexHistoricalTradesLoader.GetDailyTrades(new DateTime(2020, 5, 20),default,"ETHUSD");
-            Console.WriteLine($"{data.Count()}");
+            var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2020, 5, 20));
+            var data2 = await bitmexHistoricalTradesLoader.GetTradesByPeriodAsync(new DateTime(2020, 5, 20), new DateTime(2020, 5, 21));
 
+            var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
+            
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
