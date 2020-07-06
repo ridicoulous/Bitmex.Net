@@ -1,9 +1,12 @@
-﻿using Bitmex.Net.Client.Objects;
+﻿using Bitmex.Net.Client.Interfaces;
+using Bitmex.Net.Client.Objects;
+using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -14,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Bitmex.Net.Client.HistoricalData
 {
-    public class BitmexHistoricalTradesLoader
+    public class BitmexHistoricalTradesLoader : IBitmexHistoricalTradesLoader
     {
         private readonly HttpClient _client;
         private readonly bool _isTest;
@@ -25,17 +28,58 @@ namespace Bitmex.Net.Client.HistoricalData
             _client.Timeout = TimeSpan.FromMinutes(10);
             _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36");
         }
-        private string GetUrl(DateTime date)
+        private string GetUrl<T>(DateTime date) where T : IBitmexHistoricalDataEntry
         {
             string testnetPrefix = _isTest ? "-testnet" : String.Empty;
-            return $"https://s3-eu-west-1.amazonaws.com/public{testnetPrefix}.bitmex.com/data/trade/{date:yyyyMMdd}.csv.gz";
-        }    
-        public async Task<List<Trade>> GetDailyTrades(DateTime date, CancellationToken cancellationToken = default, params string[] symbols)
+            return $"https://s3-eu-west-1.amazonaws.com/public{testnetPrefix}.bitmex.com/data/{typeof(T).Name.ToLower()}/{date.Date:yyyyMMdd}.csv.gz";
+        }
+        public List<Trade> GetDailyTrades(DateTime date, params string[] symbols) => GetDailyTradesAsync(date, symbols).GetAwaiter().GetResult();
+        public async Task<List<Trade>> GetDailyTradesAsync(DateTime date, params string[] symbols)
+        {
+            return await LoadDailyData<Trade>(date, symbols);
+        }
+        public List<Quote> GetDailyQuotes(DateTime date, params string[] symbols) => GetDailyQuotesAsync(date, symbols).GetAwaiter().GetResult();
+
+        public async Task<List<Quote>> GetDailyQuotesAsync(DateTime date, params string[] symbols)
+        {
+            return await LoadDailyData<Quote>(date, symbols);
+        }
+        public async Task<List<Trade>> GetTradesByPeriodAsync(DateTime from, DateTime to, params string[] symbols)
+        {
+            return await LoadDataByPeriodAsync<Trade>(from, to, symbols);
+        }
+        public List<Quote> GetQuotesByPeriod(DateTime from, DateTime to, params string[] symbols) => GetQuotesByPeriodAsync(from, to, symbols).GetAwaiter().GetResult();
+        public async Task<List<Quote>> GetQuotesByPeriodAsync(DateTime from, DateTime to, params string[] symbols)
+        {
+            return await LoadDataByPeriodAsync<Quote>(from, to, symbols);
+        }
+        private async Task<List<T>> LoadDataByPeriodAsync<T>(DateTime from, DateTime to, params string[] symbols) where T : IBitmexHistoricalDataEntry
+        {
+            if (from.Date > to.Date)
+            {
+                throw new Exception($"{nameof(to)} date must be greater than {nameof(from)} date");
+            }
+            var daysCount = to.Date.AddDays(1).Subtract(from.Date).Days;
+            if (from.Date == to.Date || daysCount == 1)
+            {
+                return await LoadDailyData<T>(from, symbols);
+            }
+            
+            List<T> result = new List<T>(2_500_000 * daysCount);
+            while (from.Date <= to.Date)
+            {
+                var dailyData = await LoadDailyData<T>(from, symbols: symbols);
+                result.AddRange(dailyData);
+                from = from.AddDays(1);
+            }
+            return result;
+        }
+
+        private async Task<List<T>> LoadDailyData<T>(DateTime date, params string[] symbols) where T : IBitmexHistoricalDataEntry
         {
             bool shoulCheckSymbols = symbols.Any();
-            var result = new List<Trade>(2_000_000);
-
-            var stream = await _client.GetAsync(GetUrl(date),cancellationToken);
+            var result = new List<T>(2_500_000);
+            var stream = await _client.GetAsync(GetUrl<T>(date));
             if (!stream.IsSuccessStatusCode)
             {
                 throw new Exception($"Seems like here is any info at this date {date}");
@@ -50,27 +94,21 @@ namespace Bitmex.Net.Client.HistoricalData
                         {
                             csv.Configuration.Delimiter = ",";
                             csv.Configuration.IgnoreBlankLines = true;
-                            csv.Configuration.RegisterClassMap<TradeMap>();                            
+                            csv.Configuration.RegisterClassMap<TradeMap>();
+                            csv.Configuration.RegisterClassMap<QuoteMap>();
                             while (csv.Read())
                             {
-                                try
+                                var row = csv.GetRecord<T>();
+                                if (shoulCheckSymbols)
                                 {
-                                    var row = csv.GetRecord<Trade>();
-                                    if (shoulCheckSymbols)
-                                    {
-                                        if (symbols.Contains(row.Symbol))
-                                        {
-                                            result.Add(row);
-                                        }
-                                    }
-                                    else
+                                    if (symbols.Contains(row.Symbol))
                                     {
                                         result.Add(row);
                                     }
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    throw ex;
+                                    result.Add(row);
                                 }
                             }
                         }
@@ -79,46 +117,10 @@ namespace Bitmex.Net.Client.HistoricalData
             }
             return result;
         }
-        public sealed class TradeMap : ClassMap<Trade>
-        {
-            public TradeMap()
-            {
-                CultureInfo en = new CultureInfo("en-US");
-                Map(m => m.Timestamp).Index(0).TypeConverter<DateTimeConverter>();
-                Map(m => m.Symbol).Index(1);
-                Map(m => m.Side).Index(2);
-                Map(m => m.Size).Index(3);
-                Map(m => m.Price).Index(4).TypeConverterOption.NumberStyles(NumberStyles.Float);
-                Map(m => m.TickDirection).Index(5);
-                Map(m => m.TrdMatchID).Index(6);
-                Map(m => m.GrossValue).Index(7);
-                Map(m => m.HomeNotional).Index(8).TypeConverterOption.NumberStyles(NumberStyles.Float);
-                Map(m => m.ForeignNotional).Index(9).TypeConverterOption.NumberStyles(NumberStyles.Float);
-            }
-        }
-        private class DateTimeConverter : DefaultTypeConverter
-        {
-            /// <summary>
-            /// Converts the string to an object.
-            /// </summary>
-            /// <param name="text">The string to convert to an object.</param>
-            /// <param name="row">The <see cref="IReaderRow"/> for the current record.</param>
-            /// <param name="memberMapData">The <see cref="MemberMapData"/> for the member being created.</param>
-            /// <returns>The object created from the string.</returns>
-            public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-            {
-                if (text == null)
-                {
-                    return base.ConvertFromString(null, row, memberMapData);
-                }
-                text = text.Replace("D", " ");
-                var formatProvider = (IFormatProvider)memberMapData.TypeConverterOptions.CultureInfo.GetFormat(typeof(DateTimeFormatInfo)) ?? memberMapData.TypeConverterOptions.CultureInfo;
-                var dateTimeStyle = memberMapData.TypeConverterOptions.DateTimeStyle ?? DateTimeStyles.None;
 
-                return memberMapData.TypeConverterOptions.Formats == null || memberMapData.TypeConverterOptions.Formats.Length == 0
-                    ? DateTime.Parse(text, formatProvider, dateTimeStyle)
-                    : DateTime.ParseExact(text, memberMapData.TypeConverterOptions.Formats, formatProvider, dateTimeStyle);
-            }
+        public List<Trade> GetTradesByPeriod(DateTime from, DateTime to, params string[] symbols)
+        {
+            throw new NotImplementedException();
         }
     }
 }

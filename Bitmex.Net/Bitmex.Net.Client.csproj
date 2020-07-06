@@ -3,7 +3,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Bitmex.Net.Client</PackageId>
     <Authors>ridicoulous</Authors>
@@ -13,7 +13,7 @@
     <Copyright>ridiclous</Copyright>
     <RepositoryUrl>https://github.com/ridicoulous/Bitmex.Net.Client</RepositoryUrl>
     <PackageProjectUrl>https://www.bitmex.com</PackageProjectUrl>
-    <PackageTags>bitmex api-wrapper crypto exchange</PackageTags>
+    <PackageTags>bitmex api-wrapper crypto exchange historical data</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>  
   </PropertyGroup>
 
