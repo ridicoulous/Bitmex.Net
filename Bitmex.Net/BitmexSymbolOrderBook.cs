@@ -40,10 +40,18 @@ namespace Bitmex.Net.Client
         {
             return await WaitForSetOrderBook(10000).ConfigureAwait(false);
         }
-
+ 
         protected override async Task<CallResult<UpdateSubscription>> DoStart()
         {
-            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol).ConfigureAwait(false);
+            /*If you wish to get real-time order book data, we recommend you use the orderBookL2_25 subscription. orderBook10 pushes the top 10 levels on every tick,
+             * but transmits much more data. orderBookL2 pushes the full L2 order book, but the payload can get very large. orderbookL2_25 provides a subset of the full L2 orderbook,
+             * but is throttled. In the future, orderBook10 may be throttled, so use orderBookL2 in any latency-sensitive application. 
+             * For those curious, the id on an orderBookL2_25 or orderBookL2 entry is a composite of price and symbol, and is always unique for any given price level.
+             * It should be used to apply update and delete actions.
+             
+            Due to decrease delays, subscribe to full orderbook
+             */
+            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol,true).ConfigureAwait(false);
             if (!subscriptionResult)
             {
                 return subscriptionResult;
