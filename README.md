@@ -32,7 +32,7 @@ The `BitmexSocketClient` provides functions to interact with the websocket provi
 
 The `BitmexHistoricalTradesLoader` provides ability to bulk load historical trading data from [Bitmex public data endpoint](https://www.bitmex.com/app/apiOverview#Historical-Data)
 
-See examples at Bitmex.Net.ClientExample. Add your own appconfig.json and set up connection to [testnet](https://testnet.bitmex.com/) or [production](https://bitmex.com/) Bitmex API:
+See [examples here](https://github.com/ridicoulous/Bitmex.Net/blob/master/Bitmex.Net.ClientExample/Program.cs). Note that you have to add your own appconfig.json and set up connection to [testnet](https://testnet.bitmex.com/) or [production](https://bitmex.com/) Bitmex API:
 
 ```
 {
