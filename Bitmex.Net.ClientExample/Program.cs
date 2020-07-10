@@ -13,11 +13,13 @@ using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using System.Reactive.Linq;
 using Bitmex.Net.Client.HistoricalData;
+using System.Collections.Generic;
 
 namespace Bitmex.Net.ClientExample
 {
     class Program
-    {       
+    {
+        static List<BitmexOrderBookEntry> entries = new List<BitmexOrderBookEntry>();
         static async Task Main(string[] args)
         {
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
@@ -25,48 +27,65 @@ namespace Bitmex.Net.ClientExample
             var data2 = await bitmexHistoricalTradesLoader.GetTradesByPeriodAsync(new DateTime(2020, 5, 20), new DateTime(2020, 5, 21));
 
             var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
-            
+
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
 
-
+            var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc"));
+            orderBook.OnBestOffersChanged += OnBestOffersChanged;
+            await orderBook.StartAsync();
             var configuration = builder.Build();
-            var c = new BitmexClient(new BitmexClientOptions(true) 
+
+            var c = new BitmexClient(new BitmexClientOptions(true)
             {
-                ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]),              
+                ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]),
             });
-            
-            var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD" } );
-            await Task.Delay(1000);
-            var o2 = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=43000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD" } );
 
-            var cancel = await c.CancelOrderAsync(new CancelOrderRequest(new string[] { o.Data.Id, o2.Data.Id }));
+            // var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD" } );
+            // await Task.Delay(1000);
+            // var o2 = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=43000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD" } );
+
+            // var cancel = await c.CancelOrderAsync(new CancelOrderRequest(new string[] { o.Data.Id, o2.Data.Id }));
 
 
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
+            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["prod:key"], configuration["prod:secret"], isTestnet: false)
             {
                 LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
                 SocketNoDataTimeout = TimeSpan.FromSeconds(45)
             });
 
-            socket.OnUserWalletUpdate += Socket_OnUserWalletUpdate;
-
+            //socket.OnUserWalletUpdate += Socket_OnUserWalletUpdate;
+            socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
             //socket.OnUserExecutionsUpdate += OnExecution;
-             socket.OnUserPositionsUpdate += BitmexSocketClient_OnUserPositionsUpdate;
-            socket.OnOrderBookL2_25Update += Socket_OnOrderBookL2_25Update;
+            // socket.OnUserPositionsUpdate += BitmexSocketClient_OnUserPositionsUpdate;
+            // socket.OnorderBookL2Update += Socket_OnOrderBookL2_25Update;
             //socket.OnTradeUpdate += Socket_OnTradeUpdate;
             //  socket.OnSocketClose += Socket_OnSocketClose;
             // socket.OnSocketException += Socket_OnSocketException;
             //socket.OnChatMessageUpdate += Socket_OnChatMessageUpdate;
-             socket.Subscribe(new BitmexSubscribeRequest()
-                .AddSubscription(BitmexSubscribtions.Order, "XBTUSD")
-                .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
-               .AddSubscription(BitmexSubscribtions.Wallet));
-          
-  
+            socket.Subscribe(new BitmexSubscribeRequest()
+               .AddSubscription(BitmexSubscribtions.OrderBook10, "XBTUSD"));
+            // .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
+            //.AddSubscription(BitmexSubscribtions.Wallet));
+
+
 
             Console.ReadLine();
+        }
+
+        private static void Socket_OnOrderBook10Update(BitmexSocketEvent<BitmexOrderBookL10> obj)
+        {
+            foreach (var u in obj.Data)
+            {
+                Console.WriteLine($"{DateTime.UtcNow.Subtract(u.Timestamp).TotalMilliseconds} ms diff");
+
+            }
+        }
+
+        private static void OnBestOffersChanged(CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg1, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry arg2)
+        {
+            Console.WriteLine("up");
         }
 
         private static void Socket_OnUserWalletUpdate(BitmexSocketEvent<Wallet> obj)
@@ -98,7 +117,15 @@ namespace Bitmex.Net.ClientExample
 
         private static void Socket_OnOrderBookL2_25Update(BitmexSocketEvent<BitmexOrderBookEntry> obj)
         {
-            Console.WriteLine($"{DateTime.UtcNow}:ob");          
+            entries.AddRange(obj.Data);
+            Console.WriteLine($"{obj.Action} {DateTime.UtcNow:mm:ss.ffffff} WITH {entries.Count  }");
+
+            foreach (var u in obj.Data)
+            {
+                Console.WriteLine($"{u.Size} by  { ((1e8m * 88) - u.Id) * 0.01m}");
+            }
+
+
         }
 
         private static void BitmexSocketClient_OnUserPositionsUpdate(BitmexSocketEvent<Position> obj)
@@ -119,6 +146,6 @@ namespace Bitmex.Net.ClientExample
             Console.WriteLine();
         }
 
-      
+
     }
 }

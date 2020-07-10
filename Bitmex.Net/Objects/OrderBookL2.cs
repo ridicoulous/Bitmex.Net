@@ -3,6 +3,7 @@ using CryptoExchange.Net.Converters;
 using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Bitmex.Net.Client.Objects
@@ -10,7 +11,10 @@ namespace Bitmex.Net.Client.Objects
 
     public class BitmexOrderBookL10
     {
+        [JsonProperty("symbol")]
         public string Symbol { get; set; }
+        [JsonProperty("timestamp")]
+        public DateTime Timestamp { get; set; }
         [JsonProperty("asks")]
         public List<BitmexOrderBook10entry> Asks { get; set; } = new List<BitmexOrderBook10entry>();
         [JsonProperty("bids")]
@@ -48,11 +52,7 @@ namespace Bitmex.Net.Client.Objects
         public decimal Price { get => _price ?? 0; set => _price = value; }
 
         public void SetPrice(int instrumentIndex, decimal tickSize = 0.01m)
-        {
-            if (tickSize == 0.5m)
-            {
-                tickSize = 0.01m;
-            }
+        {           
             Price = ((1e8m * instrumentIndex) - Id) * tickSize;
         }
     }

@@ -7,7 +7,6 @@ namespace Bitmex.Net.Client.Objects
     public class Order
     {
         [JsonProperty("orderID", Required = Required.Always)]
-
         public string Id { get; set; }
 
         [JsonProperty("clOrdID")]
@@ -23,7 +22,8 @@ namespace Bitmex.Net.Client.Objects
         public string Symbol { get; set; }
 
         [JsonProperty("side")]
-        public string Side { get; set; }
+        [JsonConverter(typeof(BitmexOrderSideConverter))]
+        public BitmexOrderSide Side { get; set; }
 
         [JsonProperty("simpleOrderQty")]
         public decimal? SimpleOrderQty { get; set; }
