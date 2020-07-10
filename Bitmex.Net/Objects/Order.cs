@@ -67,8 +67,8 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("exDestination")]
         public string ExDestination { get; set; }
 
-        [JsonProperty("ordStatus")]
-        public string OrdStatus { get; set; }
+        [JsonProperty("ordStatus"), JsonConverter(typeof(BitmexOrderStatusConverter))]
+        public BitmexOrderStatus Status { get; set; }
 
         [JsonProperty("triggered")]
         public string Triggered { get; set; }

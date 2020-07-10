@@ -5,6 +5,15 @@ using System.Text;
 
 namespace Bitmex.Net.Client.Objects
 {
+    public enum BitmexOrderStatus : byte
+    {
+        New,
+        PartiallyFilled,
+        Filled,
+        Rejected,
+        Canceled,
+        Undefined
+    }
     public enum BitmexTimeInForce:byte
     {      
         Day,      
