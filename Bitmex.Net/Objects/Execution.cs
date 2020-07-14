@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Bitmex.Net.Client.Converters;
+using Newtonsoft.Json;
 
 namespace    Bitmex.Net.Client.Objects
 {
@@ -26,8 +27,8 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("symbol")]
         public string Symbol { get; set; }
 
-        [JsonProperty("side")]
-        public string Side { get; set; }
+        [JsonProperty("side"), JsonConverter(typeof(BitmexOrderSideConverter))]
+        public BitmexOrderSide Side { get; set; }
 
         [JsonProperty("lastQty")]
         public decimal? LastQty { get; set; }
