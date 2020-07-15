@@ -16,11 +16,23 @@ namespace Bitmex.Net.Client
 {
     public class BitmexSymbolOrderBook : SymbolOrderBook
     {
+        private static BitmexSocketOrderBookOptions defaultOrderBookOptions = new BitmexSocketOrderBookOptions("BitmexOrderBook");
         private readonly BitmexSocketClient _bitmexSocketClient;
         private readonly int InstrumentIndex;
         private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
         private bool isTestnet;
+        public BitmexSymbolOrderBook(string symbol, bool isTest=false) : this(symbol,defaultOrderBookOptions)
+        {
+            isTestnet = isTest;
+            _bitmexSocketClient =  new BitmexSocketClient(new BitmexSocketClientOptions(isTest));
+            InstrumentIndex = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
+            InstrumentTickSize =  _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
+            if (!isTest&&symbol=="XBTUSD")
+            {
+                InstrumentTickSize = 0.01m;
+            }
+        }
         public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base(symbol, options)
         {
             isTestnet = options.IsTestnet;
