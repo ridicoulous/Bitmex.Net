@@ -22,19 +22,15 @@ namespace Bitmex.Net.ClientExample
         static List<BitmexOrderBookEntry> entries = new List<BitmexOrderBookEntry>();
         static async Task Main(string[] args)
         {
-            BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
-            var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2020, 5, 20));
-            var data2 = await bitmexHistoricalTradesLoader.GetTradesByPeriodAsync(new DateTime(2020, 5, 20), new DateTime(2020, 5, 21));
-
-            var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
+            //await TestHistoricalDataLoading();
 
             Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
 
-            var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc"));
-            orderBook.OnBestOffersChanged += OnBestOffersChanged;
-            await orderBook.StartAsync();
+            //var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc"));
+            //orderBook.OnBestOffersChanged += OnBestOffersChanged;
+            //await orderBook.StartAsync();
             var configuration = builder.Build();
 
             var c = new BitmexClient(new BitmexClientOptions(true)
@@ -42,7 +38,10 @@ namespace Bitmex.Net.ClientExample
                 ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]),
             });
 
-            // var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD" } );
+             var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD",ClientOrderId= "42424233" } );
+            var placed = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithClientOrderIdFilter("42424233"));
+            var placed2 = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithOrderIdFilter(o.Data.Id));
+
             // await Task.Delay(1000);
             // var o2 = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=43000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD" } );
 
@@ -73,7 +72,14 @@ namespace Bitmex.Net.ClientExample
 
             Console.ReadLine();
         }
+        private static async Task TestHistoricalDataLoading()
+        {
+            BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
+            var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2020, 5, 20));
+            var data2 = await bitmexHistoricalTradesLoader.GetTradesByPeriodAsync(new DateTime(2020, 5, 20), new DateTime(2020, 5, 21));
 
+            var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
+        }
         private static void Socket_OnOrderBook10Update(BitmexSocketEvent<BitmexOrderBookL10> obj)
         {
             foreach (var u in obj.Data)

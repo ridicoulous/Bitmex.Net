@@ -98,7 +98,14 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         {
             return filter.AddFilter(key, value);
         }
-
+        public static BitmexRequestWithFilter WithOrderIdFilter(this BitmexRequestWithFilter filter, string orderId)
+        {
+            return filter.AddFilter("orderID", orderId);
+        }
+        public static BitmexRequestWithFilter WithClientOrderIdFilter(this BitmexRequestWithFilter filter, string clientOrderId)
+        {
+            return filter.AddFilter("clOrdID", clientOrderId);
+        }
         public static BitmexRequestWithFilter WithStartingFrom(this BitmexRequestWithFilter filter, int startingPointToGetch)
         {
             filter.Start = startingPointToGetch;
