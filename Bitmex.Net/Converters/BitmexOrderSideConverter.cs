@@ -17,10 +17,10 @@ namespace Bitmex.Net.Client.Converters
             new KeyValuePair<BitmexOrderSide, string>(BitmexOrderSide.Undefined, ""),
         };
     }
-    public class BitmexOrderSideToOrderBookEntryTypeConverter : BaseConverter<OrderBookEntryType>
+    public class BitmexOrderBookEntryTypeConverter : BaseConverter<OrderBookEntryType>
     {
-        public BitmexOrderSideToOrderBookEntryTypeConverter() : this(true) { }
-        public BitmexOrderSideToOrderBookEntryTypeConverter(bool quotes) : base(quotes) { }
+        public BitmexOrderBookEntryTypeConverter() : this(true) { }
+        public BitmexOrderBookEntryTypeConverter(bool quotes) : base(quotes) { }
 
         protected override List<KeyValuePair<OrderBookEntryType, string>> Mapping => new List<KeyValuePair<OrderBookEntryType, string>>
         {

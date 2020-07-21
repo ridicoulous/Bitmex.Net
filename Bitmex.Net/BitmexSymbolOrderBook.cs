@@ -22,24 +22,60 @@ namespace Bitmex.Net.Client
         private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
         private bool isTestnet;
-        public BitmexSymbolOrderBook(string symbol, bool isTest=false) : this(symbol,defaultOrderBookOptions)
+        /// <summary>
+        /// The last used id
+        /// </summary>
+        protected static long lastId;
+        /// <summary>
+        /// Lock for id generating
+        /// </summary>
+        protected static object idLock = new object();
+        /// <summary>
+        /// Last is used
+        /// </summary>
+        public static long LastId => lastId;
+
+        /// <summary>
+        /// Generate a unique id
+        /// </summary>
+        /// <returns></returns>
+        protected long NextId()
+        {
+            lock (idLock)
+            {
+                lastId ++;
+                return lastId;
+            }
+        }
+        public BitmexSymbolOrderBook(string symbol, bool isTest = false) : this(symbol, defaultOrderBookOptions)
         {
             isTestnet = isTest;
-            _bitmexSocketClient =  new BitmexSocketClient(new BitmexSocketClientOptions(isTest));
+            _bitmexSocketClient = new BitmexSocketClient(new BitmexSocketClientOptions(isTest));
             InstrumentIndex = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
-            InstrumentTickSize =  _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
-            if (!isTest&&symbol=="XBTUSD")
+            InstrumentTickSize = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
+            if (/*!isTestnet &&*/ symbol == "XBTUSD")
             {
                 InstrumentTickSize = 0.01m;
             }
         }
+        /// <summary>
+        /// AttentioN! For price calculation at order book update you should use level id and and instrument index <see href=""/></see>
+        /// example, XBTUSD has 88 index and tick size returned by api =0.5, but to calculate price at orderbookL2 update you should use 0.01. this value is hardcoded
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="options"></param>
+        /// <param name="bitmexSocketClient"></param>
         public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base(symbol, options)
         {
             isTestnet = options.IsTestnet;
             _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
             InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
             InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
-        }        
+            if (/*!isTestnet &&*/ symbol == "XBTUSD")
+            {
+                InstrumentTickSize = 0.01m;
+            }
+        }
         public override void Dispose()
         {
             processBuffer.Clear();
@@ -52,7 +88,7 @@ namespace Bitmex.Net.Client
         {
             return await WaitForSetOrderBook(10000).ConfigureAwait(false);
         }
- 
+
         protected override async Task<CallResult<UpdateSubscription>> DoStart()
         {
             /*If you wish to get real-time order book data, we recommend you use the orderBookL2_25 subscription. orderBook10 pushes the top 10 levels on every tick,
@@ -63,7 +99,7 @@ namespace Bitmex.Net.Client
              
             Due to decrease delays, subscribe to full orderbook
              */
-            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol,true).ConfigureAwait(false);
+            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol, true).ConfigureAwait(false);
             if (!subscriptionResult)
             {
                 return subscriptionResult;
@@ -75,7 +111,7 @@ namespace Bitmex.Net.Client
         public DateTime LastAction;
         private void OnUpdate(BitmexSocketEvent<BitmexOrderBookEntry> update)
         {
-            if (update.Action == BitmexAction.Undefined || update.Data == null || !update.Data.Any())
+            if (update.Action == BitmexAction.Undefined || update.Data==null)
             {
                 return;
             }
@@ -89,6 +125,7 @@ namespace Bitmex.Net.Client
                 Create(update.Data);
                 return;
             }
+
             Update(update.Data);
         }
 
@@ -98,9 +135,8 @@ namespace Bitmex.Net.Client
         /// <param name="entries"></param>
         private void Create(List<BitmexOrderBookEntry> entries)
         {
-            SetInitialOrderBook(DateTime.UtcNow.Ticks, entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
+            SetInitialOrderBook(NextId(), entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
             IsInititalBookSetted = true;
-
         }
         private void Update(List<BitmexOrderBookEntry> entries)
         {
@@ -113,10 +149,10 @@ namespace Bitmex.Net.Client
                         return;
                     }
                     foreach (var e in entries)
-                    {
+                    {                       
                         e.SetPrice(InstrumentIndex, InstrumentTickSize);
                     }
-                    UpdateOrderBook(DateTime.UtcNow.Ticks, entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
+                    UpdateOrderBook(LastId, NextId(), entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
                     LastAction = DateTime.UtcNow;
                 }
                 else
@@ -126,10 +162,10 @@ namespace Bitmex.Net.Client
                     {
                         log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, $"Setting orderdbook through api");
 
-                        var ob = client.GetOrderBook(Symbol);
+                        var ob = client.GetOrderBook(Symbol, 0);
                         if (ob)
                         {
-                            SetInitialOrderBook(DateTime.UtcNow.Ticks, ob.Data.Where(x => x.Side == OrderBookEntryType.Bid), ob.Data.Where(x => x.Side == OrderBookEntryType.Ask));
+                            SetInitialOrderBook(NextId(), ob.Data.Where(x => x.Side == OrderBookEntryType.Bid), ob.Data.Where(x => x.Side == OrderBookEntryType.Ask));
                             IsInititalBookSetted = true;
                         }
                     }

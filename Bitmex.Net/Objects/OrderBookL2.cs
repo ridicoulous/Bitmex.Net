@@ -40,7 +40,7 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("id", Required = Required.Always)]
         public long Id { get; set; }
 
-        [JsonProperty("side"), JsonConverter(typeof(BitmexOrderSideToOrderBookEntryTypeConverter))]
+        [JsonProperty("side"), JsonConverter(typeof(BitmexOrderBookEntryTypeConverter))]
         public OrderBookEntryType Side { get; set; }
 
         [JsonProperty("size")]
