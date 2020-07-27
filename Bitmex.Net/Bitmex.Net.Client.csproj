@@ -3,7 +3,7 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.1.7</Version>
+    <Version>1.1.8</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Bitmex.Net.Client</PackageId>
     <Authors>ridicoulous</Authors>
@@ -14,7 +14,8 @@
     <RepositoryUrl>https://github.com/ridicoulous/Bitmex.Net.Client</RepositoryUrl>
     <PackageProjectUrl>https://www.bitmex.com</PackageProjectUrl>
     <PackageTags>bitmex api-wrapper crypto exchange historical data</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>  
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <Description>Bitmex.Net is a .Net wrapper for the Bitmex API. It includes all features the API provides, REST API and Websocket, using clear and readable objects including but not limited to Reading market info, Placing and managing orders and Reading balances and funds</Description>  
   </PropertyGroup>
 
   <ItemGroup>

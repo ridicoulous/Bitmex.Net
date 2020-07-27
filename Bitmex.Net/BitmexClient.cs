@@ -469,6 +469,10 @@ namespace Bitmex.Net.Client
             {
                 updateOrderRequest.OrigClOrdId.ValidateNotNull(nameof(updateOrderRequest.OrigClOrdId) + " (you have to send order id received from Bitmex or your own identifier, sended on order posting");
             }
+            if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId)&& String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId) && updateOrderRequest.ClOrdId==updateOrderRequest.OrigClOrdId)
+            {
+                updateOrderRequest.ClOrdId = null;
+            }
             var parameters = updateOrderRequest.AsDictionary();
             parameters.ValidateNotNull(nameof(updateOrderRequest));
             return await SendRequest<Order>(GetUrl(OrderEndpoint), HttpMethod.Put, ct, parameters, true, false).ConfigureAwait(false);
