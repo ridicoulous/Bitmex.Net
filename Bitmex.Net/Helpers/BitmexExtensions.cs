@@ -148,27 +148,28 @@ namespace Bitmex.Net.Client.Helpers.Extensions
             filter.Reverse = false;
             return filter;
         }
+
         /// <summary>
-        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
+        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs. This filter allow accuracy only by minutes</see>
         /// </summary>     
         public static BitmexRequestWithFilter WithStartTimeFilter(this BitmexRequestWithFilter filter, DateTime from)
         {
-            return filter.AddFilter("startTime", from.ToString("yyyy-MM-dd HH:mm:ss.zzz"));
+            return filter.AddFilter("startTime", from.ToString("yyyy-MM-dd HH:mm"));
         }
 
         /// <summary>
-        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
+        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs. This filter allow accuracy only by minutes</see>
         /// </summary>  
         public static BitmexRequestWithFilter WithEndTimeFilter(this BitmexRequestWithFilter filter, DateTime to)
         {
-            return filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm:ss.zzz"));
+            return filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm"));
         }
         /// <summary>
-        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
+        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs. This filter allow accuracy only by minutes</see>
         /// </summary>  
         public static BitmexRequestWithFilter WithExactDateTimeFilter(this BitmexRequestWithFilter filter, DateTime exactDateTimeFilter)
         {
-            return filter.AddFilter("timestamp", exactDateTimeFilter.ToString("yyyy-MM-dd HH:mm:ss"));
+            return filter.AddFilter("timestamp", exactDateTimeFilter.ToString("yyyy-MM-dd HH:mm"));
         }
         /// <summary>
         /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs</see>
