@@ -88,6 +88,11 @@ namespace Bitmex.Net.Client
         {
 
         }
+        public BitmexClient(HttpClient client):base(new BitmexClientOptions(client),null)
+        {
+
+        }
+      
         public BitmexClient(BitmexClientOptions options) : base(options, options.ApiCredentials == null ? null : new BitmexAuthenticationProvider(options.ApiCredentials))
         {
 
@@ -95,6 +100,12 @@ namespace Bitmex.Net.Client
         public BitmexClient(BitmexClientOptions exchangeOptions, BitmexAuthenticationProvider authenticationProvider) : base(exchangeOptions, authenticationProvider)
         {
         }
+        public void SetApiCredentials(string key, string secret)
+        {
+            log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, "Setting api credentials");
+            this.authProvider = new BitmexAuthenticationProvider(new ApiCredentials(key, secret));
+        }
+       
         private Dictionary<string, object> GetParameters(BitmexRequestWithFilter requestWithFilter = null)
         {
             return requestWithFilter?.AsDictionary() ?? new Dictionary<string, object>();
@@ -124,6 +135,11 @@ namespace Bitmex.Net.Client
         {
             var parameters = cancelOrderRequest.AsDictionary();
             return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
+        }
+        public async Task<WebCallResult<List<Order>>> FakeRequest404Async()
+        {
+           // var parameters = cancelOrderRequest.AsDictionary();
+            return await SendRequest<List<Order>>(GetUrl("asdasd"), HttpMethod.Get, default, new Dictionary<string, object>(), false, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Instrument>> GetActiveInstruments() => GetActiveInstrumentsAsync().Result;
@@ -519,8 +535,9 @@ namespace Bitmex.Net.Client
         protected override IRequest ConstructRequest(Uri uri, HttpMethod method, Dictionary<string, object> parameters, bool signed, PostParameters postPosition, ArrayParametersSerialization arraySerialization)
         {
             var req = base.ConstructRequest(uri, method, parameters, signed,postParametersPosition,arraySerialization);
-            req.AddHeader("Connection", "Keep-Alive");
-            req.AddHeader("Keep-Alive", "900000");
+            req.AddHeader("Connection", "keep-alive");
+            req.AddHeader("keep-alive", "900000");
+            
             return req;
            
         }
