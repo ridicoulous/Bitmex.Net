@@ -30,7 +30,7 @@ namespace Bitmex.Net.Client
         public BitmexClientOptions(HttpClient client) : base(client, "https://www.bitmex.com/api/v1")
         {            
             this.LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            LogWriters = new List<System.IO.TextWriter>() { new DebugTextWriter(), new ThreadSafeFileWriter("bitmextestlog.txt") };
+            LogWriters = new List<System.IO.TextWriter>() { new DebugTextWriter() };
 
         }
         public BitmexClientOptions(string key, string secret, bool isTest = false) : base("https://www.bitmex.com/api/v1")

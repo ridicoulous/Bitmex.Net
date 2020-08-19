@@ -53,7 +53,7 @@ namespace Bitmex.Net.Client
             _bitmexSocketClient = new BitmexSocketClient(new BitmexSocketClientOptions(isTest));
             InstrumentIndex = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
             InstrumentTickSize = _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
-            if (/*!isTestnet &&*/ symbol == "XBTUSD")
+            if (symbol == "XBTUSD")
             {
                 InstrumentTickSize = 0.01m;
             }
@@ -71,7 +71,7 @@ namespace Bitmex.Net.Client
             _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
             InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].Index;
             InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.InstrumentsIndexesAndTicks[symbol].TickSize;
-            if (/*!isTestnet &&*/ symbol == "XBTUSD")
+            if (symbol == "XBTUSD")
             {
                 InstrumentTickSize = 0.01m;
             }

@@ -48,9 +48,15 @@ namespace Bitmex.Net.ClientExample
         static void  Main(string[] args)
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddHttpClient<MyRestClientOptions>().AddPolicyHandler(GetRetryPolicy());
+            serviceCollection.AddHttpClient<MyRestClientOptions>()
+                .AddPolicyHandler(Policy.HandleResult<HttpResponseMessage>(r =>
+                !r.IsSuccessStatusCode 
+                && r.StatusCode == System.Net.HttpStatusCode.NotFound)
+                .WaitAndRetryAsync(5,retry=>TimeSpan.FromMilliseconds( 500*retry)));
             var provider = serviceCollection.BuildServiceProvider();
             var opts = provider.GetService<MyRestClientOptions>();
+
+              //.AddPolicyHandler(Policy.HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && r.StatusCode == System.Net.HttpStatusCode.NotFound).CircuitBreakerAsync(0, TimeSpan.Zero));
             var cl = new BitmexClient(opts);
             
             var result =  cl.FakeRequest404Async().Result;
@@ -162,8 +168,6 @@ namespace Bitmex.Net.ClientExample
         private static void Socket_OnOrderBookL2_25Update(BitmexSocketEvent<BitmexOrderBookEntry> obj)
         {
             entries.AddRange(obj.Data);
-            Console.WriteLine($"{obj.Action} {DateTime.UtcNow:mm:ss.ffffff} WITH {entries.Count  }");
-
             foreach (var u in obj.Data)
             {
                 Console.WriteLine($"{u.Size} by  { ((1e8m * 88) - u.Id) * 0.01m}");
