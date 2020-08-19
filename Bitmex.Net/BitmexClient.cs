@@ -146,7 +146,7 @@ namespace Bitmex.Net.Client
         /// <inheritdoc cref="IBitmexClient"/>        
         public async Task<WebCallResult<List<Instrument>>> GetActiveInstrumentsAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<Instrument>>(GetUrl(InstrumentsEndpoint), HttpMethod.Get, ct, null, true).ConfigureAwait(false);
+            return await SendRequest<List<Instrument>>(GetUrl(InstrumentsEndpoint), HttpMethod.Get, ct, null, false).ConfigureAwait(false);
         }
         public WebCallResult<List<Instrument>> GetActiveInstrumentsAndIndicies() => GetActiveInstrumentsAndIndiciesAsync().Result;
 
@@ -159,7 +159,7 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<InstrumentInterval>> GetActiveIntervalsAsync(CancellationToken ct = default)
         {
-            return await SendRequest<InstrumentInterval>(GetUrl(ActiveInstrumentsAndIndiciesEndpoint), HttpMethod.Get, ct, null, true).ConfigureAwait(false);
+            return await SendRequest<InstrumentInterval>(GetUrl(ActiveInstrumentsAndIndiciesEndpoint), HttpMethod.Get, ct, null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Announcement>> GetAnnouncements(List<string> columns = null) => GetAnnouncementsAsync(columns).Result;
@@ -319,7 +319,7 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Order>>> GetOrdersAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Get, ct, parameters, true, true).ConfigureAwait(false);
+            return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Position>> GetPositions(BitmexRequestWithFilter requestWithFilter = null) => GetPositionsAsync(requestWithFilter).Result;
