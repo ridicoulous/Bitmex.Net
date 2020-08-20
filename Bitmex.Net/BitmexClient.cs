@@ -390,14 +390,14 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<User>> GetUserAccountAsync(CancellationToken ct = default)
         {
-            return await SendRequest<User>(GetUrl(GetUserAccountEndpoint), HttpMethod.Get, ct, null, true, true);
+            return await SendRequest<User>(GetUrl(GetUserAccountEndpoint), HttpMethod.Get, ct, null, true, false).ConfigureAwait(false);
         }
 
         public WebCallResult<object> GetWebsokcetHelp() => GetWebsokcetHelpAsync().Result;
 
         public async Task<WebCallResult<object>> GetWebsokcetHelpAsync(CancellationToken ct = default)
         {
-            return await SendRequest<object>(GetUrl(SchemaWebsokcetHelpEndpoint), HttpMethod.Get, ct, null, false, true);
+            return await SendRequest<object>(GetUrl(SchemaWebsokcetHelpEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
         }
 
         public WebCallResult<Order> PlaceOrder(PlaceOrderRequest placeOrderRequest) => PlaceOrderAsync(placeOrderRequest).Result;
@@ -516,7 +516,7 @@ namespace Bitmex.Net.Client
         {
             var parameters = GetParameters();
             parameters.Add("currency", currency);
-            return await SendRequest<Wallet>(GetUrl(UserWalletEndpoint), HttpMethod.Get, ct, parameters, true, true);
+            return await SendRequest<Wallet>(GetUrl(UserWalletEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
         }
 
         protected Uri GetUrl(string endpoint)
@@ -549,7 +549,7 @@ namespace Bitmex.Net.Client
             parameters.Add("currency", currency);
             parameters.Add("count", count);
 
-            return await SendRequest<List<Transaction>>(GetUrl(UserWalletHistoryEndpoint), HttpMethod.Get, ct, parameters, true);
+            return await SendRequest<List<Transaction>>(GetUrl(UserWalletHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
         }
 
 
