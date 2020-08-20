@@ -86,7 +86,7 @@ namespace Bitmex.Net.Client
         #endregion       
         public BitmexClient() : this(DefaultOptions)
         {
-
+            
         }
         public BitmexClient(HttpClient client):base(new BitmexClientOptions(client),null)
         {
