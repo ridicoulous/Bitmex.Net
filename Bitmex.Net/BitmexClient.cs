@@ -95,7 +95,7 @@ namespace Bitmex.Net.Client
       
         public BitmexClient(BitmexClientOptions options) : base(options, options.ApiCredentials == null ? null : new BitmexAuthenticationProvider(options.ApiCredentials))
         {
-
+           
         }
         public BitmexClient(BitmexClientOptions exchangeOptions, BitmexAuthenticationProvider authenticationProvider) : base(exchangeOptions, authenticationProvider)
         {
@@ -135,12 +135,7 @@ namespace Bitmex.Net.Client
         {
             var parameters = cancelOrderRequest.AsDictionary();
             return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
-        }
-        public async Task<WebCallResult<List<Order>>> FakeRequest404Async()
-        {
-           // var parameters = cancelOrderRequest.AsDictionary();
-            return await SendRequest<List<Order>>(GetUrl("asdasd"), HttpMethod.Get, default, new Dictionary<string, object>(), false, false).ConfigureAwait(false);
-        }
+        }       
 
         public WebCallResult<List<Instrument>> GetActiveInstruments() => GetActiveInstrumentsAsync().Result;
         /// <inheritdoc cref="IBitmexClient"/>        
@@ -532,17 +527,6 @@ namespace Bitmex.Net.Client
             }
             return null;
         }
-        protected override IRequest ConstructRequest(Uri uri, HttpMethod method, Dictionary<string, object> parameters, bool signed, PostParameters postPosition, ArrayParametersSerialization arraySerialization)
-        {
-            var req = base.ConstructRequest(uri, method, parameters, signed,postParametersPosition,arraySerialization);
-            req.AddHeader("Connection", "keep-alive");
-            req.AddHeader("keep-alive", "900000");
-            
-            return req;
-           
-        }
-      
-
         public async Task<WebCallResult<List<Transaction>>> GetUserWalletHistoryAsync(string currency = "XBt", int count = 100, CancellationToken ct = default)
         {
             var parameters = GetParameters();

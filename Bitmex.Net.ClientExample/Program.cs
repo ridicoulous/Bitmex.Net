@@ -47,21 +47,7 @@ namespace Bitmex.Net.ClientExample
         static List<BitmexOrderBookEntry> entries = new List<BitmexOrderBookEntry>();
         static void  Main(string[] args)
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddHttpClient<MyRestClientOptions>()
-                .AddPolicyHandler(Policy.HandleResult<HttpResponseMessage>(r =>
-                !r.IsSuccessStatusCode 
-                && r.StatusCode == System.Net.HttpStatusCode.NotFound)
-                .WaitAndRetryAsync(5,retry=>TimeSpan.FromMilliseconds( 500*retry)));
-            var provider = serviceCollection.BuildServiceProvider();
-            var opts = provider.GetService<MyRestClientOptions>();
 
-              //.AddPolicyHandler(Policy.HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && r.StatusCode == System.Net.HttpStatusCode.NotFound).CircuitBreakerAsync(0, TimeSpan.Zero));
-            var cl = new BitmexClient(opts);
-            
-            var result =  cl.FakeRequest404Async().Result;
-
-            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
             //await TestHistoricalDataLoading();
