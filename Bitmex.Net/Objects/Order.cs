@@ -6,7 +6,7 @@ namespace Bitmex.Net.Client.Objects
     /// <summary>Placement, Cancellation, Amending, and History</summary>
     public class Order
     {
-        [JsonProperty("orderID", Required = Required.Always)]
+        [JsonProperty("orderID")]
         public string Id { get; set; }
 
         [JsonProperty("clOrdID")]
@@ -105,8 +105,8 @@ namespace Bitmex.Net.Client.Objects
 
         [JsonProperty("timestamp")]
         public System.DateTime? Timestamp { get; set; }
-
-
+        [JsonProperty("error")]
+        public string Error { get; set; }
     }
 
 }

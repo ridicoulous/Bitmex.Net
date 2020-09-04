@@ -86,16 +86,16 @@ namespace Bitmex.Net.Client
         #endregion       
         public BitmexClient() : this(DefaultOptions)
         {
-            
+
         }
-        public BitmexClient(HttpClient client):base(new BitmexClientOptions(client),null)
+        public BitmexClient(HttpClient client) : base(new BitmexClientOptions(client), null)
         {
 
         }
-      
+
         public BitmexClient(BitmexClientOptions options) : base(options, options.ApiCredentials == null ? null : new BitmexAuthenticationProvider(options.ApiCredentials))
         {
-           
+
         }
         public BitmexClient(BitmexClientOptions exchangeOptions, BitmexAuthenticationProvider authenticationProvider) : base(exchangeOptions, authenticationProvider)
         {
@@ -105,7 +105,7 @@ namespace Bitmex.Net.Client
             log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, "Setting api credentials");
             this.authProvider = new BitmexAuthenticationProvider(new ApiCredentials(key, secret));
         }
-       
+
         private Dictionary<string, object> GetParameters(BitmexRequestWithFilter requestWithFilter = null)
         {
             return requestWithFilter?.AsDictionary() ?? new Dictionary<string, object>();
@@ -134,8 +134,19 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Order>>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct = default)
         {
             var parameters = cancelOrderRequest.AsDictionary();
-            return await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
-        }       
+            var result = await SendRequest<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
+            if (result && result.Data.Any(c => !String.IsNullOrEmpty(c.Error)))
+            {
+                foreach (var o in result.Data)
+                {
+                    if (o.Error.Contains("Unable to cancel order: Not found or not owned by user"))
+                    {
+                        o.Status = BitmexOrderStatus.Canceled;
+                    }
+                }
+            }
+            return result;
+        }
 
         public WebCallResult<List<Instrument>> GetActiveInstruments() => GetActiveInstrumentsAsync().Result;
         /// <inheritdoc cref="IBitmexClient"/>        
@@ -480,11 +491,11 @@ namespace Bitmex.Net.Client
             {
                 updateOrderRequest.OrigClOrdId.ValidateNotNull(nameof(updateOrderRequest.OrigClOrdId) + " (you have to send order id received from Bitmex or your own identifier, sended on order posting");
             }
-            if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId)&& String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId) && updateOrderRequest.ClOrdId==updateOrderRequest.OrigClOrdId)
+            if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId) && String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId) && updateOrderRequest.ClOrdId == updateOrderRequest.OrigClOrdId)
             {
                 updateOrderRequest.ClOrdId = null;
             }
-            if(!String.IsNullOrEmpty(updateOrderRequest.ClOrdId) && String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId))
+            if (!String.IsNullOrEmpty(updateOrderRequest.ClOrdId) && String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId))
             {
                 string clOrderId = updateOrderRequest.ClOrdId;
                 updateOrderRequest.OrigClOrdId = clOrderId;
