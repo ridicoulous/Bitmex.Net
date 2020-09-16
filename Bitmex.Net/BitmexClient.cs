@@ -139,9 +139,9 @@ namespace Bitmex.Net.Client
             {
                 foreach (var o in result.Data)
                 {
-                    if (o.Error.Contains("Unable to cancel order: Not found or not owned by user"))
+                    if (!String.IsNullOrEmpty(o.Error))
                     {
-                        o.Status = BitmexOrderStatus.Canceled;
+                        log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Order {o.Id} cancelling error: {o.Error}");                        
                     }
                 }
             }
