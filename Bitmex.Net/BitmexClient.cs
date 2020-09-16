@@ -99,7 +99,7 @@ namespace Bitmex.Net.Client
         }
         public BitmexClient(BitmexClientOptions exchangeOptions, BitmexAuthenticationProvider authenticationProvider) : base(exchangeOptions, authenticationProvider)
         {
-        }
+        }        
         public void SetApiCredentials(string key, string secret)
         {
             log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, "Setting api credentials");
@@ -533,7 +533,7 @@ namespace Bitmex.Net.Client
         {
             if (error["error"] != null)
             {
-                var message = $"{(string)error["error"]["name"]}: {(string)error["error"]["message"]}";
+                var message = error["error"].ToString();// $"{(string)error["error"]["name"]}: {(string)error["error"]["message"]}";
                 return new BitmexError(42, message, error);
             }
             return null;
