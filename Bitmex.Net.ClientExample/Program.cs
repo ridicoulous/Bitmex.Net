@@ -52,37 +52,38 @@ namespace Bitmex.Net.ClientExample
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
             //await TestHistoricalDataLoading();
 
-            var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc", true)
-            {
-                LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
-                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("bitmexob.log") },
+            //var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc", true)
+            //{
+            //    LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
+            //    LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("bitmexob.log") },
 
-            });
-            orderBook.OnBestOffersChanged += OnBestOffersChanged;
+            //});
+            //orderBook.OnBestOffersChanged += OnBestOffersChanged;
            // await orderBook.StartAsync();
             //Console.ReadLine();
             var configuration = builder.Build();
 
-            var c = new BitmexClient(new BitmexClientOptions(true)
-            {
-                ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]),
-            });
+            //var c = new BitmexClient(new BitmexClientOptions(true)
+            //{
+            //    ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]),
+            //});
 
-           //  var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD",ClientOrderId= "e8QJEyRKyTxs254" } );
-           //     var placed = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithClientOrderIdFilter("e8QJEyRKyTxs254"));
+            //  var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD",ClientOrderId= "e8QJEyRKyTxs254" } );
+            //     var placed = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithClientOrderIdFilter("e8QJEyRKyTxs254"));
             //var placed2 = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithOrderIdFilter(o.Data.Id));
 
             // await Task.Delay(1000);
             // var o2 = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=43000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD" } );
 
-           //  var cancel = await c.CancelOrderAsync(new CancelOrderRequest(new string[] { o.Data.Id }));
+            //  var cancel = await c.CancelOrderAsync(new CancelOrderRequest(new string[] { o.Data.Id }));
 
 
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["prod:key"], configuration["prod:secret"], isTestnet: false)
-            {
-                LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
-                SocketNoDataTimeout = TimeSpan.FromSeconds(45)
-            });
+            //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["prod:key"], configuration["prod:secret"], isTestnet: false)
+            //{
+            //    LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
+            //    SocketNoDataTimeout = TimeSpan.FromSeconds(45)
+            //});
+            var socket = new BitmexSocketClient(new BitmexSocketClientOptions() { LogVerbosity=LogVerbosity.Debug,LogWriters = new List<System.IO.TextWriter>() { new  ThreadSafeFileWriter("socket.log") } });
 
             //socket.OnUserWalletUpdate += Socket_OnUserWalletUpdate;
             socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
@@ -98,8 +99,8 @@ namespace Bitmex.Net.ClientExample
             // .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
             //.AddSubscription(BitmexSubscribtions.Wallet));
 
-
-
+            Console.ReadLine();
+            socket.UnsubscribeAll();
             Console.ReadLine();
         }
         private static async Task TestHistoricalDataLoading()

@@ -27,10 +27,11 @@ namespace Bitmex.Net.Client
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
         public readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
-       private readonly bool isTestnet;
+        private readonly bool isTestnet;
+        private readonly List<UpdateSubscription> _subscriptions = new List<UpdateSubscription>();
         public BitmexSocketClient() : this(DefaultOptions)
         {
-        }        
+        }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
             isTestnet = !bitmexSocketClientOptions.IsTestnet;
@@ -106,12 +107,12 @@ namespace Bitmex.Net.Client
         protected override IWebsocket CreateSocket(string address)
         {
             Dictionary<string, string> empty = new Dictionary<string, string>();
-            var s = SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true,PostParameters.InUri,ArrayParametersSerialization.MultipleValues));
-            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";            
+            var s = SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues));
+            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";
             s.OnClose += S_OnClose;
             s.OnError += S_OnError;
-            s.OnOpen += S_OnOpen;            
-            
+            s.OnOpen += S_OnOpen;
+
             return s;
         }
 
@@ -145,16 +146,18 @@ namespace Bitmex.Net.Client
         protected override async Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
         {
             if (s.Request is BitmexSubscribeRequest)
-            {
-                var unsub = s.Request as BitmexSubscribeRequest;
-                unsub.Op = BitmexWebSocketOperation.Unsubscribe;
-                var handler = new Action<string>(data =>
-                {
-                    log.Write(LogVerbosity.Debug, data);
-                });
-                await Subscribe(unsub, handler);
+            {              
+                await UnsubscribeInternal(connection, s);
             }
             return true;
+        }
+
+        public override async Task UnsubscribeAll()
+        {
+            foreach(var c in this._subscriptions)
+            {
+                await c.Close().ConfigureAwait(false) ;
+            }
         }
 
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
@@ -539,7 +542,27 @@ namespace Bitmex.Net.Client
         {
             request.Args.ValidateNotNull(nameof(request));
             var url = BaseAddress + $"?{request.Op.ToString().ToLower()}={String.Join(",", request.Args)}";
-            return await Subscribe(url, null, url + NextId(), authProvider != null, onData).ConfigureAwait(false);
-        }    
+            var subscription = await Subscribe(url, request, url + NextId(), authProvider != null, onData).ConfigureAwait(false);
+            if (subscription)
+            {               
+                if(request.Op==BitmexWebSocketOperation.Subscribe)
+                    _subscriptions.Add(subscription.Data);             
+            }
+            return subscription;
+        }
+        private async Task UnsubscribeInternal(SocketConnection connection, SocketSubscription s)
+        {
+            var r = s.Request as BitmexSubscribeRequest;
+            r.Op = BitmexWebSocketOperation.Unsubscribe;
+            var result = await QueryAndWait<BitmexSubscriptionResponse>(connection, r);
+            if(result)
+            {
+                log.Write(LogVerbosity.Debug, $"{s.Identifier} subscription was unsubscribed");                
+            }
+            else
+            {
+                log.Write(LogVerbosity.Error, $"{s.Identifier} subscription was not unsubscribed: {result.Error.Message}");
+            }         
+        }
     }
 }
