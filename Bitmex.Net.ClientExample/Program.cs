@@ -24,7 +24,7 @@ namespace Bitmex.Net.ClientExample
 {
     public class MyRestClientOptions : BitmexClientOptions
     {
-        public MyRestClientOptions(HttpClient client):base(client)
+        public MyRestClientOptions(HttpClient client) : base(client)
         {
 
         }
@@ -36,7 +36,7 @@ namespace Bitmex.Net.ClientExample
             return HttpPolicyExtensions
                 .HandleTransientHttpError()
                 .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(1+ retryAttempt),onRetry);
+                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(1 + retryAttempt), onRetry);
         }
 
         private static void onRetry(DelegateResult<HttpResponseMessage> arg1, TimeSpan arg2)
@@ -45,7 +45,7 @@ namespace Bitmex.Net.ClientExample
         }
 
         static List<BitmexOrderBookEntry> entries = new List<BitmexOrderBookEntry>();
-        static void  Main(string[] args)
+        static async Task  Main(string[] args)
         {
 
             var builder = new ConfigurationBuilder()
@@ -59,7 +59,7 @@ namespace Bitmex.Net.ClientExample
 
             //});
             //orderBook.OnBestOffersChanged += OnBestOffersChanged;
-           // await orderBook.StartAsync();
+            // await orderBook.StartAsync();
             //Console.ReadLine();
             var configuration = builder.Build();
 
@@ -83,7 +83,7 @@ namespace Bitmex.Net.ClientExample
             //    LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
             //    SocketNoDataTimeout = TimeSpan.FromSeconds(45)
             //});
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions() { LogVerbosity=LogVerbosity.Debug,LogWriters = new List<System.IO.TextWriter>() { new  ThreadSafeFileWriter("socket.log") } });
+            var socket = new BitmexSocketClient(new BitmexSocketClientOptions() { LogVerbosity = LogVerbosity.Debug, LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("socket.log") } });
 
             //socket.OnUserWalletUpdate += Socket_OnUserWalletUpdate;
             socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
@@ -100,7 +100,7 @@ namespace Bitmex.Net.ClientExample
             //.AddSubscription(BitmexSubscribtions.Wallet));
 
             Console.ReadLine();
-            socket.UnsubscribeAll();
+            await socket.UnsubscribeAll();
             Console.ReadLine();
         }
         private static async Task TestHistoricalDataLoading()
