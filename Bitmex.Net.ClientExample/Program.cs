@@ -4,52 +4,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bitmex.Net.Client.Helpers.Extensions;
 using Microsoft.Extensions.Configuration;
-using Bitmex.Net.Client.Objects.Socket.Requests;
 using Bitmex.Net.Client.Objects.Socket;
-using System.Threading;
-using System.Globalization;
 using Newtonsoft.Json;
 using Bitmex.Net.Client.Objects;
-using Bitmex.Net.Client.Objects.Requests;
 using System.Reactive.Linq;
 using Bitmex.Net.Client.HistoricalData;
 using System.Collections.Generic;
 using CryptoExchange.Net.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
-using Polly.Extensions.Http;
-using Polly;
+using Bitmex.Net.Client.Objects.Socket.Requests;
 
 namespace Bitmex.Net.ClientExample
 {
-    public class MyRestClientOptions : BitmexClientOptions
-    {
-        public MyRestClientOptions(HttpClient client) : base(client)
-        {
-
-        }
-    }
     class Program
     {
-        static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
-        {
-            return HttpPolicyExtensions
-                .HandleTransientHttpError()
-                .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(1 + retryAttempt), onRetry);
-        }
-
-        private static void onRetry(DelegateResult<HttpResponseMessage> arg1, TimeSpan arg2)
-        {
-            Console.WriteLine($"retry cause {arg1.Result.StatusCode} {arg2}");
-        }
-
         static List<BitmexOrderBookEntry> entries = new List<BitmexOrderBookEntry>();
-        static async Task  Main(string[] args)
+        static async Task Main(string[] args)
         {
 
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
+            var configuration = builder.Build();
+
             //await TestHistoricalDataLoading();
 
             //var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc", true)
@@ -61,7 +36,6 @@ namespace Bitmex.Net.ClientExample
             //orderBook.OnBestOffersChanged += OnBestOffersChanged;
             // await orderBook.StartAsync();
             //Console.ReadLine();
-            var configuration = builder.Build();
 
             //var c = new BitmexClient(new BitmexClientOptions(true)
             //{
@@ -87,22 +61,29 @@ namespace Bitmex.Net.ClientExample
 
             //socket.OnUserWalletUpdate += Socket_OnUserWalletUpdate;
             socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
+
             //socket.OnUserExecutionsUpdate += OnExecution;
             // socket.OnUserPositionsUpdate += BitmexSocketClient_OnUserPositionsUpdate;
             // socket.OnorderBookL2Update += Socket_OnOrderBookL2_25Update;
-            //socket.OnTradeUpdate += Socket_OnTradeUpdate;
+            socket.OnTradeUpdate += Socket_OnTradeUpdate;
             //  socket.OnSocketClose += Socket_OnSocketClose;
             // socket.OnSocketException += Socket_OnSocketException;
             //socket.OnChatMessageUpdate += Socket_OnChatMessageUpdate;
-            socket.Subscribe(new BitmexSubscribeRequest()
-               .AddSubscription(BitmexSubscribtions.OrderBook10, "XBTUSD"));
+             socket.Subscribe(new BitmexSubscribeRequest()
+                .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD"));
             // .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
             //.AddSubscription(BitmexSubscribtions.Wallet));
-
-            Console.ReadLine();
+            Console.ReadLine();           
             await socket.UnsubscribeAll();
             Console.ReadLine();
+
         }
+
+        private static void Socket_OnOrderBookL2_25Update1(BitmexSocketEvent<BitmexOrderBookEntry> obj)
+        {
+            Console.WriteLine("obl25");
+        }
+
         private static async Task TestHistoricalDataLoading()
         {
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
@@ -159,8 +140,6 @@ namespace Bitmex.Net.ClientExample
             {
                 Console.WriteLine($"{u.Size} by  { ((1e8m * 88) - u.Id) * 0.01m}");
             }
-
-
         }
 
         private static void BitmexSocketClient_OnUserPositionsUpdate(BitmexSocketEvent<Position> obj)
