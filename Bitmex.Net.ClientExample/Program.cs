@@ -42,6 +42,8 @@ namespace Bitmex.Net.ClientExample
             //    ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]),
             //});
 
+            //var o = await c.PlaceOrderAsync(new Client.Objects.Requests.PlaceOrderRequest("XBTUSD") { BitmexOrderType = BitmexOrderType.Limit, Price = 42000, Side = BitmexOrderSide.Buy, Quantity = -10 });
+
             //  var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD",ClientOrderId= "e8QJEyRKyTxs254" } );
             //     var placed = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithClientOrderIdFilter("e8QJEyRKyTxs254"));
             //var placed2 = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithOrderIdFilter(o.Data.Id));
@@ -69,11 +71,19 @@ namespace Bitmex.Net.ClientExample
             //  socket.OnSocketClose += Socket_OnSocketClose;
             // socket.OnSocketException += Socket_OnSocketException;
             //socket.OnChatMessageUpdate += Socket_OnChatMessageUpdate;
-             socket.Subscribe(new BitmexSubscribeRequest()
-                .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD"));
+            socket.Subscribe(new BitmexSubscribeRequest()
+               .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD")
+               .AddSubscription(BitmexSubscribtions.Trade, "ETHUSD"));
+
             // .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
             //.AddSubscription(BitmexSubscribtions.Wallet));
-            Console.ReadLine();           
+            Console.ReadLine();
+
+            socket.Subscribe(new BitmexSubscribeRequest()
+                .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD")
+                .AddSubscription(BitmexSubscribtions.Trade, "ETHUSD"));
+            Console.ReadLine();
+
             await socket.UnsubscribeAll();
             Console.ReadLine();
 
