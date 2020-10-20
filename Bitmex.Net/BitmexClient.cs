@@ -527,7 +527,7 @@ namespace Bitmex.Net.Client
 
         protected Uri GetUrl(string endpoint)
         {
-            return new Uri($"{BaseAddress}/{endpoint}");
+            return new Uri($"{BaseAddress}{endpoint}");
         }
         protected override Error ParseErrorResponse(JToken error)
         {
