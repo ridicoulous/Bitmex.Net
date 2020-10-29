@@ -1,12 +1,10 @@
-﻿using Bitmex.Net.Client.Converters;
-using Bitmex.Net.Client.Helpers.Extensions;
+﻿using Bitmex.Net.Client.Helpers.Extensions;
 using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using CryptoExchange.Net;
-using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
@@ -14,10 +12,10 @@ using CryptoExchange.Net.Sockets;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bitmex.Net.Client
@@ -25,19 +23,21 @@ namespace Bitmex.Net.Client
     public class BitmexSocketClient : SocketClient, IBitmexSocketClient
     {
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
+        private readonly ConcurrentDictionary<string, BitmexSubscribeRequest> _sendedSubscriptions = new ConcurrentDictionary<string, BitmexSubscribeRequest>();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
         public readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
         private readonly bool isTestnet;
         private readonly List<UpdateSubscription> _subscriptions = new List<UpdateSubscription>();
+        private object _locker = new object();
         public BitmexSocketClient() : this(DefaultOptions)
         {
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
             isTestnet = !bitmexSocketClientOptions.IsTestnet;
+
             if (bitmexSocketClientOptions.SendPingManually)
             {
-                AddGenericHandler("ping", OnPong);
                 SendPeriodic(TimeSpan.FromSeconds(10), connection => "ping");
             }
             if (bitmexSocketClientOptions.LoadInstruments)
@@ -58,17 +58,9 @@ namespace Bitmex.Net.Client
                     }
                 }
             }
-
         }
 
-        private void OnPong(SocketConnection arg1, JToken arg2)
-        {
-            if (arg2.Type == JTokenType.String && (string)arg2 == "pong")
-            {
-                OnPongReceived?.Invoke();
-            }
-        }
-
+        #region events
         public event Action OnPongReceived;
         public event Action<BitmexSocketEvent<Announcement>> OnAnnouncementUpdate;
         public event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
@@ -102,7 +94,7 @@ namespace Bitmex.Net.Client
         public event Action<Exception> OnSocketException;
         public event Action OnSocketClose;
         public event Action OnSocketOpened;
-
+        #endregion
 
         protected override IWebsocket CreateSocket(string address)
         {
@@ -112,8 +104,30 @@ namespace Bitmex.Net.Client
             s.OnClose += S_OnClose;
             s.OnError += S_OnError;
             s.OnOpen += S_OnOpen;
-
             return s;
+        }
+        private void CheckDoubleSendingRequest(BitmexSubscribeRequest request)
+        {
+            lock (_locker)
+            {
+                List<string> toRemove = new List<string>();
+                foreach (var arg in request.Args)
+                {
+                    if (_sendedSubscriptions.ContainsKey(arg))
+                    {
+                        toRemove.Add(arg);
+                    }
+                    else
+                    {
+                        _sendedSubscriptions.TryAdd(arg, request);
+                    }
+                }
+                if (toRemove.Any())
+                {
+                    log.Write(LogVerbosity.Warning, $"Not sending another subscribe request for topics: {String.Join(',', toRemove)}, cause it was already sended");
+                    request.Args.RemoveAll(c => toRemove.Contains(c));
+                }
+            }
         }
 
         private void S_OnOpen()
@@ -146,7 +160,7 @@ namespace Bitmex.Net.Client
         protected override async Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
         {
             if (s.Request is BitmexSubscribeRequest)
-            {              
+            {
                 await UnsubscribeInternal(connection, s);
             }
             return true;
@@ -154,29 +168,42 @@ namespace Bitmex.Net.Client
 
         public override async Task UnsubscribeAll()
         {
-            foreach(var c in this._subscriptions)
+            foreach (var c in this._subscriptions)
             {
-                await c.Close().ConfigureAwait(false) ;
+                await c.Close().ConfigureAwait(false);
             }
         }
 
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
         {
-            callResult = new CallResult<T>(data.ToObject<T>(), null);
+            if (data.Type == JTokenType.String && data.ToString() == "pong")
+            {
+                callResult = null;
+                return true;
+            }
+            callResult = Deserialize<T>(data);
             return callResult;
         }
 
         protected override bool HandleSubscriptionResponse(SocketConnection s, SocketSubscription subscription, object request, JToken message, out CallResult<object> callResult)
         {
             callResult = null;
-
+            if (message.Type == JTokenType.String && message.ToString() == "pong")
+            {
+                return false;
+            }
+            if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
+            {
+                log.Write(LogVerbosity.Debug, "skipping welcome message by request");
+                return false;
+            }
             if (message.Type == JTokenType.String && (string)message == "pong")
             {
                 return true;
             }
             var response = Deserialize<BitmexSubscriptionResponse>(message, false);
             var bRequest = (BitmexSubscribeRequest)request;
-            if (response.Success && response.Data.Success)
+            if (response)
             {
                 if (bRequest.Args.Contains(response.Data.Subscribe))
                 {
@@ -184,27 +211,35 @@ namespace Bitmex.Net.Client
 
                     return true;
                 }
-
             }
-            if (message.Type != JTokenType.Object)
-                return false;
-
-            if (!response || !response.Data.Success || bRequest.Args.All(c => c.ToString() != response.Data.Subscribe) || String.IsNullOrEmpty(response.Data.Subscribe) || String.IsNullOrEmpty(response.Data.Unsubscribe))
+            callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
+            return false;
+        }
+        protected override bool MessageMatchesHandler(JToken message, object request)
+        {
+            if (message.Type == JTokenType.String && message.ToString() == "pong")
             {
                 return false;
             }
-
-            callResult = new CallResult<object>(response, response.Success ? null : new ServerError("Subscribtion was not success", response));
+            if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
+            {
+                log.Write(LogVerbosity.Debug, "skipping welcome message by request");
+                return false;
+            }
             return true;
         }
-
-        protected override bool MessageMatchesHandler(JToken message, object request)
-        {
-            return true;
-        }
-
         protected override bool MessageMatchesHandler(JToken message, string identifier)
         {
+            if (message.Type == JTokenType.String && message.ToString() == "pong")
+            {
+                OnPongReceived?.Invoke();
+                return false;
+            }
+            if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
+            {
+                log.Write(LogVerbosity.Debug, "skipping welcome message by id");
+                return false;
+            }
             return true;
         }
         public CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", bool full = false) => SubscribeToOrderBookUpdatesAsync(onData, symbol, full).Result;
@@ -220,20 +255,32 @@ namespace Bitmex.Net.Client
         ResponseTableToDataTypeMapping Map = new ResponseTableToDataTypeMapping();
         public async Task<CallResult<UpdateSubscription>> SubscribeAsync(BitmexSubscribeRequest bitmexSubscribeRequest)
         {
+            CheckDoubleSendingRequest(bitmexSubscribeRequest);
+            if (!bitmexSubscribeRequest.Args.Any())
+            {
+                log.Write(LogVerbosity.Warning, $"Not sending empty request {JsonConvert.SerializeObject(bitmexSubscribeRequest)}");
+                return new CallResult<UpdateSubscription>(null, new ServerError("Not sending empty request ", bitmexSubscribeRequest));
+            }
             var handler = new Action<string>(data =>
             {
-                if (data == "pong")
-                {
-                    OnPongReceived?.Invoke();
-                    return;
-                }
-
                 var token = JToken.Parse(data);
                 var table = (string)token["table"];
+
                 if (String.IsNullOrEmpty(table) || !Map.Mappings.ContainsKey(table))
                 {
-                    if (data.Contains("info") || data.StartsWith("{\r\n  \"success\": true"))
+                    var subscriptionResponse = (string)token["subscribe"];
+                    if (!String.IsNullOrEmpty(subscriptionResponse))
                     {
+                        var response = Deserialize<BitmexSubscriptionResponse>(data);
+                        if (response)
+                            _sendedSubscriptions.TryAdd(response.Data.Subscribe, response.Data.Request);
+                        return;
+                    }
+                    else if (!String.IsNullOrEmpty((string)token["unsubscribe"]))
+                    {
+                        var response = Deserialize<BitmexSubscriptionResponse>(data);
+                        if (response)
+                            OnUnsubscribe(response.Data);
                         return;
                     }
                     else
@@ -241,7 +288,6 @@ namespace Bitmex.Net.Client
                         log.Write(LogVerbosity.Warning, $"Unknown table [{table}] update catched at data {data}");
                         return;
                     }
-
                 }
                 BitmexSubscribtions updatedTable = Map.Mappings[table];
 
@@ -317,7 +363,6 @@ namespace Bitmex.Net.Client
                             {
                                 if (InstrumentsIndexesAndTicks.Any())
                                 {
-                                    //  result.Data.Data.ForEach(c => c.SetPrice(InstrumentIndicies[c.Symbol].Index, InstrumentIndicies[c.Symbol].TickSize));
                                     foreach (var level in result.Data.Data)
                                     {
                                         var symbolTickInfo = InstrumentsIndexesAndTicks[level.Symbol];
@@ -541,28 +586,48 @@ namespace Bitmex.Net.Client
         private async Task<CallResult<UpdateSubscription>> Subscribe<T>(BitmexSubscribeRequest request, Action<T> onData)
         {
             request.Args.ValidateNotNull(nameof(request));
-            var url = BaseAddress + $"?{request.Op.ToString().ToLower()}={String.Join(",", request.Args)}";
+            var url = BaseAddress;
+
             var subscription = await Subscribe(url, request, url + NextId(), authProvider != null, onData).ConfigureAwait(false);
             if (subscription)
-            {               
-                if(request.Op==BitmexWebSocketOperation.Subscribe)
-                    _subscriptions.Add(subscription.Data);             
+            {
+                if (request.Op == BitmexWebSocketOperation.Subscribe)
+                    _subscriptions.Add(subscription.Data);
             }
             return subscription;
         }
+
+        private void OnUnsubscribe(BitmexSubscriptionResponse response)
+        {
+            log.Write(LogVerbosity.Debug, $"Unsub: {JsonConvert.SerializeObject(response)}");
+            if (!String.IsNullOrEmpty(response.Unsubscribe))
+            {
+                _sendedSubscriptions.TryRemove(response.Unsubscribe, out _);
+                log.Write(LogVerbosity.Warning, $"{response.Unsubscribe} topic from {JsonConvert.SerializeObject(response.Request)} subscription was unsubscribed");
+            }
+        }
+
         private async Task UnsubscribeInternal(SocketConnection connection, SocketSubscription s)
         {
             var r = s.Request as BitmexSubscribeRequest;
             r.Op = BitmexWebSocketOperation.Unsubscribe;
             var result = await QueryAndWait<BitmexSubscriptionResponse>(connection, r);
-            if(result)
+            if (result && result.Data.Success && result.Data.Request.Args.Contains(result.Data.Unsubscribe))
             {
-                log.Write(LogVerbosity.Debug, $"{s.Identifier} subscription was unsubscribed");                
+                _sendedSubscriptions.TryRemove(result.Data.Unsubscribe, out _);
+                log.Write(LogVerbosity.Warning, $"{JsonConvert.SerializeObject(s.Request)} subscription was unsubscribed");
             }
             else
             {
-                log.Write(LogVerbosity.Error, $"{s.Identifier} subscription was not unsubscribed: {result.Error.Message}");
-            }         
+                log.Write(LogVerbosity.Warning, $"{JsonConvert.SerializeObject(s.Request)} subscription was not unsubscribed: {result.Error?.Message}");
+            }
+            //await Subscribe<BitmexSubscriptionResponse>(r, OnUnsubscribe);
+        }
+        public override void Dispose()
+        {
+            _sendedSubscriptions.Clear();
+            _subscriptions.Clear();
+            base.Dispose();
         }
     }
 }
