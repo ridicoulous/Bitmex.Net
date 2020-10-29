@@ -78,15 +78,19 @@ namespace Bitmex.Net.ClientExample
             //  var cancel = await c.CancelOrderAsync(new CancelOrderRequest(new string[] { o.Data.Id }));
 
 
-            //var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["prod:key"], configuration["prod:secret"], isTestnet: false)
-            //{
-            //    LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
-            //    SocketNoDataTimeout = TimeSpan.FromSeconds(45)
-            //});
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions() { LogVerbosity = LogVerbosity.Debug, LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("socket.log") } });
+            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
+            {
+                LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
+                SocketNoDataTimeout = TimeSpan.FromSeconds(5),
+                ReconnectInterval = TimeSpan.FromSeconds(3),
+                AutoReconnect =true,
+                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter()}
+                
+            });
+            //var socket = new BitmexSocketClient(new BitmexSocketClientOptions() { LogVerbosity = LogVerbosity.Debug, LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("socket.log") } });
 
             //socket.OnUserWalletUpdate += Socket_OnUserWalletUpdate;
-            socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
+           // socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
             //socket.OnUserExecutionsUpdate += OnExecution;
             // socket.OnUserPositionsUpdate += BitmexSocketClient_OnUserPositionsUpdate;
             // socket.OnorderBookL2Update += Socket_OnOrderBookL2_25Update;
@@ -95,7 +99,7 @@ namespace Bitmex.Net.ClientExample
             // socket.OnSocketException += Socket_OnSocketException;
             //socket.OnChatMessageUpdate += Socket_OnChatMessageUpdate;
             socket.Subscribe(new BitmexSubscribeRequest()
-               .AddSubscription(BitmexSubscribtions.OrderBook10, "XBTUSD"));
+               .AddSubscription(BitmexSubscribtions.Order, "XBTUSD"));
             // .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
             //.AddSubscription(BitmexSubscribtions.Wallet));
 
