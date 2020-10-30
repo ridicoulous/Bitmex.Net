@@ -107,15 +107,15 @@ namespace Bitmex.Net.Client
             headers.Add("Accept-Encoding", "gzip, deflate, br");
             headers.Add("Cache-Control", "no-cache");
             headers.Add("Connection", "Upgrade");
-            headers.Add("Host", $"{(isTestnet ? "testnet" : "www")}.bitmex.com");
-            headers.Add("Origin", $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com");
+            headers.Add("Host", $"{(isTestnet ? "testnet" : "www")}.bitmex.com/");
+            headers.Add("Origin", $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com/");
             headers.Add("Sec-WebSocket-Extensions", "");
             headers.Add("Sec-WebSocket-Version", "13");
             headers.Add("Upgrade", "websocket");
-            headers.Add("User-Agent", "https://github.com/ridicoulous/Bitmex.Net");
+            headers.Add("User-Agent", "https://github.com/ridicoulous/Bitmex.Net/");
 
             var s = SocketFactory.CreateWebsocket(this.log, address, emptyCoockies,headers );
-            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";            
+            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com/";            
             s.OnClose += S_OnClose;
             s.OnError += S_OnError;
             s.OnOpen += S_OnOpen;
@@ -640,8 +640,16 @@ namespace Bitmex.Net.Client
         }
         public override void Dispose()
         {
-            _sendedSubscriptions.Clear();
+            foreach(var s in _subscriptions)
+            {
+                s.Close().GetAwaiter().GetResult();                
+            }
+            foreach(var s in this.sockets.Values)
+            {
+                s.Close();                
+            }
             _subscriptions.Clear();
+            _sendedSubscriptions.Clear();
             base.Dispose();
         }
     }
