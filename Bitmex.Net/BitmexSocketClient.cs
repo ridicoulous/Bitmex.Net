@@ -98,9 +98,24 @@ namespace Bitmex.Net.Client
 
         protected override IWebsocket CreateSocket(string address)
         {
-            Dictionary<string, string> empty = new Dictionary<string, string>();
-            var s = SocketFactory.CreateWebsocket(this.log, address, empty, this.authProvider == null ? empty : this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues));
-            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com/";            
+            Dictionary<string, string> emptyCoockies = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            if (authProvider != null)
+            {
+                headers = this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues);
+            }
+            headers.Add("Accept-Encoding", "gzip, deflate, br");
+            headers.Add("Cache-Control", "no-cache");
+            headers.Add("Connection", "Upgrade");
+            headers.Add("Host", $"{(isTestnet ? "testnet" : "www")}.bitmex.com");
+            headers.Add("Origin", $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com");
+            headers.Add("Sec-WebSocket-Extensions", "");
+            headers.Add("Sec-WebSocket-Version", "13");
+            headers.Add("Upgrade", "websocket");
+            headers.Add("User-Agent", "https://github.com/ridicoulous/Bitmex.Net");
+
+            var s = SocketFactory.CreateWebsocket(this.log, address, emptyCoockies,headers );
+            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";            
             s.OnClose += S_OnClose;
             s.OnError += S_OnError;
             s.OnOpen += S_OnOpen;
