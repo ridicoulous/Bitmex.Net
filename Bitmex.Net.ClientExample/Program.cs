@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 using Polly.Extensions.Http;
 using Polly;
+using System.Collections.Concurrent;
 
 namespace Bitmex.Net.ClientExample
 {
@@ -78,19 +79,37 @@ namespace Bitmex.Net.ClientExample
             //  var cancel = await c.CancelOrderAsync(new CancelOrderRequest(new string[] { o.Data.Id }));
 
 
-            var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
+            //using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
+            //{
+            //    LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
+            //    SocketNoDataTimeout = TimeSpan.FromSeconds(5),
+            //    ReconnectInterval = TimeSpan.FromSeconds(3),
+            //    AutoReconnect = true,
+            //    LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
+
+            //}))
+            using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(isTestnet: true)
             {
                 LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
                 SocketNoDataTimeout = TimeSpan.FromSeconds(5),
                 ReconnectInterval = TimeSpan.FromSeconds(3),
-                AutoReconnect =true,
-                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter()}
-                
-            });
+                AutoReconnect = true,
+                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
+            }))
+            {
+                socket.OnTradeUpdate += Socket_OnTradeUpdate;
+                socket.Subscribe(new BitmexSubscribeRequest()
+                 .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD"));
+                Console.ReadLine();
+                await socket.UnsubscribeAll();
+                Console.ReadLine();
+               
+
+            }
             //var socket = new BitmexSocketClient(new BitmexSocketClientOptions() { LogVerbosity = LogVerbosity.Debug, LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("socket.log") } });
 
             //socket.OnUserWalletUpdate += Socket_OnUserWalletUpdate;
-           // socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
+            // socket.OnOrderBook10Update += Socket_OnOrderBook10Update;
             //socket.OnUserExecutionsUpdate += OnExecution;
             // socket.OnUserPositionsUpdate += BitmexSocketClient_OnUserPositionsUpdate;
             // socket.OnorderBookL2Update += Socket_OnOrderBookL2_25Update;
@@ -98,13 +117,11 @@ namespace Bitmex.Net.ClientExample
             //  socket.OnSocketClose += Socket_OnSocketClose;
             // socket.OnSocketException += Socket_OnSocketException;
             //socket.OnChatMessageUpdate += Socket_OnChatMessageUpdate;
-            socket.Subscribe(new BitmexSubscribeRequest()
-               .AddSubscription(BitmexSubscribtions.Order, "XBTUSD"));
+
             // .AddSubscription(BitmexSubscribtions.Execution, "XBTUSD")
             //.AddSubscription(BitmexSubscribtions.Wallet));
 
-            Console.ReadLine();
-            await socket.UnsubscribeAll();
+            //  await socket.UnsubscribeAll();
             Console.ReadLine();
         }
         private static async Task TestHistoricalDataLoading()
