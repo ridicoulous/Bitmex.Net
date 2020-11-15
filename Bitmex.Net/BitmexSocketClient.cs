@@ -100,10 +100,10 @@ namespace Bitmex.Net.Client
         {
             Dictionary<string, string> emptyCoockies = new Dictionary<string, string>();
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            if (authProvider != null)
-            {
-                headers = this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues);
-            }
+            //if (authProvider != null)
+            //{
+            //    headers = this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues);
+            //}
             headers.Add("Accept-Encoding", "gzip, deflate, br");
             headers.Add("Cache-Control", "no-cache");
             headers.Add("Connection", "Upgrade");
@@ -114,8 +114,8 @@ namespace Bitmex.Net.Client
             headers.Add("Upgrade", "websocket");
             headers.Add("User-Agent", "https://github.com/ridicoulous/Bitmex.Net/");
 
-            var s = SocketFactory.CreateWebsocket(this.log, address, emptyCoockies,headers );
-            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";            
+            var s = SocketFactory.CreateWebsocket(this.log, address, emptyCoockies, headers);
+            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";
             s.OnClose += S_OnClose;
             s.OnError += S_OnError;
             s.OnOpen += S_OnOpen;
@@ -128,13 +128,13 @@ namespace Bitmex.Net.Client
                 List<string> toRemove = new List<string>();
                 foreach (var arg in request.Args)
                 {
-                    if (_sendedSubscriptions.ContainsKey(arg))
+                    if (_sendedSubscriptions.ContainsKey(arg.ToString()))
                     {
-                        toRemove.Add(arg);
+                        toRemove.Add(arg.ToString());
                     }
                     else
                     {
-                        _sendedSubscriptions.TryAdd(arg, request);
+                        _sendedSubscriptions.TryAdd(arg.ToString(), request);
                     }
                 }
                 if (toRemove.Any())
@@ -165,12 +165,38 @@ namespace Bitmex.Net.Client
 
         protected override async Task<CallResult<bool>> AuthenticateSocket(SocketConnection s)
         {
-            if (authProvider == null)
+            //if (authProvider == null)
+            //{
+            //    return new CallResult<bool>(false, new ServerError("Need to create auth provider"));
+            //}
+            //return new CallResult<bool>(true, null);
+            bool isSuccess = false;
+            ServerError serverError = null;
+            var authRequest = new BitmexSubscribeRequest() { Op = BitmexWebSocketOperation.AuthKeyExpires };
+            var authParams = ((BitmexAuthenticationProvider)authProvider);
+            // request = {"op": "authKeyExpires", "args": [API_KEY, expires, signature]}
+            var expires = authParams.ApiExpires;
+            authRequest.Args.Add(authParams.Credentials.Key.GetString());
+            authRequest.Args.Add(expires);
+            authRequest.Args.Add(authParams.Sign(authParams.CreateAuthPayload(HttpMethod.Get, "/realtime", expires)));
+            await s.SendAndWait(authRequest,TimeSpan.FromSeconds(1),f=> 
             {
-                return new CallResult<bool>(false, new ServerError("Need to create auth provider"));
-            }
-            return new CallResult<bool>(true, null);
+                if (String.IsNullOrEmpty(f.ToString()))
+                {
+                    isSuccess = false;
+                    serverError = new ServerError("Auth request was not succesful");
+                }
+                else
+                {
+                    isSuccess = true;
+                }
+                return true;
+            
+            });
+            return new CallResult<bool>(isSuccess, null);
         }
+
+      
 
         protected override async Task<bool> Unsubscribe(SocketConnection connection, SocketSubscription s)
         {

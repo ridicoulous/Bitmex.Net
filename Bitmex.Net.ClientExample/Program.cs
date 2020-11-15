@@ -88,18 +88,18 @@ namespace Bitmex.Net.ClientExample
             //    LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
 
             //}))
-            using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(isTestnet: true)
+            using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
             {
                 LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
-                SocketNoDataTimeout = TimeSpan.FromSeconds(5),
-                ReconnectInterval = TimeSpan.FromSeconds(3),
+                SocketNoDataTimeout = TimeSpan.FromSeconds(25),
+                ReconnectInterval = TimeSpan.FromSeconds(5),
                 AutoReconnect = true,
                 LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
             }))
             {
-                socket.OnTradeUpdate += Socket_OnTradeUpdate;
+                socket.OnUserOrdersUpdate += Socket_OnUserOrdersUpdate; ;
                 socket.Subscribe(new BitmexSubscribeRequest()
-                 .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD"));
+                 .AddSubscription(BitmexSubscribtions.Order, "XBTUSD"));
                 Console.ReadLine();
                 await socket.UnsubscribeAll();
                 Console.ReadLine();
@@ -124,6 +124,15 @@ namespace Bitmex.Net.ClientExample
             //  await socket.UnsubscribeAll();
             Console.ReadLine();
         }
+
+        private static void Socket_OnUserOrdersUpdate(BitmexSocketEvent<Order> obj)
+        {
+            foreach(var o in obj.Data)
+            {
+                Console.WriteLine($"{o.Symbol}:{o.Side}:{o.Id}");
+            }
+        }
+
         private static async Task TestHistoricalDataLoading()
         {
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();

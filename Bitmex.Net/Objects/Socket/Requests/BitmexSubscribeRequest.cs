@@ -26,7 +26,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
             Op = BitmexWebSocketOperation.Subscribe;
         }
         [JsonProperty("args")]        
-        public List<string> Args { get; set; } = new List<string> { };
+        public List<object> Args { get; set; } = new List<object> { };
 
         public BitmexSubscribeRequest AddSubscription(BitmexSubscribtions table, string symbol = null)
         {

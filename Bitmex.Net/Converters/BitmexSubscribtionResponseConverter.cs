@@ -16,16 +16,16 @@ namespace Bitmex.Net.Client.Converters
         public override BitmexSubscribeRequest ReadJson(JsonReader reader, Type objectType, [AllowNull] BitmexSubscribeRequest existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JObject t = JObject.Load(reader);
-            var arg = new List<string>();
+            var arg = new List<object>();
             if (t["args"] != null)
             {
                 var args = t["args"];
-                if (args.Type == JTokenType.String)
+                if (args.Type != JTokenType.Array)
                 {
-                    arg.Add(args.ToString());
+                    arg.Add(args);
                 }
-                if (args.Type == JTokenType.Array)
-                    arg.AddRange(JsonConvert.DeserializeObject<List<string>>(args.ToString()));
+                else
+                    arg.AddRange(JsonConvert.DeserializeObject<List<object>>(args.ToString()));
             }
             return new BitmexSubscribeRequest()
             {

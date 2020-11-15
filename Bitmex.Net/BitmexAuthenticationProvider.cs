@@ -20,7 +20,7 @@ namespace Bitmex.Net.Client
 
         private static readonly object nonceLock = new object();
         private long lastNonce;
-        internal string ApiExpires
+        public long ApiExpires
         {
             get
             {
@@ -31,7 +31,7 @@ namespace Bitmex.Net.Client
                         nonce += 1;
 
                     lastNonce = nonce;
-                    return lastNonce.ToString(CultureInfo.InvariantCulture);
+                    return lastNonce;
                 }
             }
         }        
@@ -48,7 +48,7 @@ namespace Bitmex.Net.Client
                 return new Dictionary<string, string>();
             var result = new Dictionary<string, string>();
             result.Add("api-key", Credentials.Key.GetString());
-            result.Add("api-expires", apiexpires);
+            result.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
 
             string additionalData = String.Empty;
             if (parameters != null && parameters.Any() && method != HttpMethod.Delete && method != HttpMethod.Get)
@@ -77,9 +77,9 @@ namespace Bitmex.Net.Client
         /// <param name="methodAndUrl">GET/api/v1/orderBookL2 (for websocketauth - GET/realtime)</param>
         /// <param name="additionalData">optinal request data</param>
         /// <returns></returns>
-        public string CreateAuthPayload(HttpMethod method, string requestUrl, string apiExpires, string additionalData = "")
+        public string CreateAuthPayload(HttpMethod method, string requestUrl, long apiExpires, string additionalData = "")
         {
-            return $"{method.ToString()}{requestUrl}{apiExpires}{additionalData}";
+            return $"{method}{requestUrl}{apiExpires}{additionalData}";
         }
 
     }
