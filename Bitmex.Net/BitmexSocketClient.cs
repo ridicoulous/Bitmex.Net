@@ -32,7 +32,7 @@ namespace Bitmex.Net.Client
         public BitmexSocketClient() : this(DefaultOptions)
         {
         }
-        public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
+        public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(nameof(BitmexSocketClient), bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
             isTestnet = !bitmexSocketClientOptions.IsTestnet;
 
