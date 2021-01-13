@@ -538,17 +538,17 @@ namespace Bitmex.Net.Client
             }
             return null;
         }
-        public async Task<WebCallResult<List<Transaction>>> GetUserWalletHistoryAsync(string currency = "XBt", int count = 100, CancellationToken ct = default)
+        public async Task<WebCallResult<List<WalletHistory>>> GetUserWalletHistoryAsync(string currency = "XBt", int count = 100, int startFrom=0, bool reverse=true,CancellationToken ct = default)
         {
             var parameters = GetParameters();
             parameters.Add("currency", currency);
             parameters.Add("count", count);
 
-            return await SendRequest<List<Transaction>>(GetUrl(UserWalletHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
+            return await SendRequest<List<WalletHistory>>(GetUrl(UserWalletHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
         }
 
 
-        public WebCallResult<List<Transaction>> GetUserWalletHistory(string currency = "XBt", int count = 100) => GetUserWalletHistoryAsync(currency, count).Result;
+        public WebCallResult<List<WalletHistory>> GetUserWalletHistory(string currency = "XBt", int count = 100, int startFrom = 0, bool reverse = true) => GetUserWalletHistoryAsync(currency, count,startFrom,reverse).Result;
 
         //public WebCallResult<List<Transaction>> GetUserWalletSummary(string currency = "XBt") => GetUserWalletSummaryAsync(currency).Result;
         //public async Task<WebCallResult<List<Transaction>>> GetUserWalletSummaryAsync(string currency = "XBt", CancellationToken ct = default)

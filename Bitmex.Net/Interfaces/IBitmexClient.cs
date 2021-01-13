@@ -647,8 +647,8 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <param name="currency"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<WebCallResult<List<Transaction>>> GetUserWalletHistoryAsync(string currency="XBt", int count=100,CancellationToken ct = default);
-        WebCallResult<List<Transaction>> GetUserWalletHistory(string currency = "XBt", int count=100);
+        Task<WebCallResult<List<WalletHistory>>> GetUserWalletHistoryAsync(string currency="XBt", int count=100, int startFrom =0,  bool reverse = true, CancellationToken ct = default);
+        WebCallResult<List<WalletHistory>> GetUserWalletHistory(string currency = "XBt", int count=100, int startFrom = 0, bool reverse = true);
 
 
     }

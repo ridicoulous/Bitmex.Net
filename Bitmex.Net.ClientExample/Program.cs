@@ -64,11 +64,16 @@ namespace Bitmex.Net.ClientExample
             //Console.ReadLine();
             var configuration = builder.Build();
 
-            //var c = new BitmexClient(new BitmexClientOptions(true)
-            //{
-            //    ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["testnet:key"], configuration["testnet:secret"]),
-            //});
-
+            var c = new BitmexClient(new BitmexClientOptions()
+            {
+                ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["prod:key"], configuration["prod:secret"]),
+            });
+            var wallet = await c.GetUserWalletHistoryAsync();
+            foreach(var r in wallet.Data)
+            {
+                Console.WriteLine($"[{r.Timestamp}]: {r.TransactStatus} - {r.WalletBalanceInBtc} BTC ({r.WalletBalance}) satoshi");
+            }
+            Console.WriteLine();
             //  var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD",ClientOrderId= "e8QJEyRKyTxs254" } );
             //     var placed = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithClientOrderIdFilter("e8QJEyRKyTxs254"));
             //var placed2 = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithOrderIdFilter(o.Data.Id));
