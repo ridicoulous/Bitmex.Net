@@ -37,7 +37,7 @@ namespace Bitmex.Net.Client
         private const string ActiveInstrumentsAndIndiciesEndpoint = "instrument/activeAndIndices";
         private const string ActiveInstrumentIntervalsEndpoint = "instrument/activeIntervals";
         private const string InstrumentCompositeIndexEndpoint = "instrument/compositeIndex";
-        private const string InstrumentIndiciesEndpoint = "instrument/indicies";
+        private const string InstrumentIndiciesEndpoint = "instrument/indices";
         private const string InsuranceEndpoint = "insurance";
         private const string LeaderBoardEndpoint = "leaderboard";
         private const string LeaderBoardByNameEndpoint = "leaderboard/name";
