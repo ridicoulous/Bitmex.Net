@@ -97,6 +97,20 @@ Other CryptoExchange.Net implementations:
 </tr>
 </table>
 
+## Changelog
+
+* 1/26/2021 
+  * added milliseconds accuracy to start/end time filters
+  * added auth in not auth methods for better rate limits
+  * fix boolean values serialization
+
+* 1/18/2021 
+  * Wallet history fix
+  * Fix typo at Get all price indices endpoint
+  
+* 1/11/2021 
+  * base library update
+
 ## Donations
 Donations are greatly appreciated and a motivation to keep improving.
 
