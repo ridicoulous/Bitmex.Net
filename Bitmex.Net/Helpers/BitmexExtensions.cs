@@ -63,6 +63,10 @@ namespace Bitmex.Net.Client.Helpers.Extensions
                     {
                         continue;
                     }
+                    if(value is bool)
+                    {
+                        value = value.ToString().ToLowerInvariant();
+                    }
                     if (value is decimal || value is decimal?)
                     {
                         value = (value as decimal?).Normalize();
