@@ -14,9 +14,10 @@
     <RepositoryUrl>https://github.com/ridicoulous/Bitmex.Net</RepositoryUrl>
     <PackageProjectUrl>https://github.com/ridicoulous/Bitmex.Net</PackageProjectUrl>
     <PackageTags>bitmex api-wrapper crypto exchange historical data</PackageTags>
-    <PackageReleaseNotes>1/26/2021 - added milliseconds accuracy to start/end time filters
-1/26/2021 - added auth in not auth methods for better rate limits
-1/26/2021 - fix boolean values serialization
+    <PackageReleaseNotes>1/26/2021 
+- added milliseconds accuracy to start/end time filters
+- added auth in not auth methods for better rate limits
+- fix boolean values serialization
 1/18/2021 - Fix typo at Get all price indices endpoint
 1/13/2021 - Wallet history fix
 1/11/2021 - base library update</PackageReleaseNotes>
@@ -24,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CryptoExchange.Net" Version="3.5.0" />
+    <PackageReference Include="CryptoExchange.Net" Version="3.6.0" />
     <PackageReference Include="CsvHelper" Version="19.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>

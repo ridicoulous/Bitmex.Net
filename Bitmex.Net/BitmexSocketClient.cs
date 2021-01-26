@@ -5,6 +5,7 @@ using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using CryptoExchange.Net;
+using CryptoExchange.Net.ExchangeInterfaces;
 using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
@@ -20,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace Bitmex.Net.Client
 {
-    public class BitmexSocketClient : SocketClient, IBitmexSocketClient
+    public class BitmexSocketClient : SocketClient, IBitmexSocketClient, IExchangeClient
     {
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
         private readonly ConcurrentDictionary<string, BitmexSubscribeRequest> _sendedSubscriptions = new ConcurrentDictionary<string, BitmexSubscribeRequest>();
@@ -38,7 +39,7 @@ namespace Bitmex.Net.Client
 
             if (bitmexSocketClientOptions.SendPingManually)
             {
-                SendPeriodic(TimeSpan.FromSeconds(10), connection => "ping");
+                SendPeriodic(TimeSpan.FromSeconds(5), connection => "ping");
             }
             if (bitmexSocketClientOptions.LoadInstruments)
             {
@@ -100,10 +101,6 @@ namespace Bitmex.Net.Client
         {
             Dictionary<string, string> emptyCoockies = new Dictionary<string, string>();
             Dictionary<string, string> headers = new Dictionary<string, string>();
-            //if (authProvider != null)
-            //{
-            //    headers = this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues);
-            //}
             headers.Add("Accept-Encoding", "gzip, deflate, br");
             headers.Add("Cache-Control", "no-cache");
             headers.Add("Connection", "Upgrade");
@@ -215,7 +212,17 @@ namespace Bitmex.Net.Client
             }
             await base.UnsubscribeAll();
         }
-
+        protected override void HandleUnhandledMessage(JToken token)
+        {
+            if (token.ToString()=="pong")
+            {
+                OnPongReceived?.Invoke();
+            }
+            else
+            {
+                log.Write(LogVerbosity.Warning, $"Message {token} was not handled");
+            }
+        }
         protected override bool HandleQueryResponse<T>(SocketConnection s, object request, JToken data, out CallResult<T> callResult)
         {
             if (data.Type == JTokenType.String && data.ToString() == "pong")
@@ -305,6 +312,12 @@ namespace Bitmex.Net.Client
             }
             var handler = new Action<string>(data =>
             {
+                if (data == "pong")
+                {
+                    OnPongReceived?.Invoke();
+                    return;
+                }
+                
                 var token = JToken.Parse(data);
                 var table = (string)token["table"];
 
@@ -678,6 +691,76 @@ namespace Bitmex.Net.Client
             _subscriptions.Clear();
             _sendedSubscriptions.Clear();
             base.Dispose();
+        }
+
+        public string GetSymbolName(string baseAsset, string quoteAsset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonSymbol>>> GetSymbolsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonTicker>>> GetTickersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonTicker>> GetTickerAsync(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonKline>>> GetKlinesAsync(string symbol, TimeSpan timespan, DateTime? startTime = null, DateTime? endTime = null, int? limit = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonOrderBook>> GetOrderBookAsync(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonRecentTrade>>> GetRecentTradesAsync(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonOrderId>> PlaceOrderAsync(string symbol, IExchangeClient.OrderSide side, IExchangeClient.OrderType type, decimal quantity, decimal? price = null, string accountId = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonOrder>> GetOrderAsync(string orderId, string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonTrade>>> GetTradesAsync(string orderId, string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonOrder>>> GetOpenOrdersAsync(string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonOrder>>> GetClosedOrdersAsync(string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonOrderId>> CancelOrderAsync(string orderId, string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonBalance>>> GetBalancesAsync(string accountId = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

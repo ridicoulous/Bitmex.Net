@@ -37,7 +37,7 @@ namespace Bitmex.Net.Client.Tests
                 .WithResultsCount(402));
             Assert.True(tradeBuckets);
             Assert.True(tradeBuckets.Data.Count == 402);
-            Assert.True(tradeBuckets.Data.All(c => c.Symbol == "XBTUSD"&&c.Close    >0));
+            Assert.True(tradeBuckets.Data.All(c => c.Symbol == "XBTUSD" && c.Close > 0));
         }
         [Fact]
         public void ShouldCreateDictionaryFromObject()

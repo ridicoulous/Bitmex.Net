@@ -20,6 +20,7 @@ using System.Net.Http;
 using Polly.Extensions.Http;
 using Polly;
 using System.Collections.Concurrent;
+using Newtonsoft.Json.Linq;
 
 namespace Bitmex.Net.ClientExample
 {
@@ -52,7 +53,7 @@ namespace Bitmex.Net.ClientExample
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
             //await TestHistoricalDataLoading();
-
+       
             //var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc", true)
             //{
             //    LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
@@ -64,16 +65,16 @@ namespace Bitmex.Net.ClientExample
             //Console.ReadLine();
             var configuration = builder.Build();
 
-            var c = new BitmexClient(new BitmexClientOptions()
-            {
-                ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["prod:key"], configuration["prod:secret"]),
-            });
-            var wallet = await c.GetUserWalletHistoryAsync();
-            foreach(var r in wallet.Data)
-            {
-                Console.WriteLine($"[{r.Timestamp}]: {r.TransactStatus} - {r.WalletBalanceInBtc} BTC ({r.WalletBalance}) satoshi");
-            }
-            Console.WriteLine();
+            //var c = new BitmexClient(new BitmexClientOptions()
+            //{
+            //    ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["prod:key"], configuration["prod:secret"]),
+            //});
+            //var wallet = await c.GetUserWalletHistoryAsync();
+            //foreach(var r in wallet.Data)
+            //{
+            //    Console.WriteLine($"[{r.Timestamp}]: {r.TransactStatus} - {r.WalletBalanceInBtc} BTC ({r.WalletBalance}) satoshi");
+            //}
+            //Console.WriteLine();
             //  var o = await c.PlaceOrderAsync(new PlaceOrderRequest() { BitmexOrderType = BitmexOrderType.Limit, Price=42000,Side=BitmexOrderSide.Sell,Quantity=12, Symbol="XBTUSD",ClientOrderId= "e8QJEyRKyTxs254" } );
             //     var placed = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithClientOrderIdFilter("e8QJEyRKyTxs254"));
             //var placed2 = await c.GetOrdersAsync(new BitmexRequestWithFilter().WithOrderIdFilter(o.Data.Id));
@@ -93,18 +94,21 @@ namespace Bitmex.Net.ClientExample
             //    LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
 
             //}))
-            using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
+            using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(isTestnet: true)
             {
                 LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
-                SocketNoDataTimeout = TimeSpan.FromSeconds(25),
-                ReconnectInterval = TimeSpan.FromSeconds(5),
+                SocketNoDataTimeout = TimeSpan.FromSeconds(6),
+                ReconnectInterval = TimeSpan.FromSeconds(2),
                 AutoReconnect = true,
-                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
+                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter()                },
+                SendPingManually=true
+                
             }))
             {
-                socket.OnUserOrdersUpdate += Socket_OnUserOrdersUpdate; ;
+                socket.OnPongReceived += Socket_OnPongReceived;
+                socket.OnTradeUpdate += Socket_OnTradeUpdate; ;
                 socket.Subscribe(new BitmexSubscribeRequest()
-                 .AddSubscription(BitmexSubscribtions.Order, "XBTUSD"));
+                 .AddSubscription(BitmexSubscribtions.Trade, "XBTUSD"));
                 Console.ReadLine();
                 await socket.UnsubscribeAll();
                 Console.ReadLine();
@@ -128,6 +132,11 @@ namespace Bitmex.Net.ClientExample
 
             //  await socket.UnsubscribeAll();
             Console.ReadLine();
+        }
+
+        private static void Socket_OnPongReceived()
+        {
+            Console.WriteLine("PONG!");
         }
 
         private static void Socket_OnUserOrdersUpdate(BitmexSocketEvent<Order> obj)
