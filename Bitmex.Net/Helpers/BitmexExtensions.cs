@@ -154,11 +154,11 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         }
 
         /// <summary>
-        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs. This filter allow accuracy only by minutes</see>
+        /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs.</see>
         /// </summary>     
         public static BitmexRequestWithFilter WithStartTimeFilter(this BitmexRequestWithFilter filter, DateTime from)
         {
-            return filter.AddFilter("startTime", from.ToString("yyyy-MM-dd HH:mm"));
+            return filter.AddFilter("startTime", from.ToString("yyyy-MM-dd HH:mm:ss.fff"));
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         /// </summary>  
         public static BitmexRequestWithFilter WithEndTimeFilter(this BitmexRequestWithFilter filter, DateTime to)
         {
-            return filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm"));
+            return filter.AddFilter("endTime", to.ToString("yyyy-MM-dd HH:mm:ss.fff"));
         }
         /// <summary>
         /// <see href="https://www.bitmex.com/app/restAPI#---4">timestamp filtering docs. This filter allow accuracy only by minutes</see>
