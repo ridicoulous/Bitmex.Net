@@ -158,14 +158,14 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<List<Instrument>>> GetActiveInstrumentsAndIndiciesAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<Instrument>>(GetUrl(ActiveInstrumentsAndIndiciesEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Instrument>>(GetUrl(ActiveInstrumentsAndIndiciesEndpoint), HttpMethod.Get, ct, null, this.authProvider != null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<InstrumentInterval> GetActiveIntervals() => GetActiveIntervalsAsync().Result;
 
         public async Task<WebCallResult<InstrumentInterval>> GetActiveIntervalsAsync(CancellationToken ct = default)
         {
-            return await SendRequest<InstrumentInterval>(GetUrl(ActiveInstrumentsAndIndiciesEndpoint), HttpMethod.Get, ct, null, false).ConfigureAwait(false);
+            return await SendRequest<InstrumentInterval>(GetUrl(ActiveInstrumentsAndIndiciesEndpoint), HttpMethod.Get, ct,null, this.authProvider != null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Announcement>> GetAnnouncements(List<string> columns = null) => GetAnnouncementsAsync(columns).Result;
@@ -174,7 +174,7 @@ namespace Bitmex.Net.Client
         {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.AddOptionalParameter("columns", JsonConvert.SerializeObject(columns));
-            return await SendRequest<List<Announcement>>(GetUrl(GetAnnouncementsEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Announcement>>(GetUrl(GetAnnouncementsEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<APIKey>> GetApiKeys(bool reverse = false) => GetApiKeysAsync(reverse).Result;
@@ -189,13 +189,13 @@ namespace Bitmex.Net.Client
         {
             var parameters = GetParameters(requestWithFilter);
             parameters.Add("binSize", binSize);
-            return await SendRequest<List<Quote>>(GetUrl(QuoteBucketedEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Quote>>(GetUrl(QuoteBucketedEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
         public WebCallResult<List<ChatChannel>> GetChannels() => GetChannelsAsync().Result;
 
         public async Task<WebCallResult<List<ChatChannel>>> GetChannelsAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<ChatChannel>>(GetUrl(GetAvailableChannelsEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<ChatChannel>>(GetUrl(GetAvailableChannelsEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Chat>> GetChatMessages(int channelId, BitmexRequestWithFilter requestWithFilter = null) => GetChatMessagesAsync(channelId, requestWithFilter).Result;
@@ -204,7 +204,7 @@ namespace Bitmex.Net.Client
         {
             var parameters = GetParameters(requestWithFilter);
             parameters.Add("channelId", channelId);
-            return await SendRequest<List<Chat>>(GetUrl(ChatMessagesEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Chat>>(GetUrl(ChatMessagesEndpoint), HttpMethod.Get, ct, null, this.authProvider != null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<object> GetSchema(string model) => GetSchemaAsync(model).Result;
@@ -213,7 +213,7 @@ namespace Bitmex.Net.Client
         {
             var parameters = GetParameters();
             parameters.Add("model", model);
-            return await SendRequest<object>(GetUrl(Schemandpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<object>(GetUrl(Schemandpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<IndexComposite>> GetCompositeIndex(BitmexRequestWithFilter requestWithFilter = null) => GetCompositeIndexAsync(requestWithFilter).Result;
@@ -221,19 +221,19 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<IndexComposite>>> GetCompositeIndexAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<IndexComposite>>(GetUrl(InstrumentCompositeIndexEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<IndexComposite>>(GetUrl(InstrumentCompositeIndexEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<ConnectedUsers> GetConnectedUsers() => GetConnectedUsersAsync().Result;
 
         public async Task<WebCallResult<ConnectedUsers>> GetConnectedUsersAsync(CancellationToken ct = default)
         {
-            return await SendRequest<ConnectedUsers>(GetUrl(GetConnectedUsersEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<ConnectedUsers>(GetUrl(GetConnectedUsersEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
         public WebCallResult<List<Stats>> GetExchangeStats() => GetExchangeStatsAsync().Result;
         public async Task<WebCallResult<List<Stats>>> GetExchangeStatsAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<Stats>>(GetUrl(StatsEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Stats>>(GetUrl(StatsEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Execution>> GetExecutions(BitmexRequestWithFilter requestWithFilter = null) => GetExecutionsAsync(requestWithFilter).Result;
@@ -256,19 +256,19 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Funding>>> GetFundingAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Funding>>(GetUrl(FundingEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Funding>>(GetUrl(FundingEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<GlobalNotification>> GetGlobalNotifications() => GetGlobalNotificationsAsync().Result;
 
         public async Task<WebCallResult<List<GlobalNotification>>> GetGlobalNotificationsAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<GlobalNotification>>(GetUrl(GlobalNotificationEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<GlobalNotification>>(GetUrl(GlobalNotificationEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
         public WebCallResult<List<Instrument>> GetIndicies() => GetIndiciesAsync().Result;
         public async Task<WebCallResult<List<Instrument>>> GetIndiciesAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<Instrument>>(GetUrl(InstrumentIndiciesEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Instrument>>(GetUrl(InstrumentIndiciesEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Instrument>> GetInstruments(BitmexRequestWithFilter requestWithFilter = null) => GetInstrumentsAsync(requestWithFilter).Result;
@@ -276,14 +276,14 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Instrument>>> GetInstrumentsAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Instrument>>(GetUrl(InstrumentsEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Instrument>>(GetUrl(InstrumentsEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Insurance>> GetInsuranceFundHistory() => GetInsuranceFundHistoryAsync().Result;
 
         public async Task<WebCallResult<List<Insurance>>> GetInsuranceFundHistoryAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<Insurance>>(GetUrl(InsuranceEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Insurance>>(GetUrl(InsuranceEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
         public WebCallResult<List<Leaderboard>> GetLeaderBoard(string method) => GetLeaderBoardAsync(method).Result;
 
@@ -291,7 +291,7 @@ namespace Bitmex.Net.Client
         {
             var parameters = GetParameters();
             parameters.Add("method", method);
-            return await SendRequest<List<Leaderboard>>(GetUrl(LeaderBoardEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Leaderboard>>(GetUrl(LeaderBoardEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<string> GetLeaderBoardName() => GetLeaderBoardNameAsync().Result;
@@ -305,7 +305,7 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Liquidation>>> GetLiquidationsAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Liquidation>>(GetUrl(LiquidationEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Liquidation>>(GetUrl(LiquidationEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<BitmexOrderBookEntry>> GetOrderBook(string symbol, int depth = 25) => GetOrderBookAsync(symbol, depth).Result;
@@ -316,7 +316,7 @@ namespace Bitmex.Net.Client
             var parameters = GetParameters();
             parameters.Add("symbol", symbol);
             parameters.Add("depth", depth);
-            return await SendRequest<List<BitmexOrderBookEntry>>(GetUrl(OrderBookL2Endpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<BitmexOrderBookEntry>>(GetUrl(OrderBookL2Endpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
 
         }
 
@@ -342,7 +342,7 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Quote>>> GetQuotesAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Quote>>(GetUrl(QuoteEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Quote>>(GetUrl(QuoteEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<Settlement> GetSettelment(BitmexRequestWithFilter requestWithFilter = null) => GetSettelmentAsync().Result;
@@ -350,21 +350,21 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<Settlement>> GetSettelmentAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<Settlement>(GetUrl(SettlementEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<Settlement>(GetUrl(SettlementEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<StatsHistory>> GetStatsHistory() => GetStatsHistoryAsync().Result;
 
         public async Task<WebCallResult<List<StatsHistory>>> GetStatsHistoryAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<StatsHistory>>(GetUrl(StatsHistoryEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<StatsHistory>>(GetUrl(StatsHistoryEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<StatsUSD>> GetStatsHistoryUsd() => GetStatsHistoryUsdAsync().Result;
 
         public async Task<WebCallResult<List<StatsUSD>>> GetStatsHistoryUsdAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<StatsUSD>>(GetUrl(StatsHistoryUSDndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<StatsUSD>>(GetUrl(StatsHistoryUSDndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Trade>> GetTrades(BitmexRequestWithFilter requestWithFilter = null) => GetTradesAsync(requestWithFilter).Result;
@@ -372,7 +372,7 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Trade>>> GetTradesAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Trade>>(GetUrl(TradeEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Trade>>(GetUrl(TradeEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<TradeBin>> GetTradesBucketed(string binSize, bool partial = false, BitmexRequestWithFilter requestWithFilter = null) => GetTradesBucketedAsync(binSize, partial, requestWithFilter).Result;
@@ -382,14 +382,14 @@ namespace Bitmex.Net.Client
             var parameters = GetParameters(requestWithFilter);
             parameters.Add("binSize", binSize);
             parameters.Add("partial", partial);
-            return await SendRequest<List<TradeBin>>(GetUrl(TradeBucketedEndpoint), HttpMethod.Get, ct, parameters, false, false).ConfigureAwait(false);
+            return await SendRequest<List<TradeBin>>(GetUrl(TradeBucketedEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Announcement>> GetUrgentAnnouncements() => GetUrgentAnnouncementsAsync().Result;
 
         public async Task<WebCallResult<List<Announcement>>> GetUrgentAnnouncementsAsync(CancellationToken ct = default)
         {
-            return await SendRequest<List<Announcement>>(GetUrl(GetUrgentAnnouncementsEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<List<Announcement>>(GetUrl(GetUrgentAnnouncementsEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<User> GetUserAccount() => GetUserAccountAsync().Result;
@@ -403,7 +403,7 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<object>> GetWebsokcetHelpAsync(CancellationToken ct = default)
         {
-            return await SendRequest<object>(GetUrl(SchemaWebsokcetHelpEndpoint), HttpMethod.Get, ct, null, false, false).ConfigureAwait(false);
+            return await SendRequest<object>(GetUrl(SchemaWebsokcetHelpEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
         public WebCallResult<Order> PlaceOrder(PlaceOrderRequest placeOrderRequest) => PlaceOrderAsync(placeOrderRequest).Result;
