@@ -98,7 +98,8 @@ Other CryptoExchange.Net implementations:
 </table>
 
 ## Changelog
-
+* 1/28/2021
+  * dependencies update
 * 1/26/2021 
   * added milliseconds accuracy to start/end time filters
   * added auth in not auth methods for better rate limits

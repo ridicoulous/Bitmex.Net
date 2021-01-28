@@ -91,11 +91,9 @@ namespace Bitmex.Net.Client.HistoricalData
                     using (var decompressed = new StreamReader(decompressionStream))
                     {
                         using (var csv = new CsvReader(decompressed, CultureInfo.InvariantCulture))
-                        {
-                            csv.Configuration.Delimiter = ",";
-                            csv.Configuration.IgnoreBlankLines = true;
-                            csv.Configuration.RegisterClassMap<TradeMap>();
-                            csv.Configuration.RegisterClassMap<QuoteMap>();
+                        {                            
+                            csv.Context.RegisterClassMap<TradeMap>();
+                            csv.Context.RegisterClassMap<QuoteMap>();
                             while (csv.Read())
                             {
                                 var row = csv.GetRecord<T>();
