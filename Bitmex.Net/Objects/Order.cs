@@ -1,10 +1,11 @@
 ﻿using Bitmex.Net.Client.Converters;
+using CryptoExchange.Net.ExchangeInterfaces;
 using Newtonsoft.Json;
 
 namespace Bitmex.Net.Client.Objects
 {
     /// <summary>Placement, Cancellation, Amending, and History</summary>
-    public class Order
+    public class Order : ICommonOrder, ICommonOrderId
     {
         [JsonProperty("orderID")]
         public string Id { get; set; }
@@ -107,6 +108,27 @@ namespace Bitmex.Net.Client.Objects
         public System.DateTime? Timestamp { get; set; }
         [JsonProperty("error")]
         public string Error { get; set; }
+
+        public string CommonId => Id;
+
+        public string CommonSymbol => Symbol;
+
+        public decimal CommonPrice => Price??StopPx??0;
+
+        public decimal CommonQuantity => OrderQty ?? 0;
+
+        public string CommonStatus => Status.ToString();
+
+        public bool IsActive => Status == BitmexOrderStatus.New || Status == BitmexOrderStatus.PartiallyFilled;
+
+        public IExchangeClient.OrderSide CommonSide => Side == BitmexOrderSide.Buy ? IExchangeClient.OrderSide.Buy : IExchangeClient.OrderSide.Sell;
+
+        public IExchangeClient.OrderType CommonType => OrdType switch
+        {
+            BitmexOrderType.Limit => IExchangeClient.OrderType.Limit,
+            BitmexOrderType.Market => IExchangeClient.OrderType.Market,
+            _ => IExchangeClient.OrderType.Other
+        };
     }
 
 }

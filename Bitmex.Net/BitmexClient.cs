@@ -4,6 +4,7 @@ using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.ExchangeInterfaces;
 using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace Bitmex.Net.Client
 {
-    public class BitmexClient : RestClient, IBitmexClient
+    public class BitmexClient : RestClient, IBitmexClient, IExchangeClient
     {
         private static BitmexClientOptions defaultOptions = new BitmexClientOptions();
         private static BitmexClientOptions DefaultOptions => defaultOptions.Copy();
@@ -549,6 +550,77 @@ namespace Bitmex.Net.Client
 
 
         public WebCallResult<List<WalletHistory>> GetUserWalletHistory(string currency = "XBt", int count = 100, int startFrom = 0, bool reverse = true) => GetUserWalletHistoryAsync(currency, count,startFrom,reverse).Result;
+
+        public string GetSymbolName(string baseAsset, string quoteAsset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonSymbol>>> GetSymbolsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonTicker>>> GetTickersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonTicker>> GetTickerAsync(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonKline>>> GetKlinesAsync(string symbol, TimeSpan timespan, DateTime? startTime = null, DateTime? endTime = null, int? limit = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonOrderBook>> GetOrderBookAsync(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonRecentTrade>>> GetRecentTradesAsync(string symbol)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonOrderId>> PlaceOrderAsync(string symbol, IExchangeClient.OrderSide side, IExchangeClient.OrderType type, decimal quantity, decimal? price = null, string accountId = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<ICommonOrder>> GetOrderAsync(string orderId, string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonTrade>>> GetTradesAsync(string orderId, string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonOrder>>> GetOpenOrdersAsync(string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonOrder>>> GetClosedOrdersAsync(string symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<WebCallResult<ICommonOrderId>> CancelOrderAsync(string orderId, string symbol = null)
+        {
+            var result = await CancelOrderAsync(new CancelOrderRequest(orderId, orderId));
+            return new WebCallResult<ICommonOrderId>(result.ResponseStatusCode,result.ResponseHeaders,new CommonOrderId())
+        }
+
+        public Task<WebCallResult<IEnumerable<ICommonBalance>>> GetBalancesAsync(string accountId = null)
+        {
+            throw new NotImplementedException();
+        }
 
         //public WebCallResult<List<Transaction>> GetUserWalletSummary(string currency = "XBt") => GetUserWalletSummaryAsync(currency).Result;
         //public async Task<WebCallResult<List<Transaction>>> GetUserWalletSummaryAsync(string currency = "XBt", CancellationToken ct = default)

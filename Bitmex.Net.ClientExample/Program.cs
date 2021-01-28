@@ -52,7 +52,7 @@ namespace Bitmex.Net.ClientExample
 
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
-            //await TestHistoricalDataLoading();
+            await TestHistoricalDataLoading();
        
             //var orderBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bmc", true)
             //{
