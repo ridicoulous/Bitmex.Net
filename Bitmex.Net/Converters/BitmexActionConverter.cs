@@ -1,9 +1,6 @@
-﻿using    Bitmex.Net.Client.Objects;
-using Bitmex.Net.Client.Objects.Socket;
+﻿using Bitmex.Net.Client.Objects.Socket;
 using CryptoExchange.Net.Converters;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace  Bitmex.Net.Client.Converters
 {

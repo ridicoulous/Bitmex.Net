@@ -96,17 +96,25 @@ namespace Bitmex.Net.Client.HistoricalData
                             csv.Context.RegisterClassMap<QuoteMap>();
                             while (csv.Read())
                             {
-                                var row = csv.GetRecord<T>();
-                                if (shoulCheckSymbols)
+                                try
                                 {
-                                    if (symbols.Contains(row.Symbol))
+                                    var row = csv.GetRecord<T>();
+                                    if (shoulCheckSymbols)
+                                    {
+                                        if (symbols.Contains(row.Symbol))
+                                        {
+                                            result.Add(row);
+                                        }
+                                    }
+                                    else
                                     {
                                         result.Add(row);
                                     }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    result.Add(row);
+
+                                    throw ex;
                                 }
                             }
                         }
