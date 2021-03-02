@@ -15,7 +15,7 @@ namespace Bitmex.Net.Client.Tests
 {
     public class BitmexClientIntegrationTests
     {
-        BitmexClient _client = new BitmexClient(new BitmexClientOptions("42", "42", true));
+        BitmexClient _client = new BitmexClient();
         [Fact]
         public void ShouldReturnFourLastBuyTrades()
         {
