@@ -2,16 +2,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Bitmex.Net.Client.Helpers.Extensions;
+
 using Microsoft.Extensions.Configuration;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using Bitmex.Net.Client.Objects.Socket;
-using System.Threading;
-using System.Globalization;
-using Newtonsoft.Json;
+
 using Bitmex.Net.Client.Objects;
-using Bitmex.Net.Client.Objects.Requests;
-using System.Reactive.Linq;
+
 using Bitmex.Net.Client.HistoricalData;
 using System.Collections.Generic;
 using CryptoExchange.Net.Logging;
@@ -22,19 +19,22 @@ using Polly;
 using System.Collections.Concurrent;
 
 namespace Bitmex.Net.ClientExample
-{   
+{
+   
     class Program
     {
      
         static async Task  Main(string[] args)
         {
 
+            await TestHistoricalDataLoading();
+
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
-            //await TestHistoricalDataLoading();
 
-          
+       
             var configuration = builder.Build();
+         
 
             var client = new BitmexClient(new BitmexClientOptions()
             {
@@ -65,7 +65,7 @@ namespace Bitmex.Net.ClientExample
                
 
             }
-            
+           
             Console.ReadLine();
         }
 
@@ -80,11 +80,11 @@ namespace Bitmex.Net.ClientExample
         private static async Task TestHistoricalDataLoading()
         {
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
-            var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2020, 5, 20));
-            var data2 = await bitmexHistoricalTradesLoader.GetTradesByPeriodAsync(new DateTime(2020, 5, 20), new DateTime(2020, 5, 21));
+            var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2021, 1, 6));          
 
-            var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
+            //var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
         }
+       
 
     }
 }

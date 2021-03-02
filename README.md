@@ -94,11 +94,16 @@ Other CryptoExchange.Net implementations:
 <br />
 <a href="https://github.com/burakoner/OKEx.Net">OKEx</a>
 </td>
+<td><a href="https://github.com/d-ugarov/Exante.Net"><img src="https://github.com/d-ugarov/Exante.Net/blob/master/Exante.Net/Icon/icon.png?raw=true"></a>
+<br />
+<a href="https://github.com/d-ugarov/Exante.Net">Exante</a>
+</td>
 </tr>
 </table>
 
 ## Changelog
-
+* 1/28/2021
+  * dependencies update
 * 1/26/2021 
   * added milliseconds accuracy to start/end time filters
   * added auth in not auth methods for better rate limits

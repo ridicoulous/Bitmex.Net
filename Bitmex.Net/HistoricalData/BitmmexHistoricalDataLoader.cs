@@ -91,24 +91,30 @@ namespace Bitmex.Net.Client.HistoricalData
                     using (var decompressed = new StreamReader(decompressionStream))
                     {
                         using (var csv = new CsvReader(decompressed, CultureInfo.InvariantCulture))
-                        {
-                            csv.Configuration.Delimiter = ",";
-                            csv.Configuration.IgnoreBlankLines = true;
-                            csv.Configuration.RegisterClassMap<TradeMap>();
-                            csv.Configuration.RegisterClassMap<QuoteMap>();
+                        {                            
+                            csv.Context.RegisterClassMap<TradeMap>();
+                            csv.Context.RegisterClassMap<QuoteMap>();
                             while (csv.Read())
                             {
-                                var row = csv.GetRecord<T>();
-                                if (shoulCheckSymbols)
+                                try
                                 {
-                                    if (symbols.Contains(row.Symbol))
+                                    var row = csv.GetRecord<T>();
+                                    if (shoulCheckSymbols)
+                                    {
+                                        if (symbols.Contains(row.Symbol))
+                                        {
+                                            result.Add(row);
+                                        }
+                                    }
+                                    else
                                     {
                                         result.Add(row);
                                     }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    result.Add(row);
+
+                                    throw ex;
                                 }
                             }
                         }
