@@ -10,12 +10,24 @@ using Newtonsoft.Json;
 using Bitmex.Net.Client.Converters;
 using Bitmex.Net.Client.Attributes;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace Bitmex.Net.Client.Tests
 {
     public class BitmexClientIntegrationTests
     {
         BitmexClient _client = new BitmexClient();
+
+        /*
+        [Fact]
+        public void ShouldReturnUserTrades() {
+            var trades = _client.GetUserExecutionHistory(
+                new BitmexRequestWithFilter() { Symbol = "XBTUSD", Timestamp = DateTime.UtcNow.AddDays(-1) }
+                );
+            Assert.True(trades);
+        }
+        */
+
         [Fact]
         public void ShouldReturnFourLastBuyTrades()
         {
