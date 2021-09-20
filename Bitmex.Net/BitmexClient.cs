@@ -4,6 +4,7 @@ using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.ExchangeInterfaces;
 using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace Bitmex.Net.Client
 {
-    public class BitmexClient : RestClient, IBitmexClient
+    public class BitmexClient : RestClient, IBitmexClient, IExchangeClient
     {
         private static BitmexClientOptions defaultOptions = new BitmexClientOptions();
         private static BitmexClientOptions DefaultOptions => defaultOptions.Copy();
@@ -101,8 +102,7 @@ namespace Bitmex.Net.Client
         {
         }        
         public void SetApiCredentials(string key, string secret)
-        {
-            log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, "Setting api credentials");
+        {            
             this.authProvider = new BitmexAuthenticationProvider(new ApiCredentials(key, secret));
         }
 
