@@ -87,6 +87,19 @@ namespace Bitmex.Net.Client.Helpers.Extensions
                 throw ex;
             }
         }
+        public static string ToBitmexTimeFrameString(this TimeSpan timeSpan)
+        {
+            if (timeSpan == TimeSpan.FromMinutes(1))
+                return "1m";
+            else if (timeSpan == TimeSpan.FromMinutes(5))
+                return "5m";
+            else if (timeSpan == TimeSpan.FromHours(1))
+                return "1h";
+            else if (timeSpan == TimeSpan.FromDays(1))
+                return "1d";
+            else
+                throw new ArgumentException("Unsupported timespan for HitBTC Candles, check supported intervals");
+        }
     }
     public static class BitmexRequestExtensions
     {

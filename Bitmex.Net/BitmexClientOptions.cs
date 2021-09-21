@@ -1,10 +1,9 @@
 ﻿using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 
 namespace Bitmex.Net.Client
 {
@@ -12,9 +11,8 @@ namespace Bitmex.Net.Client
     {
         public BitmexClientOptions() : base("https://www.bitmex.com/api/v1")
         {
-            this.LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            LogWriters = new List<System.IO.TextWriter>() { new DebugTextWriter() };
-
+            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
+            LogWriters = new List<ILogger> { new DebugLogger() };
         }
         public BitmexClientOptions(HttpClient client, string key, string secret, bool isTest = false) : base(client, "https://www.bitmex.com/api/v1")
         {
@@ -23,15 +21,14 @@ namespace Bitmex.Net.Client
             {
                 BaseAddress = "https://testnet.bitmex.com/api/v1";
             }
-            this.LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            LogWriters = new List<System.IO.TextWriter>() { new DebugTextWriter() };
+            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
+            LogWriters = new List<ILogger> { new DebugLogger() };
 
         }
         public BitmexClientOptions(HttpClient client) : base(client, "https://www.bitmex.com/api/v1")
-        {            
-            this.LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            LogWriters = new List<System.IO.TextWriter>() { new DebugTextWriter() };
-
+        {
+            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
+            LogWriters = new List<ILogger> { new DebugLogger() };
         }
         public BitmexClientOptions(string key, string secret, bool isTest = false) : base("https://www.bitmex.com/api/v1")
         {
@@ -40,8 +37,8 @@ namespace Bitmex.Net.Client
             {
                 BaseAddress = "https://testnet.bitmex.com/api/v1";
             }
-            this.LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            LogWriters = new List<System.IO.TextWriter>() { new DebugTextWriter() };
+            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
+            LogWriters = new List<ILogger> { new DebugLogger() };
 
         }
 
@@ -51,8 +48,8 @@ namespace Bitmex.Net.Client
             {
                 BaseAddress = "https://testnet.bitmex.com/api/v1";
             }
-            this.LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug;
-            LogWriters = new List<System.IO.TextWriter>() { new DebugTextWriter() };
+            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
+            LogWriters = new List<ILogger> { new DebugLogger() };
         }
 
         public void SetApiCredentials(ApiCredentials credentials)

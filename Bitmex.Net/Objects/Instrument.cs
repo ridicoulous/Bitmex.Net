@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using CryptoExchange.Net.ExchangeInterfaces;
+using Newtonsoft.Json;
 
 namespace    Bitmex.Net.Client.Objects
 {
   
         /// <summary>Tradeable Contracts, Indices, and History</summary>
 
-        public class Instrument
+        public class Instrument : ICommonSymbol, ICommonTicker
     {
         [JsonProperty("symbol", Required = Required.Always)]
       
@@ -317,7 +318,17 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("timestamp")]
         public System.DateTime? Timestamp { get; set; }
 
+        public string CommonName => Symbol;
 
+        public decimal CommonMinimumTradeSize => LotSize.GetValueOrDefault();
+
+        public string CommonSymbol => Symbol;
+
+        public decimal CommonHigh => HighPrice.GetValueOrDefault();
+
+        public decimal CommonLow => LowPrice.GetValueOrDefault();
+
+        public decimal CommonVolume => Volume24h.GetValueOrDefault();
     }
 
 }
