@@ -399,7 +399,12 @@ namespace Bitmex.Net.Client
             var parameters = GetParameters(requestWithFilter);
             parameters.Add("binSize", binSize);
             parameters.Add("partial", partial);
-            return await SendRequestAsync<List<TradeBin>>(GetUrl(TradeBucketedEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
+            if (!parameters.ContainsKey("reverse"))
+            {
+                parameters.Add("reverse", true);
+            }
+            var result = await SendRequestAsync<List<TradeBin>>(GetUrl(TradeBucketedEndpoint), HttpMethod.Get, ct, parameters, this.authProvider!=null, false).ConfigureAwait(false);
+            return result.As(result ? result.Data.OrderBy(t => t.Timestamp).ToList() : null);
         }
 
         public WebCallResult<List<Announcement>> GetUrgentAnnouncements() => GetUrgentAnnouncementsAsync().Result;
@@ -616,6 +621,15 @@ namespace Bitmex.Net.Client
             return result.As<ICommonTicker>(result ? result.Data.FirstOrDefault() : null);
         }
 
+        /// <summary>
+        /// timespan can be either 1 minute, 5 minutes, 1 hour, 1 day
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="timespan"> </param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
         public async Task<WebCallResult<IEnumerable<ICommonKline>>> GetKlinesAsync(string symbol, TimeSpan timespan, DateTime? startTime = null, DateTime? endTime = null, int? limit = null)
         {
             var request = new BitmexRequestWithFilter()

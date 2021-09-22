@@ -17,6 +17,7 @@ using System.Net.Http;
 using Polly.Extensions.Http;
 using Polly;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 
 namespace Bitmex.Net.ClientExample
 {
@@ -49,18 +50,18 @@ namespace Bitmex.Net.ClientExample
           
             using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
             {
-                LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
+                LogLevel = LogLevel.Debug,
                 SocketNoDataTimeout = TimeSpan.FromSeconds(25),
                 ReconnectInterval = TimeSpan.FromSeconds(5),
                 AutoReconnect = true,
-                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
+                // LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
             }))
             {
                 socket.OnUserOrdersUpdate += Socket_OnUserOrdersUpdate; ;
                 socket.Subscribe(new BitmexSubscribeRequest()
                  .AddSubscription(BitmexSubscribtions.Order, "XBTUSD"));
                 Console.ReadLine();
-                await socket.UnsubscribeAll();
+                await socket.UnsubscribeAllAsync();
                 Console.ReadLine();
                
 
