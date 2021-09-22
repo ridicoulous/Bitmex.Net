@@ -50,7 +50,7 @@ namespace Bitmex.Net.Client
             result.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
 
             string additionalData = String.Empty;
-            if (parameters != null && parameters.Any() && method != HttpMethod.Delete && method != HttpMethod.Get)
+            if (parameters != null && parameters.Any() && method != HttpMethod.Get)
             {
                 additionalData = JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
             }

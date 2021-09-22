@@ -169,7 +169,7 @@ namespace Bitmex.Net.Client
         /// <inheritdoc cref="IBitmexClient"/>        
         public async Task<WebCallResult<List<Instrument>>> GetActiveInstrumentsAsync(CancellationToken ct = default)
         {
-            return await SendRequestAsync<List<Instrument>>(GetUrl(InstrumentsEndpoint), HttpMethod.Get, ct, null, false).ConfigureAwait(false);
+            return await SendRequestAsync<List<Instrument>>(GetUrl(ActiveInstrumentsEndpoint), HttpMethod.Get, ct, null, false).ConfigureAwait(false);
         }
         public WebCallResult<List<Instrument>> GetActiveInstrumentsAndIndicies() => GetActiveInstrumentsAndIndiciesAsync().Result;
 
@@ -678,6 +678,9 @@ namespace Bitmex.Net.Client
                 Symbol = symbol
             };
             request.AddFilter("orderID", orderId);
+            // Without "execType=Trade" filter the result will contain fundings payments
+            // if orderID do not match with any order's ID
+            request.AddFilter("execType", "Trade");
             var foo = await GetExecutionsTradeHistoryAsync(request);
             return foo.As<IEnumerable<ICommonTrade>>(foo.Data);
         }
@@ -693,16 +696,15 @@ namespace Bitmex.Net.Client
             return result.As<IEnumerable<ICommonOrder>>(result.Data);
         }
 
-        // TODO: Debug it!
         public async Task<WebCallResult<IEnumerable<ICommonOrder>>> GetClosedOrdersAsync(string symbol = null)
         {
             var request = new BitmexRequestWithFilter()
             {
                 Symbol = symbol,
             };
-            request.AddFilter("open", false);
+            request.Reverse = true;
             var result = await GetOrdersAsync(request);
-            return result.As<IEnumerable<ICommonOrder>>(result.Data);
+            return result.As<IEnumerable<ICommonOrder>>(result ? result.Data.Where(o => !o.IsActive).OrderBy(x => x.Timestamp).ToList() : null);
         }
 
         public async Task<WebCallResult<ICommonOrderId>> CancelOrderAsync(string orderId, string symbol = null)

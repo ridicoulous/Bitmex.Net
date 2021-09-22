@@ -96,31 +96,31 @@ namespace Bitmex.Net.Client
         public event Action OnSocketOpened;
         #endregion
 
-        protected override IWebsocket CreateSocket(string address)
-        {
-            Dictionary<string, string> emptyCoockies = new Dictionary<string, string>();
-            Dictionary<string, string> headers = new Dictionary<string, string>();
-            //if (authProvider != null)
-            //{
-            //    headers = this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues);
-            //}
-            headers.Add("Accept-Encoding", "gzip, deflate, br");
-            headers.Add("Cache-Control", "no-cache");
-            headers.Add("Connection", "Upgrade");
-            headers.Add("Host", $"{(isTestnet ? "testnet" : "www")}.bitmex.com");
-            headers.Add("Origin", $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com");
-            headers.Add("Sec-WebSocket-Extensions", "");
-            headers.Add("Sec-WebSocket-Version", "13");
-            headers.Add("Upgrade", "websocket");
-            headers.Add("User-Agent", "https://github.com/ridicoulous/Bitmex.Net/");
+        // protected override IWebsocket CreateSocket(string address)
+        // {
+        //     Dictionary<string, string> emptyCoockies = new Dictionary<string, string>();
+        //     Dictionary<string, string> headers = new Dictionary<string, string>();
+        //     //if (authProvider != null)
+        //     //{
+        //     //    headers = this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues);
+        //     //}
+        //     headers.Add("Accept-Encoding", "gzip, deflate, br");
+        //     headers.Add("Cache-Control", "no-cache");
+        //     headers.Add("Connection", "Upgrade");
+        //     headers.Add("Host", $"{(isTestnet ? "testnet" : "www")}.bitmex.com");
+        //     headers.Add("Origin", $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com");
+        //     headers.Add("Sec-WebSocket-Extensions", "");
+        //     headers.Add("Sec-WebSocket-Version", "13");
+        //     headers.Add("Upgrade", "websocket");
+        //     headers.Add("User-Agent", "https://github.com/ridicoulous/Bitmex.Net/");
 
-            var s = SocketFactory.CreateWebsocket(this.log, address, emptyCoockies, headers);
-            s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";
-            s.OnClose += S_OnClose;
-            s.OnError += S_OnError;
-            s.OnOpen += S_OnOpen;
-            return s;
-        }
+        //     var s = SocketFactory.CreateWebsocket(this.log, address, emptyCoockies, headers);
+        //     s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";
+        //     s.OnClose += S_OnClose;
+        //     s.OnError += S_OnError;
+        //     s.OnOpen += S_OnOpen;
+        //     return s;
+        // }
         private void CheckDoubleSendingRequest(BitmexSubscribeRequest request)
         {
             lock (_locker)
