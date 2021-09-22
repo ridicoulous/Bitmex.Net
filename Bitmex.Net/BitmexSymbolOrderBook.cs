@@ -1,16 +1,13 @@
-﻿using Bitmex.Net.Client.Objects.Socket.Repsonses;
-using CryptoExchange.Net.Objects;
+﻿using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.OrderBook;
 using CryptoExchange.Net.Sockets;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Bitmex.Net.Client.Helpers.Extensions;
 using Bitmex.Net.Client.Objects;
 using System.Linq;
-using Bitmex.Net.Client.Objects.Requests;
 using Bitmex.Net.Client.Objects.Socket;
+using Microsoft.Extensions.Logging;
 
 namespace Bitmex.Net.Client
 {
@@ -84,12 +81,12 @@ namespace Bitmex.Net.Client
             _bitmexSocketClient.Dispose();
         }
 
-        protected override async Task<CallResult<bool>> DoResync()
+        protected override async Task<CallResult<bool>> DoResyncAsync()
         {
-            return await WaitForSetOrderBook(10000).ConfigureAwait(false);
+            return await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
         }
 
-        protected override async Task<CallResult<UpdateSubscription>> DoStart()
+        protected override async Task<CallResult<UpdateSubscription>> DoStartAsync()
         {
             /*If you wish to get real-time order book data, we recommend you use the orderBookL2_25 subscription. orderBook10 pushes the top 10 levels on every tick,
              * but transmits much more data. orderBookL2 pushes the full L2 order book, but the payload can get very large. orderbookL2_25 provides a subset of the full L2 orderbook,
@@ -104,13 +101,14 @@ namespace Bitmex.Net.Client
             {
                 return subscriptionResult;
             }
-            var setResult = await WaitForSetOrderBook(10000).ConfigureAwait(false);
+            var setResult = await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
             return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(null, setResult.Error);
         }
         public DateTime LastOrderBookMessage;
         public DateTime LastAction;
-        private void OnUpdate(BitmexSocketEvent<BitmexOrderBookEntry> update)
+        private void OnUpdate(DataEvent<BitmexSocketEvent<BitmexOrderBookEntry>> dataEvent)
         {
+            var update = dataEvent.Data;
             if (update.Action == BitmexAction.Undefined || update.Data==null)
             {
                 return;
@@ -157,10 +155,10 @@ namespace Bitmex.Net.Client
                 }
                 else
                 {
-                    log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated cause not initiated");
+                    log.Write(LogLevel.Error, $"Orderbook was not updated cause not initiated");
                     using (var client = new BitmexClient(new BitmexClientOptions(isTestnet)))
                     {
-                        log.Write(CryptoExchange.Net.Logging.LogVerbosity.Debug, $"Setting orderdbook through api");
+                        log.Write(LogLevel.Debug, $"Setting orderdbook through api");
 
                         var ob = client.GetOrderBook(Symbol, 0);
                         if (ob)
@@ -173,7 +171,7 @@ namespace Bitmex.Net.Client
             }
             catch (Exception ex)
             {
-                log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated {ex.ToString()}");
+                log.Write(LogLevel.Error, $"Orderbook was not updated {ex.ToString()}");
             }
         }
     }

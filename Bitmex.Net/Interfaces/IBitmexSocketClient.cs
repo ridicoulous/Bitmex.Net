@@ -54,7 +54,7 @@ namespace   Bitmex.Net.Client.Interfaces
         /// <param name="symbol">Symbol to subscribe. Live it empty, if you want to subscribe for each book updates</param>
         /// <param name="full">If true, subscribe to full orderbook, else - to top 25 levels </param>
         /// <returns></returns>
-        CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol="", bool full=false);
+        CallResult<UpdateSubscription> SubscribeToOrderBookUpdates(Action<DataEvent<BitmexSocketEvent<BitmexOrderBookEntry>>> onData, string symbol="", bool full=false);
         /// <summary>
         /// subscribe to orderbook updates
         /// </summary>
@@ -62,7 +62,7 @@ namespace   Bitmex.Net.Client.Interfaces
         /// <param name="symbol"></param>
         /// <param name="full">If true, subscribe to full orderbook, else - to top 25 levels</param>
         /// <returns></returns>
-        Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<BitmexSocketEvent<BitmexOrderBookEntry>> onData, string symbol = "", bool full = false);
+        Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<DataEvent<BitmexSocketEvent<BitmexOrderBookEntry>>> onData, string symbol = "", bool full = false);
 
         
     }

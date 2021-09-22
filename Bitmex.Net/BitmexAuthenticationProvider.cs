@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
 
 namespace Bitmex.Net.Client
 {
@@ -40,7 +39,7 @@ namespace Bitmex.Net.Client
             LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 60;
             encryptor = new HMACSHA256(Encoding.ASCII.GetBytes(credentials.Secret.GetString()));
         }        
-        public override Dictionary<string, string> AddAuthenticationToHeaders(string uri, HttpMethod method, Dictionary<string, object> parameters, bool signed,PostParameters postParameters, ArrayParametersSerialization arrayParametersSerialization)
+        public override Dictionary<string, string> AddAuthenticationToHeaders(string uri, HttpMethod method, Dictionary<string, object> parameters, bool signed, HttpMethodParameterPosition parameterPosition, ArrayParametersSerialization arrayParametersSerialization)
         {
             var apiexpires = ApiExpires;
 
@@ -51,7 +50,7 @@ namespace Bitmex.Net.Client
             result.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
 
             string additionalData = String.Empty;
-            if (parameters != null && parameters.Any() && method != HttpMethod.Delete && method != HttpMethod.Get)
+            if (parameters != null && parameters.Any() && method != HttpMethod.Get)
             {
                 additionalData = JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
             }

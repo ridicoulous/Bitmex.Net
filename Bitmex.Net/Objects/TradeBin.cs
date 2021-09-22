@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using CryptoExchange.Net.ExchangeInterfaces;
+using Newtonsoft.Json;
 
 namespace Bitmex.Net.Client.Objects
 {
 
-    public class TradeBin
+    public class TradeBin : ICommonKline
     {
         [JsonProperty("timestamp", Required = Required.Always)]
 
@@ -46,7 +48,21 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("foreignNotional")]
         public decimal? ForeignNotional { get; set; }
 
+        public decimal CommonHigh => High.GetValueOrDefault();
 
+        public decimal CommonLow => Low.GetValueOrDefault();
+
+        public decimal CommonOpen => Open.GetValueOrDefault();
+
+        public decimal CommonClose => Close.GetValueOrDefault();
+
+        /// <summary>
+        /// Timestamps returned by our bucketed endpoints are the end of the period, 
+        /// indicating when the bucket was written to disk. 
+        /// </summary>
+        public DateTime CommonOpenTime => Timestamp;
+
+        public decimal CommonVolume => Volume.GetValueOrDefault();
     }
 
 }
