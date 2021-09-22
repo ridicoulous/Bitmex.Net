@@ -3,18 +3,20 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.4.91</Version>
+    <Version>1.5.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Bitmex.Net.Client</PackageId>
     <Authors>ridicoulous</Authors>
     <Company>ridicoulous</Company>
     <Product>Bitmex.Net.Client</Product>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>ridiclous</Copyright>
+    <Copyright>ridiclous, alokym86</Copyright>
     <RepositoryUrl>https://github.com/ridicoulous/Bitmex.Net</RepositoryUrl>
     <PackageProjectUrl>https://github.com/ridicoulous/Bitmex.Net</PackageProjectUrl>
     <PackageTags>bitmex api-wrapper crypto exchange historical data</PackageTags>
-    <PackageReleaseNotes>03/03/2021 - dependencies update
+    <PackageReleaseNotes>
+      09/22/2021 - base lib update, cancel order bug fix
+      03/03/2021 - dependencies update
 1/28/2021 - dependencies update
 1/26/2021 - added milliseconds accuracy to start/end time filters
 1/26/2021 - added auth in not auth methods for better rate limits
@@ -26,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CryptoExchange.Net" Version="4.2.0" />
+    <PackageReference Include="CryptoExchange.Net" Version="4.2.1" />
     <PackageReference Include="CsvHelper" Version="27.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
