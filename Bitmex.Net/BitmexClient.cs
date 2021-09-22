@@ -253,6 +253,14 @@ namespace Bitmex.Net.Client
             return await SendRequestAsync<List<Stats>>(GetUrl(StatsEndpoint), HttpMethod.Get, ct, null, this.authProvider!=null, false).ConfigureAwait(false);
         }
 
+
+
+        public WebCallResult<List<Execution>> GetUserExecutionHistory(BitmexRequestWithFilter requestWithFilter = null) => GetExecutionsAsync(requestWithFilter).Result;
+        public async Task<WebCallResult<List<Execution>>> GetUserExecutionHistory(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default) {
+            var parameters = GetParameters(requestWithFilter);
+            return await SendRequest<List<Execution>>(GetUrl(UserExecutionHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
+        }
+
         public WebCallResult<List<Execution>> GetExecutions(BitmexRequestWithFilter requestWithFilter = null) => GetExecutionsAsync(requestWithFilter).Result;
         public async Task<WebCallResult<List<Execution>>> GetExecutionsAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {
