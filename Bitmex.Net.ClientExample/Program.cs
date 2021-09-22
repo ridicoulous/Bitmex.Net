@@ -17,61 +17,81 @@ using System.Net.Http;
 using Polly.Extensions.Http;
 using Polly;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
+using CryptoExchange.Net.Sockets;
+using Newtonsoft.Json;
 
 namespace Bitmex.Net.ClientExample
 {
-   
+
     class Program
     {
-     
-        static async Task  Main(string[] args)
+        static void onData(DataEvent<BitmexSocketEvent<BitmexOrderBookEntry>> data)
         {
-
+            Console.WriteLine(JsonConvert.SerializeObject(data));
+        }
+        static async Task Main(string[] args)
+        {
             await TestHistoricalDataLoading();
+
+            var s = new BitmexSymbolOrderBook("XBTUSD");
+            s.OnBestOffersChanged += S_OnBestOffersChanged;
+            await s.StartAsync();
+            Console.ReadLine();
 
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
 
-       
+
             var configuration = builder.Build();
-         
+
 
             var client = new BitmexClient(new BitmexClientOptions()
             {
                 ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(configuration["prod:key"], configuration["prod:secret"]),
             });
             var wallet = await client.GetUserWalletHistoryAsync();
-            foreach(var r in wallet.Data)
+            foreach (var r in wallet.Data)
             {
                 Console.WriteLine($"[{r.Timestamp}]: {r.TransactStatus} - {r.WalletBalanceInBtc} BTC ({r.WalletBalance}) satoshi");
             }
             Console.WriteLine();
-          
+
             using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
             {
-                LogVerbosity = CryptoExchange.Net.Logging.LogVerbosity.Debug,
+                LogLevel = LogLevel.Debug,
                 SocketNoDataTimeout = TimeSpan.FromSeconds(25),
                 ReconnectInterval = TimeSpan.FromSeconds(5),
                 AutoReconnect = true,
-                LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
+                // LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
             }))
             {
                 socket.OnUserOrdersUpdate += Socket_OnUserOrdersUpdate; ;
                 socket.Subscribe(new BitmexSubscribeRequest()
                  .AddSubscription(BitmexSubscribtions.Order, "XBTUSD"));
                 Console.ReadLine();
-                await socket.UnsubscribeAll();
+                await socket.UnsubscribeAllAsync();
                 Console.ReadLine();
-               
+
 
             }
-           
+
             Console.ReadLine();
+        }
+
+        private static void S_OnBestOffersChanged((CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry BestBid, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry BestAsk) obj)
+        {
+            Console.WriteLine($"{obj.BestAsk.Price}:{obj.BestBid.Price}");
+        }
+
+        private static void S_OnorderBookL2Update(BitmexSocketEvent<BitmexOrderBookEntry> obj)
+        {
+            throw new NotImplementedException();
         }
 
         private static void Socket_OnUserOrdersUpdate(BitmexSocketEvent<Order> obj)
         {
-            foreach(var o in obj.Data)
+            foreach (var o in obj.Data)
             {
                 Console.WriteLine($"{o.Symbol}:{o.Side}:{o.Id}");
             }
@@ -80,11 +100,11 @@ namespace Bitmex.Net.ClientExample
         private static async Task TestHistoricalDataLoading()
         {
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
-            var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2021, 1, 6));          
+            var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2021, 1, 6));
 
             //var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
         }
-       
+
 
     }
 }
