@@ -75,6 +75,10 @@ namespace Bitmex.Net.Client.Helpers.Extensions
                     {
                         value = value?.ToString();
                     }
+                    if (value is DateTime || value is DateTime?)
+                    {
+                        value = ((DateTime)value).ToString("o", System.Globalization.CultureInfo.InvariantCulture);
+                    }
                     if (!result.ContainsKey(key) && !String.IsNullOrEmpty(key) && !String.IsNullOrEmpty(value.ToString()))
                     {
                         result.Add(key, value);
