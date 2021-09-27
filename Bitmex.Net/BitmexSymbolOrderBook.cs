@@ -11,6 +11,7 @@ using Bitmex.Net.Client.Objects;
 using System.Linq;
 using Bitmex.Net.Client.Objects.Requests;
 using Bitmex.Net.Client.Objects.Socket;
+using Microsoft.Extensions.Logging;
 
 namespace Bitmex.Net.Client
 {
@@ -86,7 +87,7 @@ namespace Bitmex.Net.Client
 
         protected override async Task<CallResult<bool>> DoResyncAsync()
         {
-            return await WaitForSetOrderBook(10000).ConfigureAwait(false);
+            return await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
         }
 
         protected override async Task<CallResult<UpdateSubscription>> DoStartAsync()
@@ -104,7 +105,7 @@ namespace Bitmex.Net.Client
             {
                 return subscriptionResult;
             }
-            var setResult = await WaitForSetOrderBook(10000).ConfigureAwait(false);
+            var setResult = await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
             return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(null, setResult.Error);
         }
         public DateTime LastOrderBookMessage;
@@ -157,10 +158,10 @@ namespace Bitmex.Net.Client
                 }
                 else
                 {
-                    log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated cause not initiated");
+                    log.Write(LogLevel.Error, $"Orderbook was not updated cause not initiated");
                     using (var client = new BitmexClient(new BitmexClientOptions(isTestnet)))
                     {
-                        log.Write(CryptoExchange.Net.Logging.Microsoft.Extensions.Logging.LogLevel.Debug, $"Setting orderdbook through api");
+                        log.Write(LogLevel.Debug, $"Setting orderdbook through api");
 
                         var ob = client.GetOrderBook(Symbol, 0);
                         if (ob)
@@ -173,7 +174,7 @@ namespace Bitmex.Net.Client
             }
             catch (Exception ex)
             {
-                log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated {ex.ToString()}");
+                log.Write(LogLevel.Error, $"Orderbook was not updated {ex.ToString()}");
             }
         }
     }
