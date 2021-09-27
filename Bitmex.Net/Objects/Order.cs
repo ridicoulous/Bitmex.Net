@@ -1,7 +1,7 @@
-﻿using System;
-using Bitmex.Net.Client.Converters;
+﻿using Bitmex.Net.Client.Converters;
 using CryptoExchange.Net.ExchangeInterfaces;
 using Newtonsoft.Json;
+using System;
 
 namespace Bitmex.Net.Client.Objects
 {
@@ -110,48 +110,32 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("error")]
         public string Error { get; set; }
 
+        public string CommonId => Id.ToString();
+
         public string CommonSymbol => Symbol;
 
         public decimal CommonPrice => Price.GetValueOrDefault();
 
         public decimal CommonQuantity => OrderQty.GetValueOrDefault();
 
-        public IExchangeClient.OrderStatus CommonStatus =>
-            Status switch
-            {
-                BitmexOrderStatus.Canceled => IExchangeClient.OrderStatus.Canceled,
-                BitmexOrderStatus.Rejected => IExchangeClient.OrderStatus.Canceled,
-                BitmexOrderStatus.Filled => IExchangeClient.OrderStatus.Filled,
-                BitmexOrderStatus.New => IExchangeClient.OrderStatus.Active,
-                BitmexOrderStatus.PartiallyFilled => IExchangeClient.OrderStatus.Active,
-                _ => throw new NotImplementedException("Undefined order status")
-            };
+        public IExchangeClient.OrderStatus CommonStatus => Status switch
+        {
+            BitmexOrderStatus.New => IExchangeClient.OrderStatus.Active,
+            BitmexOrderStatus.PartiallyFilled => IExchangeClient.OrderStatus.Filled,
+            BitmexOrderStatus.Filled => IExchangeClient.OrderStatus.Filled,
+            BitmexOrderStatus.Rejected => IExchangeClient.OrderStatus.Canceled,
+            BitmexOrderStatus.Canceled => IExchangeClient.OrderStatus.Canceled,
+            BitmexOrderStatus.Undefined => IExchangeClient.OrderStatus.Canceled,
+            _ => IExchangeClient.OrderStatus.Canceled
+        };
 
-        public bool IsActive => CommonStatus == IExchangeClient.OrderStatus.Active;
+        public bool IsActive => throw new NotImplementedException();
 
-        public IExchangeClient.OrderSide CommonSide =>
-            Side switch
-            {
-                BitmexOrderSide.Buy => IExchangeClient.OrderSide.Buy,
-                BitmexOrderSide.Sell => IExchangeClient.OrderSide.Sell,
-                _ => throw new NotImplementedException("Undefined order side")
-            };
+        public IExchangeClient.OrderSide CommonSide => throw new NotImplementedException();
 
-        public IExchangeClient.OrderType CommonType =>
-            OrdType switch
-            {
-                BitmexOrderType.Limit => IExchangeClient.OrderType.Limit,
-                BitmexOrderType.LimitIfTouched => IExchangeClient.OrderType.Limit,
-                BitmexOrderType.Market => IExchangeClient.OrderType.Market,
-                BitmexOrderType.MarketIfTouched => IExchangeClient.OrderType.Market,
-                BitmexOrderType.StopLimit => IExchangeClient.OrderType.Other,
-                BitmexOrderType.Stop => IExchangeClient.OrderType.Other,
-                _=> throw new NotImplementedException("Undefined order type")
-            };
+        public IExchangeClient.OrderType CommonType => throw new NotImplementedException();
 
-        public DateTime CommonOrderTime => Timestamp.GetValueOrDefault();
-
-        public string CommonId => Id;
+        public DateTime CommonOrderTime => throw new NotImplementedException();
     }
 
 }

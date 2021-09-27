@@ -122,11 +122,11 @@ namespace Bitmex.Net.Client
             parameters.AddOptionalParameter("symbol", symbol);
             parameters.AddOptionalParameter("text", text);
             var result = await SendRequestAsync<List<Order>>(GetUrl(OrderCancelAllEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
-            if (result.Success && OnOrderCanceled != null)
+            if (result.Success)
             {
                 foreach (var o in result.Data)
                 {
-                    OnOrderCanceled.Invoke(o);
+                    OnOrderCanceled?.Invoke(o);
                 }
             }
             return result;
@@ -258,7 +258,7 @@ namespace Bitmex.Net.Client
         public WebCallResult<List<Execution>> GetUserExecutionHistory(BitmexRequestWithFilter requestWithFilter = null) => GetExecutionsAsync(requestWithFilter).Result;
         public async Task<WebCallResult<List<Execution>>> GetUserExecutionHistory(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default) {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Execution>>(GetUrl(UserExecutionHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
+            return await SendRequestAsync<List<Execution>>(GetUrl(UserExecutionHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Execution>> GetExecutions(BitmexRequestWithFilter requestWithFilter = null) => GetExecutionsAsync(requestWithFilter).Result;
@@ -603,7 +603,7 @@ namespace Bitmex.Net.Client
         
         public string GetSymbolName(string baseAsset, string quoteAsset)
         {
-            throw new NotImplementedException();
+            return baseAsset + quoteAsset;
         }
 
         public async Task<WebCallResult<IEnumerable<ICommonSymbol>>> GetSymbolsAsync()
@@ -740,6 +740,14 @@ namespace Bitmex.Net.Client
             throw new NotImplementedException();
         }
 
+        WebCallResult<List<BitmexOrderBookEntry>> IBitmexClient.GetOrderBook(string symbol, int depth)
+        {
+            throw new NotImplementedException();
+        }
 
+        Task<WebCallResult<List<BitmexOrderBookEntry>>> IBitmexClient.GetOrderBookAsync(string symbol, int depth, CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

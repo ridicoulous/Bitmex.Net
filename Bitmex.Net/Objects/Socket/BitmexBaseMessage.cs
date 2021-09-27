@@ -1,4 +1,5 @@
 ﻿using Bitmex.Net.Client.Converters;
+using CryptoExchange.Net.Sockets;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

@@ -1,13 +1,16 @@
-﻿using CryptoExchange.Net.Objects;
+﻿using Bitmex.Net.Client.Objects.Socket.Repsonses;
+using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.OrderBook;
 using CryptoExchange.Net.Sockets;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
+using Bitmex.Net.Client.Helpers.Extensions;
 using Bitmex.Net.Client.Objects;
 using System.Linq;
+using Bitmex.Net.Client.Objects.Requests;
 using Bitmex.Net.Client.Objects.Socket;
-using Microsoft.Extensions.Logging;
 
 namespace Bitmex.Net.Client
 {
@@ -83,7 +86,7 @@ namespace Bitmex.Net.Client
 
         protected override async Task<CallResult<bool>> DoResyncAsync()
         {
-            return await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
+            return await WaitForSetOrderBook(10000).ConfigureAwait(false);
         }
 
         protected override async Task<CallResult<UpdateSubscription>> DoStartAsync()
@@ -101,14 +104,13 @@ namespace Bitmex.Net.Client
             {
                 return subscriptionResult;
             }
-            var setResult = await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
+            var setResult = await WaitForSetOrderBook(10000).ConfigureAwait(false);
             return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(null, setResult.Error);
         }
         public DateTime LastOrderBookMessage;
         public DateTime LastAction;
-        private void OnUpdate(DataEvent<BitmexSocketEvent<BitmexOrderBookEntry>> dataEvent)
+        private void OnUpdate(BitmexSocketEvent<BitmexOrderBookEntry> update)
         {
-            var update = dataEvent.Data;
             if (update.Action == BitmexAction.Undefined || update.Data==null)
             {
                 return;
@@ -155,10 +157,10 @@ namespace Bitmex.Net.Client
                 }
                 else
                 {
-                    log.Write(LogLevel.Error, $"Orderbook was not updated cause not initiated");
+                    log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated cause not initiated");
                     using (var client = new BitmexClient(new BitmexClientOptions(isTestnet)))
                     {
-                        log.Write(LogLevel.Debug, $"Setting orderdbook through api");
+                        log.Write(CryptoExchange.Net.Logging.Microsoft.Extensions.Logging.LogLevel.Debug, $"Setting orderdbook through api");
 
                         var ob = client.GetOrderBook(Symbol, 0);
                         if (ob)
@@ -171,7 +173,7 @@ namespace Bitmex.Net.Client
             }
             catch (Exception ex)
             {
-                log.Write(LogLevel.Error, $"Orderbook was not updated {ex.ToString()}");
+                log.Write(CryptoExchange.Net.Logging.LogVerbosity.Error, $"Orderbook was not updated {ex.ToString()}");
             }
         }
     }
