@@ -1,6 +1,7 @@
 # ![Icon](https://github.com/ridicoulous/Bitmex.Net/blob/master/Bitmex.Net/Icon/icon.png?raw=true) Bitmex.Net 
 
 [![publish to nuget](https://github.com/ridicoulous/Bitmex.Net/actions/workflows/publish.yml/badge.svg)](https://github.com/ridicoulous/Bitmex.Net/actions/workflows/publish.yml)
+
 Bitmex.Net.Client is a .Net wrapper for the Bitmex API as described on [Bitmex](https://www.bitmex.com/api/explorer/). It includes all features the API provides using clear and readable C# objects including 
 * Reading market info
 * Placing and managing orders
