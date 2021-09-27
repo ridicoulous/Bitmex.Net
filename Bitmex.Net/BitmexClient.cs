@@ -258,7 +258,7 @@ namespace Bitmex.Net.Client
         public WebCallResult<List<Execution>> GetUserExecutionHistory(BitmexRequestWithFilter requestWithFilter = null) => GetExecutionsAsync(requestWithFilter).Result;
         public async Task<WebCallResult<List<Execution>>> GetUserExecutionHistory(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default) {
             var parameters = GetParameters(requestWithFilter);
-            return await SendRequest<List<Execution>>(GetUrl(UserExecutionHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
+            return await SendRequestAsync<List<Execution>>(GetUrl(UserExecutionHistoryEndpoint), HttpMethod.Get, ct, parameters, true, false).ConfigureAwait(false);
         }
 
         public WebCallResult<List<Execution>> GetExecutions(BitmexRequestWithFilter requestWithFilter = null) => GetExecutionsAsync(requestWithFilter).Result;
