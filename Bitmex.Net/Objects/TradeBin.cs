@@ -59,8 +59,9 @@ namespace Bitmex.Net.Client.Objects
         /// <summary>
         /// Timestamps returned by our bucketed endpoints are the end of the period, 
         /// indicating when the bucket was written to disk. 
+        /// override it if you need beginning of the period here
         /// </summary>
-        public DateTime CommonOpenTime => Timestamp;
+        public virtual DateTime CommonOpenTime => Timestamp;
 
         public decimal CommonVolume => Volume.GetValueOrDefault();
     }
