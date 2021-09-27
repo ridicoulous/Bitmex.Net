@@ -34,14 +34,17 @@ namespace Bitmex.Net.ClientExample
         {
             await TestHistoricalDataLoading();
 
-            var s = new BitmexSymbolOrderBook("XBTUSD");
-            s.OnBestOffersChanged += S_OnBestOffersChanged;
-            await s.StartAsync();
+            var s = new BitmexSocketClient();
+            s.OnTradeUpdate += S_OnTradeUpdate;
+            await s.SubscribeAsync(new BitmexSubscribeRequest().AddSubscription(BitmexSubscribtions.Trade, "XBTUSD"));
             Console.ReadLine();
+
+            var socketBook = new BitmexSymbolOrderBook("XBTUSD");
+            socketBook.OnBestOffersChanged += S_OnBestOffersChanged;
+            await socketBook.StartAsync();
 
             var builder = new ConfigurationBuilder()
            .AddJsonFile("appconfig.json", optional: true, reloadOnChange: true);
-
 
             var configuration = builder.Build();
 
@@ -63,7 +66,6 @@ namespace Bitmex.Net.ClientExample
                 SocketNoDataTimeout = TimeSpan.FromSeconds(25),
                 ReconnectInterval = TimeSpan.FromSeconds(5),
                 AutoReconnect = true,
-                // LogWriters = new List<System.IO.TextWriter>() { new ThreadSafeFileWriter("testnetreconnect.log"), new DebugTextWriter() }
             }))
             {
                 socket.OnUserOrdersUpdate += Socket_OnUserOrdersUpdate; ;
@@ -73,10 +75,14 @@ namespace Bitmex.Net.ClientExample
                 await socket.UnsubscribeAllAsync();
                 Console.ReadLine();
 
-
             }
 
             Console.ReadLine();
+        }
+
+        private static void S_OnTradeUpdate(BitmexSocketEvent<Trade> obj)
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(obj));
         }
 
         private static void S_OnBestOffersChanged((CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry BestBid, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry BestAsk) obj)
@@ -84,10 +90,7 @@ namespace Bitmex.Net.ClientExample
             Console.WriteLine($"{obj.BestAsk.Price}:{obj.BestBid.Price}");
         }
 
-        private static void S_OnorderBookL2Update(BitmexSocketEvent<BitmexOrderBookEntry> obj)
-        {
-            throw new NotImplementedException();
-        }
+     
 
         private static void Socket_OnUserOrdersUpdate(BitmexSocketEvent<Order> obj)
         {
@@ -101,7 +104,7 @@ namespace Bitmex.Net.ClientExample
         {
             BitmexHistoricalTradesLoader bitmexHistoricalTradesLoader = new BitmexHistoricalTradesLoader();
             var data = await bitmexHistoricalTradesLoader.GetDailyTradesAsync(new DateTime(2021, 1, 6));
-
+            Console.WriteLine($"Loaded {data.Count} trades");
             //var quotes = await bitmexHistoricalTradesLoader.GetDailyQuotesAsync(new DateTime(2020, 6, 20));
         }
 

@@ -102,7 +102,7 @@ namespace Bitmex.Net.Client.Helpers.Extensions
             else if (timeSpan == TimeSpan.FromDays(1))
                 return "1d";
             else
-                throw new ArgumentException("Unsupported timespan for HitBTC Candles, check supported intervals");
+                throw new ArgumentException("Unsupported timespan for Bitmex Candles, check supported intervals");
         }
     }
     public static class BitmexRequestExtensions
