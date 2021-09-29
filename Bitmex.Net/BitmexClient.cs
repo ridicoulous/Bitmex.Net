@@ -146,7 +146,7 @@ namespace Bitmex.Net.Client
         public async Task<WebCallResult<List<Order>>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct = default)
         {
             var parameters = cancelOrderRequest.AsDictionary();
-            var result = await SendRequestAsync<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false).ConfigureAwait(false);
+            var result = await SendRequestAsync<List<Order>>(GetUrl(OrderEndpoint), HttpMethod.Delete, ct, parameters, true, false, arraySerialization : ArrayParametersSerialization.Array).ConfigureAwait(false);
             if (result)
             {
                 foreach (var o in result.Data)
