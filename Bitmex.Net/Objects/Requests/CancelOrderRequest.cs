@@ -23,11 +23,11 @@ namespace   Bitmex.Net.Client.Objects.Requests
         {
             if (!string.IsNullOrWhiteSpace(exchangeOrderId))
             {
-                Id = new List<string>() { exchangeOrderId };
+                Id = new HashSet<string>() { exchangeOrderId };
             }
             else if (!string.IsNullOrWhiteSpace(clientOrderId))
             {
-                ClientOrderId = new List<string>() { clientOrderId };
+                ClientOrderId = new HashSet<string>() { clientOrderId };
             }
             else
             {
@@ -47,11 +47,11 @@ namespace   Bitmex.Net.Client.Objects.Requests
         {
             if (exchangeOrderIds != null && exchangeOrderIds.Any())
             {
-                Id = new List<string>(exchangeOrderIds);
+                Id = new HashSet<string>(exchangeOrderIds);
             }
             else if (clientOrderIds != null && clientOrderIds.Any())
             {
-                ClientOrderId = new List<string>(clientOrderIds);
+                ClientOrderId = new HashSet<string>(clientOrderIds);
             }
             else
             {
@@ -64,12 +64,12 @@ namespace   Bitmex.Net.Client.Objects.Requests
         /// Order ID(s).
         /// </summary>
         [JsonProperty("orderID")]
-        public List<string> Id { get; private set; }
+        public HashSet<string> Id { get; private set; }
         /// <summary>
         /// Client Order ID(s). See POST /order.
         /// </summary>
         [JsonProperty("clOrdID")]
-        public List<string> ClientOrderId { get; private set; }
+        public HashSet<string> ClientOrderId { get; private set; }
         /// <summary>
         /// Optional cancellation annotation. e.g. 'Spread Exceeded'.
         /// </summary>
