@@ -102,6 +102,8 @@ Other CryptoExchange.Net implementations:
 </table>
 
 ## Changelog
+* 10/1/2021
+  * base library major update, bulk orders cancelling fixes
 * 1/28/2021
   * dependencies update
 * 1/26/2021 
