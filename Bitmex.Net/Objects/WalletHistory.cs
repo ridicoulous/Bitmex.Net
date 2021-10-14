@@ -38,7 +38,7 @@ namespace Bitmex.Net.Client.Objects
         public string Text { get; set; }
 
         [JsonProperty("transactTime")]
-        public DateTime TransactTime { get; set; }
+        public DateTime? TransactTime { get; set; }
 
         [JsonProperty("walletBalance")]
         public decimal WalletBalance { get; set; }

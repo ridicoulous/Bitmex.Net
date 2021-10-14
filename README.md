@@ -102,6 +102,8 @@ Other CryptoExchange.Net implementations:
 </table>
 
 ## Changelog
+* 10/14/2021 
+  * fix user wallet history deserialization error
 * 10/1/2021
   * base library major update, bulk orders cancelling fixes
 * 1/28/2021
