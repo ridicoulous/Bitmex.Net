@@ -8,11 +8,13 @@ namespace Bitmex.Net.Client
 {    
     public class BitmexSocketClientOptions : SocketClientOptions
     {
+        private const string SocketEndpoint = "wss://ws.bitmex.com/realtime";
+        private const string TestNetSocketEndpoint = "wss://ws.testnet.bitmex.com/realtime";
         public bool IsTestnet;
         public readonly bool LoadInstruments;
         public bool SendPingManually =false;
 
-        public BitmexSocketClientOptions():base("wss://www.bitmex.com/realtime")
+        public BitmexSocketClientOptions():base(SocketEndpoint)
         {
             IsTestnet = false;
             LoadInstruments = true;
@@ -23,7 +25,7 @@ namespace Bitmex.Net.Client
         /// <param name="isTestnet"></param>
         /// <param name="useMultiplexing"></param>
         /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
-        public BitmexSocketClientOptions(bool isTestnet = false, bool useMultiplexing = false, bool loadInstrumentIndexes=true) : base(isTestnet ? "wss://testnet.bitmex.com/realtime":"wss://www.bitmex.com/realtime" )
+        public BitmexSocketClientOptions(bool isTestnet = false, bool useMultiplexing = false, bool loadInstrumentIndexes=true) : base(isTestnet ? TestNetSocketEndpoint:SocketEndpoint )
         {
             LoadInstruments = loadInstrumentIndexes;
             IsTestnet = isTestnet;
@@ -41,7 +43,7 @@ namespace Bitmex.Net.Client
         /// <param name=""></param>
         /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
         /// <param name="useMultiplexing"></param>
-        public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false, bool loadInstrumentIndexes = true, bool useMultiplexing = false) : base(isTestnet ? "wss://testnet.bitmex.com/realtime" : "wss://www.bitmex.com/realtime")
+        public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false, bool loadInstrumentIndexes = true, bool useMultiplexing = false) : base(isTestnet ? TestNetSocketEndpoint : SocketEndpoint)
         {
             LoadInstruments = loadInstrumentIndexes;
             if (useMultiplexing)

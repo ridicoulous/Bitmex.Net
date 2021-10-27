@@ -44,7 +44,6 @@ namespace Bitmex.Net.Client
         private const string LeaderBoardByNameEndpoint = "leaderboard/name";
         private const string LiquidationEndpoint = "liquidation";
         private const string OrderEndpoint = "order";
-        private const string OrderBulkEndpoint = "order/bulk";
         private const string OrderClosePositionEndpoint = "order/closePosition";
         private const string OrderCancelAllEndpoint = "order/all";
         private const string OrderCancelAllAfterEndpoint = "order/cancelAllAfter";
@@ -450,22 +449,26 @@ namespace Bitmex.Net.Client
             return result;
         }
 
+        [ObsoleteAttribute(@"/order/bulk endpoints will no longer be supported, 
+            this method just invokes PlaceOrder() method for each PlaceOrderRequest object from placeOrderRequests.
+            Use PlaceOrder() instead of PlaceOrdersBulk(), please.",false)]
         public WebCallResult<List<Order>> PlaceOrdersBulk(List<PlaceOrderRequest> placeOrderRequests) => PlaceOrdersBulkAsync(placeOrderRequests).Result;
 
+        [ObsoleteAttribute(@"/order/bulk endpoints will no longer be supported, 
+            this method just invokes PlaceOrderAsync() method for each PlaceOrderRequest object from placeOrderRequests.
+            Use PlaceOrderAsync() instead of PlaceOrdersBulkAsync(), please.", false)]
         public async Task<WebCallResult<List<Order>>> PlaceOrdersBulkAsync(List<PlaceOrderRequest> placeOrderRequests, CancellationToken ct = default)
         {
             placeOrderRequests.ValidateNotNull(nameof(placeOrderRequests));
-            var parameters = GetParameters();
-            parameters.Add("orders", placeOrderRequests);
-            var result =  await SendRequestAsync<List<Order>>(GetUrl(OrderBulkEndpoint), HttpMethod.Post, ct, parameters, true, false).ConfigureAwait(false);
-            if (result.Success)
+            List<Task<WebCallResult<Order>>> results = new List<Task<WebCallResult<Order>>>();
+            await Task.Run(() =>
             {
-                foreach (var o in result.Data)
+                foreach (var req in placeOrderRequests)
                 {
-                    OnOrderPlaced?.Invoke(o);
+                    results.Add(PlaceOrderAsync(req));
                 }
-            }
-            return result;
+            });
+            return results.FirstOrDefault().Result.As<List<Order>>(results.Select(x => x.Result.Data).ToList());
         }
 
         public WebCallResult<Chat> SendChatMessage(int channelId, string message) => SendChatMessageAsync(channelId, message).Result;
@@ -526,22 +529,18 @@ namespace Bitmex.Net.Client
 
         public async Task<WebCallResult<Order>> UpdateOrderAsync(UpdateOrderRequest updateOrderRequest, CancellationToken ct = default)
         {
-            if (String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId))
-            {
-                updateOrderRequest.Id.ValidateNotNull(nameof(updateOrderRequest.Id) + " (you have to send order id received from Bitmex or your own identifier, sended on order posting");
-            }
-            if (String.IsNullOrEmpty(updateOrderRequest.Id))
-            {
-                updateOrderRequest.OrigClOrdId.ValidateNotNull(nameof(updateOrderRequest.OrigClOrdId) + " (you have to send order id received from Bitmex or your own identifier, sended on order posting");
-            }
-            if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId) && String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId) && updateOrderRequest.ClOrdId == updateOrderRequest.OrigClOrdId)
-            {
-                updateOrderRequest.ClOrdId = null;
-            }
             if (!String.IsNullOrEmpty(updateOrderRequest.ClOrdId) && String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId))
             {
                 string clOrderId = updateOrderRequest.ClOrdId;
                 updateOrderRequest.OrigClOrdId = clOrderId;
+                updateOrderRequest.ClOrdId = null;
+            }
+            if (String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId))
+            {
+                updateOrderRequest.Id.ValidateNotNull(nameof(updateOrderRequest.Id) + " (you have to send order id, parameter Id, received from Bitmex or your own identifier, parameter OrigClOrdId, sent on order posting)");
+            }
+            if (String.IsNullOrEmpty(updateOrderRequest.ClOrdId) && String.IsNullOrEmpty(updateOrderRequest.OrigClOrdId) && updateOrderRequest.ClOrdId == updateOrderRequest.OrigClOrdId)
+            {
                 updateOrderRequest.ClOrdId = null;
             }
             var parameters = updateOrderRequest.AsDictionary();
@@ -549,14 +548,30 @@ namespace Bitmex.Net.Client
             return await SendRequestAsync<Order>(GetUrl(OrderEndpoint), HttpMethod.Put, ct, parameters, true, false).ConfigureAwait(false);
         }
 
+        [ObsoleteAttribute(@"/order/bulk endpoints will no longer be supported, 
+            this method just invokes UpdateOrderAsync() method for each UpdateOrderRequest object from ordersToUpdate parameter.
+            Use UpdateOrder() instead of UpdateOrdersBulk(), please.", false)]
         public WebCallResult<List<Order>> UpdateOrdersBulk(List<UpdateOrderRequest> ordersToUpdate) => UpdateOrdersBulkAsync(ordersToUpdate).Result;
 
+        [ObsoleteAttribute(@"/order/bulk endpoints will no longer be supported, 
+            this method just invokes UpdateOrderAsync() method for each UpdateOrderRequest object from ordersToUpdate parameter.
+            Use UpdateOrderAsync() instead of UpdateOrdersBulkAsync(), please.", false)]
         public async Task<WebCallResult<List<Order>>> UpdateOrdersBulkAsync(List<UpdateOrderRequest> ordersToUpdate, CancellationToken ct = default)
         {
-            var parameters = GetParameters();
-            parameters.Add("orders", ordersToUpdate);
-            parameters.ValidateNotNull(nameof(ordersToUpdate));
-            return await SendRequestAsync<List<Order>>(GetUrl(OrderBulkEndpoint), HttpMethod.Put, ct, parameters, true, false).ConfigureAwait(false);
+            ordersToUpdate.ValidateNotNull(nameof(ordersToUpdate));
+            List<Task<WebCallResult<Order>>> results = new List<Task<WebCallResult<Order>>>();
+            await Task.Run(() =>
+            {
+                foreach (var req in ordersToUpdate)
+                {
+                    results.Add(UpdateOrderAsync(req));
+                }
+            });
+            foreach(var faulted in results.Where(t => t.Exception != null))
+            {
+                log.Write(LogLevel.Error, faulted.Exception.Message);
+            }
+            return results.FirstOrDefault().Result.As<List<Order>>(results.Select(x => x.Result.Data).ToList());
         }
 
         public WebCallResult<Wallet> GetUserWallet(string currency = "XBt") => GetUserWalletAsync(currency).Result;
