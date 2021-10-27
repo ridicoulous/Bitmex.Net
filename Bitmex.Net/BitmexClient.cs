@@ -92,16 +92,16 @@ namespace Bitmex.Net.Client
         {
 
         }
-        public BitmexClient(HttpClient client) : base(nameof(BitmexClient),new BitmexClientOptions(client), null)
+        public BitmexClient(HttpClient client) : base("Bitmex",new BitmexClientOptions(client), null)
         {
 
         }
 
-        public BitmexClient(BitmexClientOptions options) : base(nameof(BitmexClient),options, options.ApiCredentials == null ? null : new BitmexAuthenticationProvider(options.ApiCredentials))
+        public BitmexClient(BitmexClientOptions options) : base("Bitmex",options, options.ApiCredentials == null ? null : new BitmexAuthenticationProvider(options.ApiCredentials))
         {
 
         }
-        public BitmexClient(BitmexClientOptions exchangeOptions, BitmexAuthenticationProvider authenticationProvider) : base(nameof(BitmexClient), exchangeOptions, authenticationProvider)
+        public BitmexClient(BitmexClientOptions exchangeOptions, BitmexAuthenticationProvider authenticationProvider) : base("Bitmex", exchangeOptions, authenticationProvider)
         {
         }        
         public void SetApiCredentials(string key, string secret)
