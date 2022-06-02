@@ -16,6 +16,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bitmex.Net.Client
@@ -25,8 +26,12 @@ namespace Bitmex.Net.Client
         private static BitmexSocketClientOptions defaultOptions = new BitmexSocketClientOptions();
         private readonly ConcurrentDictionary<string, BitmexSubscribeRequest> _sendedSubscriptions = new ConcurrentDictionary<string, BitmexSubscribeRequest>();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
-        public readonly Dictionary<string, BitmexInstrumentIndexWithTick> InstrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
+        private static readonly Dictionary<string, BitmexInstrumentIndexWithTick> instrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
+        private static readonly AutoResetEvent instumentGetWaiter = new(true);
+        private static bool areInstrumentsLoaded;
         private readonly bool isTestnet;
+        private bool shouldUseIndexesAndTicksFromBitmex = false;
+
         private readonly List<UpdateSubscription> _subscriptions = new List<UpdateSubscription>();
         private object _locker = new object();
         public BitmexSocketClient() : this(DefaultOptions)
@@ -34,7 +39,7 @@ namespace Bitmex.Net.Client
         }
         public BitmexSocketClient(BitmexSocketClientOptions bitmexSocketClientOptions) : base(nameof(BitmexSocketClient), bitmexSocketClientOptions, bitmexSocketClientOptions.ApiCredentials == null ? null : new BitmexAuthenticationProvider(bitmexSocketClientOptions.ApiCredentials))
         {
-            isTestnet = !bitmexSocketClientOptions.IsTestnet;
+            isTestnet = bitmexSocketClientOptions.IsTestnet;
 
             if (bitmexSocketClientOptions.SendPingManually)
             {
@@ -42,21 +47,8 @@ namespace Bitmex.Net.Client
             }
             if (bitmexSocketClientOptions.LoadInstruments)
             {
-                using (var bitmexClient = new BitmexClient(new BitmexClientOptions(bitmexSocketClientOptions.IsTestnet)))
-                {
-                    var instruments = bitmexClient.GetInstruments(new Objects.Requests.BitmexRequestWithFilter().WithResultsCount(500).AddColumnsToGetInRequest(new string[] { "symbol", "tickSize" }));
-                    if (instruments)
-                    {
-                        for (int i = 0; i < instruments.Data.Count; i++)
-                        {
-                            InstrumentsIndexesAndTicks.Add(instruments.Data[i].Symbol, new BitmexInstrumentIndexWithTick(i, instruments.Data[i].TickSize));
-                        }
-                    }
-                    else
-                    {
-                        log.Write(LogLevel.Error, "Instrument indicies and price ticks for calculation was not obtained");
-                    }
-                }
+                shouldUseIndexesAndTicksFromBitmex = true;
+                Task.Run( async () => await GetInstrumentsTickerAndIndices());
             }
         }
 
@@ -295,6 +287,7 @@ namespace Bitmex.Net.Client
         public CallResult<UpdateSubscription> Subscribe(BitmexSubscribeRequest bitmexSubscribeRequest) => SubscribeAsync(bitmexSubscribeRequest).Result;
 
         ResponseTableToDataTypeMapping Map = new ResponseTableToDataTypeMapping();
+
         public async Task<CallResult<UpdateSubscription>> SubscribeAsync(BitmexSubscribeRequest bitmexSubscribeRequest)
         {
             CheckDoubleSendingRequest(bitmexSubscribeRequest);
@@ -404,11 +397,11 @@ namespace Bitmex.Net.Client
                             var result = Deserialize<BitmexSocketEvent<BitmexOrderBookEntry>>(token, false);
                             if (result.Success)
                             {
-                                if (InstrumentsIndexesAndTicks.Any())
+                                if (shouldUseIndexesAndTicksFromBitmex)
                                 {
                                     foreach (var level in result.Data.Data)
                                     {
-                                        var symbolTickInfo = InstrumentsIndexesAndTicks[level.Symbol];
+                                        var symbolTickInfo = GetIndexAndTickForInstrument(level.Symbol);
                                         level.SetPrice(symbolTickInfo.Index, symbolTickInfo.TickSize);
                                     }
                                 }
@@ -423,11 +416,11 @@ namespace Bitmex.Net.Client
                             var result = Deserialize<BitmexSocketEvent<BitmexOrderBookEntry>>(token, false);
                             if (result.Success)
                             {
-                                if (InstrumentsIndexesAndTicks.Any())
+                                if (shouldUseIndexesAndTicksFromBitmex)
                                 {
                                     foreach (var level in result.Data.Data)
                                     {
-                                        var symbolTickInfo = InstrumentsIndexesAndTicks[level.Symbol];
+                                        var symbolTickInfo = GetIndexAndTickForInstrument(level.Symbol);
                                         level.SetPrice(symbolTickInfo.Index, symbolTickInfo.TickSize);
                                     }
                                 }
@@ -666,6 +659,57 @@ namespace Bitmex.Net.Client
             }
             //await Subscribe<BitmexSubscriptionResponse>(r, OnUnsubscribe);
         }
+
+        public BitmexInstrumentIndexWithTick GetIndexAndTickForInstrument(string instrument)
+        {
+            if (!shouldUseIndexesAndTicksFromBitmex)
+            {
+                return null;
+            }
+            if (!areInstrumentsLoaded)
+            {
+                GetInstrumentsTickerAndIndices().GetAwaiter().GetResult();
+            }
+            return instrumentsIndexesAndTicks[instrument];
+        }
+
+        private async Task GetInstrumentsTickerAndIndices()
+        {
+            instumentGetWaiter.WaitOne();
+            if (areInstrumentsLoaded)
+            {
+                instumentGetWaiter.Set();
+                return;
+            }
+            using (var bitmexClient = new BitmexClient(new BitmexClientOptions(isTestnet)))
+            {
+                var getByOnce = 500;
+                var lastResponseItemCount = 0;
+                var ind = 0;
+                do
+                {
+                    var instruments = await bitmexClient.GetInstrumentsAsync(new Objects.Requests.BitmexRequestWithFilter().WithStartingFrom(ind).WithResultsCount(500).AddColumnsToGetInRequest(new string[] { "symbol", "tickSize" }));
+                    if (instruments)
+                    {
+                        lastResponseItemCount = instruments.Data.Count;
+                        for (int i = 0; i < instruments.Data.Count; i++)
+                        {
+                            instrumentsIndexesAndTicks.Add(instruments.Data[i].Symbol, new BitmexInstrumentIndexWithTick(ind++, instruments.Data[i].TickSize));
+                        }
+                    }
+                    else
+                    {
+                        log.Write(LogLevel.Error, "Instrument indicies and price ticks for calculation was not obtained");
+                        instumentGetWaiter.Set();
+                        return;
+                    }
+                }
+                while (lastResponseItemCount == getByOnce);
+            }
+            areInstrumentsLoaded = true;
+            instumentGetWaiter.Set();
+        }
+
         public override void Dispose()
         {
             //foreach (var s in _subscriptions)
