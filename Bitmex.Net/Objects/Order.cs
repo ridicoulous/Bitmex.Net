@@ -25,7 +25,7 @@ namespace Bitmex.Net.Client.Objects
 
         [JsonProperty("side")]
         [JsonConverter(typeof(BitmexOrderSideConverter))]
-        public BitmexOrderSide Side { get; set; }
+        public BitmexOrderSide? Side { get; set; }
 
         [JsonProperty("simpleOrderQty")]
         public decimal? SimpleOrderQty { get; set; }
@@ -55,7 +55,7 @@ namespace Bitmex.Net.Client.Objects
         public string SettlCurrency { get; set; }
 
         [JsonProperty("ordType"), JsonConverter(typeof(BitmexOrderTypeConverter))]
-        public BitmexOrderType OrdType { get; set; }
+        public BitmexOrderType? OrdType { get; set; }
 
         [JsonProperty("timeInForce")]
         public string TimeInForce { get; set; }
@@ -70,7 +70,7 @@ namespace Bitmex.Net.Client.Objects
         public string ExDestination { get; set; }
 
         [JsonProperty("ordStatus"), JsonConverter(typeof(BitmexOrderStatusConverter))]
-        public BitmexOrderStatus Status { get; set; }
+        public BitmexOrderStatus? Status { get; set; }
 
         [JsonProperty("triggered")]
         public string Triggered { get; set; }
