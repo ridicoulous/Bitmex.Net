@@ -102,6 +102,8 @@ Other CryptoExchange.Net implementations:
 </table>
 
 ## Changelog
+* 10/27/2021
+  * ws endpoint update, bulk orders changes
 * 10/14/2021 
   * fix user wallet history deserialization error
 * 10/1/2021
@@ -124,4 +126,4 @@ Other CryptoExchange.Net implementations:
 Donations are greatly appreciated and a motivation to keep improving.
 
 **Btc**:  14nuXrFEKTrvyhHWYW7RgRt4zVxBfwff5V  
-**Eth**:  0x7CD82F45b173891e36d68ea4311B8b13A11a3B4b
+**Eth**: 0xa399Fff5Cd14fc589030C85C5671cdEdC4C413b1
