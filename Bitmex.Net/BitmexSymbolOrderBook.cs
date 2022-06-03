@@ -113,7 +113,7 @@ namespace Bitmex.Net.Client
             {
                 return;
             }
-            if (update.Data[0]?.Symbol != Symbol)
+            if (!update.Data.Any(x => x.Symbol == Symbol))
             {
                 return;
             }
