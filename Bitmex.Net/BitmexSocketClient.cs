@@ -27,7 +27,7 @@ namespace Bitmex.Net.Client
         private readonly ConcurrentDictionary<string, BitmexSubscribeRequest> _sendedSubscriptions = new ConcurrentDictionary<string, BitmexSubscribeRequest>();
         private static BitmexSocketClientOptions DefaultOptions => defaultOptions.Copy<BitmexSocketClientOptions>();
         private static readonly Dictionary<string, BitmexInstrumentIndexWithTick> instrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
-        private static readonly AutoResetEvent instumentGetWaiter = new(true);
+        private static readonly SemaphoreSlim instumentGetWaiter = new(1,1);
         private static bool areInstrumentsLoaded;
         private readonly bool isTestnet;
         private bool shouldUseIndexesAndTicksFromBitmex = false;
@@ -675,10 +675,10 @@ namespace Bitmex.Net.Client
 
         private async Task GetInstrumentsTickerAndIndices()
         {
-            instumentGetWaiter.WaitOne();
+            await instumentGetWaiter.WaitAsync();
             if (areInstrumentsLoaded)
             {
-                instumentGetWaiter.Set();
+                instumentGetWaiter.Release();
                 return;
             }
             using (var bitmexClient = new BitmexClient(new BitmexClientOptions(isTestnet)))
@@ -700,14 +700,14 @@ namespace Bitmex.Net.Client
                     else
                     {
                         log.Write(LogLevel.Error, "Instrument indicies and price ticks for calculation was not obtained");
-                        instumentGetWaiter.Set();
+                        instumentGetWaiter.Release();
                         return;
                     }
                 }
                 while (lastResponseItemCount == getByOnce);
             }
             areInstrumentsLoaded = true;
-            instumentGetWaiter.Set();
+            instumentGetWaiter.Release();
         }
 
         public override void Dispose()
