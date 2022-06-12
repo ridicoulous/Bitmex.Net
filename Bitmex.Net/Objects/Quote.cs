@@ -13,14 +13,14 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("symbol", Required = Required.Always)]
         public string Symbol { get; set; }
         [JsonProperty("bidSize")]
-        public decimal BidSize { get; set; }
+        public decimal? BidSize { get; set; }
 
         [JsonProperty("bidPrice")]
-        public decimal BidPrice { get; set; }
+        public decimal? BidPrice { get; set; }
         [JsonProperty("askPrice")]
-        public decimal AskPrice { get; set; }
+        public decimal? AskPrice { get; set; }
         [JsonProperty("askSize")]
-        public decimal AskSize { get; set; }
+        public decimal? AskSize { get; set; }
     }
 
 }
