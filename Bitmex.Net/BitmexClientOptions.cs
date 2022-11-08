@@ -7,50 +7,48 @@ using System.Net.Http;
 
 namespace Bitmex.Net.Client
 {
-    public class BitmexClientOptions : RestClientOptions
+    public class BitmexClientOptions : BaseRestClientOptions
     {
-        public BitmexClientOptions() : base("https://www.bitmex.com/api/v1")
-        {
-            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-            LogWriters = new List<ILogger> { new DebugLogger() };
-        }
-        public BitmexClientOptions(HttpClient client, string key, string secret, bool isTest = false) : base(client, "https://www.bitmex.com/api/v1")
-        {
-            ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(key, secret);
-            if (isTest)
-            {
-                BaseAddress = "https://testnet.bitmex.com/api/v1";
-            }
-            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-            LogWriters = new List<ILogger> { new DebugLogger() };
 
-        }
-        public BitmexClientOptions(HttpClient client) : base(client, "https://www.bitmex.com/api/v1")
-        {
-            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-            LogWriters = new List<ILogger> { new DebugLogger() };
-        }
-        public BitmexClientOptions(string key, string secret, bool isTest = false) : base("https://www.bitmex.com/api/v1")
-        {
-            ApiCredentials = new CryptoExchange.Net.Authentication.ApiCredentials(key, secret);
-            if (isTest)
-            {
-                BaseAddress = "https://testnet.bitmex.com/api/v1";
-            }
-            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-            LogWriters = new List<ILogger> { new DebugLogger() };
+        private const string ProductionEndpoint = "https://www.bitmex.com/api/v1";
+        private const string TestNetEndpoint = "https://testnet.bitmex.com/api/v1";
 
+        public BitmexClientOptions(HttpClient client, string key, string secret, bool isTest = false) : this(new ApiCredentials(key, secret), isTest)
+        {
+            HttpClient = client;
+        }
+        public BitmexClientOptions(HttpClient client) : this(false)
+        {
+            HttpClient = client;
+        }
+        public BitmexClientOptions(string key, string secret, bool isTest = false) : this(new CryptoExchange.Net.Authentication.ApiCredentials(key, secret), isTest)
+        {
         }
 
-        public BitmexClientOptions(bool isTest = false) : base("https://www.bitmex.com/api/v1")
+        public BitmexClientOptions(bool isTest = false) : base()
         {
-            if (isTest)
-            {
-                BaseAddress = "https://testnet.bitmex.com/api/v1";
-            }
+            CommonApiOptions = new(isTest ? TestNetEndpoint : ProductionEndpoint);
             LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
             LogWriters = new List<ILogger> { new DebugLogger() };
         }
+        private BitmexClientOptions(BitmexClientOptions baseOn) : base(baseOn)
+        {
+            CommonApiOptions = baseOn.CommonApiOptions;
+        }
+
+        public BitmexClientOptions(ApiCredentials apiCredentials, bool isTest) : this(isTest)
+        {
+            ApiCredentials = apiCredentials;
+        }
+
+        /// <summary>
+        /// Default options
+        /// </summary>
+        public static BitmexClientOptions Default { get; set; } = new BitmexClientOptions()
+        {
+        };
+
+        internal RestApiClientOptions CommonApiOptions { get; set; }
 
         public void SetApiCredentials(ApiCredentials credentials)
         {
@@ -58,9 +56,7 @@ namespace Bitmex.Net.Client
         }
         public BitmexClientOptions Copy()
         {
-            var copy = Copy<BitmexClientOptions>();
-
-            return copy;
+            return new BitmexClientOptions(this);
         }
     }
 }

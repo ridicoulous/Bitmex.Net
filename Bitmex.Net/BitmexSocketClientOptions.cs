@@ -6,18 +6,16 @@ using System.Text;
 
 namespace Bitmex.Net.Client
 {    
-    public class BitmexSocketClientOptions : SocketClientOptions
+    public class BitmexSocketClientOptions : BaseSocketClientOptions
     {
         private const string SocketEndpoint = "wss://ws.bitmex.com/realtime";
         private const string TestNetSocketEndpoint = "wss://ws.testnet.bitmex.com/realtime";
-        public bool IsTestnet;
         public readonly bool LoadInstruments;
-        public bool SendPingManually =false;
+        public bool SendPingManually = false;
 
-        public BitmexSocketClientOptions():base(SocketEndpoint)
+        
+        public BitmexSocketClientOptions() : this(false, false, true)
         {
-            IsTestnet = false;
-            LoadInstruments = true;
         }
         /// <summary>
         /// 
@@ -25,8 +23,9 @@ namespace Bitmex.Net.Client
         /// <param name="isTestnet"></param>
         /// <param name="useMultiplexing"></param>
         /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
-        public BitmexSocketClientOptions(bool isTestnet = false, bool useMultiplexing = false, bool loadInstrumentIndexes=true) : base(isTestnet ? TestNetSocketEndpoint:SocketEndpoint )
+        public BitmexSocketClientOptions(bool isTestnet, bool useMultiplexing = false, bool loadInstrumentIndexes=true) : base()
         {
+            CommonStreamsOptions = new ApiClientOptions(isTestnet ? TestNetSocketEndpoint : SocketEndpoint);
             LoadInstruments = loadInstrumentIndexes;
             IsTestnet = isTestnet;
             if (useMultiplexing)
@@ -34,6 +33,24 @@ namespace Bitmex.Net.Client
                 throw new NotImplementedException("Multiplex client is not implemented yet");
             }
         }
+
+        private BitmexSocketClientOptions(BitmexSocketClientOptions baseOn) : base(baseOn)
+        {
+            IsTestnet = baseOn.IsTestnet;
+            LoadInstruments = baseOn.LoadInstruments;
+            SendPingManually = baseOn.SendPingManually;
+            CommonStreamsOptions = baseOn.CommonStreamsOptions;
+        }
+
+        /// <summary>
+        /// Default options
+        /// </summary>
+        public static BitmexSocketClientOptions Default { get; set; } = new BitmexSocketClientOptions()
+        {
+        };
+        internal ApiClientOptions CommonStreamsOptions { get; set; }
+        public bool IsTestnet { get; private set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -43,7 +60,7 @@ namespace Bitmex.Net.Client
         /// <param name=""></param>
         /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
         /// <param name="useMultiplexing"></param>
-        public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false, bool loadInstrumentIndexes = true, bool useMultiplexing = false) : base(isTestnet ? TestNetSocketEndpoint : SocketEndpoint)
+        public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false, bool loadInstrumentIndexes = true, bool useMultiplexing = false) : base()
         {
             LoadInstruments = loadInstrumentIndexes;
             if (useMultiplexing)
@@ -57,9 +74,8 @@ namespace Bitmex.Net.Client
         }
         public BitmexSocketClientOptions Copy()
         {
-            var copy = Copy<BitmexSocketClientOptions>();
-
-            return copy;
+            return new BitmexSocketClientOptions(this);
         }
+
     }
 }
