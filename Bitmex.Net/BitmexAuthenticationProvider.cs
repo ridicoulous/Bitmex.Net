@@ -38,26 +38,39 @@ namespace Bitmex.Net.Client
         {
             LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 60;
             encryptor = new HMACSHA256(Encoding.ASCII.GetBytes(credentials.Secret.GetString()));
-        }        
-        public override Dictionary<string, string> AddAuthenticationToHeaders(string uri, HttpMethod method, Dictionary<string, object> parameters, bool signed, HttpMethodParameterPosition parameterPosition, ArrayParametersSerialization arrayParametersSerialization)
+        }
+        public override void AuthenticateRequest(RestApiClient apiClient,
+                                                 Uri uri,
+                                                 HttpMethod method,
+                                                 Dictionary<string, object> providedParameters,
+                                                 bool auth,
+                                                 ArrayParametersSerialization arraySerialization,
+                                                 HttpMethodParameterPosition parameterPosition,
+                                                 out SortedDictionary<string, object> uriParameters,
+                                                 out SortedDictionary<string, object> bodyParameters,
+                                                 out Dictionary<string, string> headers)
         {
+            uriParameters = parameterPosition == HttpMethodParameterPosition.InUri ? new SortedDictionary<string, object>(providedParameters) : new SortedDictionary<string, object>();
+            bodyParameters = parameterPosition == HttpMethodParameterPosition.InBody ? new SortedDictionary<string, object>(providedParameters) : new SortedDictionary<string, object>();
+            headers = new Dictionary<string, string>();
+
+
             var apiexpires = ApiExpires;
 
-            if (!signed)
-                return new Dictionary<string, string>();
-            var result = new Dictionary<string, string>();
-            result.Add("api-key", Credentials.Key.GetString());
-            result.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
+            if (!auth)
+                return;
+
+            headers.Add("api-key", Credentials.Key.GetString());
+            headers.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
 
             string additionalData = String.Empty;
-            if (parameters != null && parameters.Any() && method != HttpMethod.Get)
+            if (providedParameters != null && providedParameters.Any() && method != HttpMethod.Get)
             {
-                additionalData = JsonConvert.SerializeObject(parameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
+                additionalData = JsonConvert.SerializeObject(providedParameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
             }
-            var dataToSign = CreateAuthPayload(method, uri.Split(new[] { ".com" }, StringSplitOptions.None)[1], apiexpires, additionalData);
+            var dataToSign = CreateAuthPayload(method, uri.ToString().Split(uri.Host, StringSplitOptions.None)[1], apiexpires, additionalData);
             var signedData = Sign(dataToSign);
-            result.Add("api-signature", signedData);
-            return result;
+            headers.Add("api-signature", signedData);
         }
         public string ByteArrayToString(byte[] ba)
         {
@@ -80,6 +93,5 @@ namespace Bitmex.Net.Client
         {
             return $"{method}{requestUrl}{apiExpires}{additionalData}";
         }
-
     }
 }
