@@ -8,6 +8,7 @@ using Bitmex.Net.Client.Objects;
 using System.Linq;
 using Bitmex.Net.Client.Objects.Socket;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Bitmex.Net.Client
 {
@@ -15,6 +16,7 @@ namespace Bitmex.Net.Client
     {
         private static BitmexSocketOrderBookOptions defaultOrderBookOptions = new BitmexSocketOrderBookOptions("BitmexOrderBook");
         private readonly BitmexSocketClient _bitmexSocketClient;
+        private bool usedNewSocketClient;
         private readonly int InstrumentIndex;
         private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
@@ -62,9 +64,10 @@ namespace Bitmex.Net.Client
         /// <param name="symbol"></param>
         /// <param name="options"></param>
         /// <param name="bitmexSocketClient"></param>
-        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base(symbol, options)
+        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base("Bitmex", symbol, options)
         {
             isTestnet = options.IsTestnet;
+            usedNewSocketClient = bitmexSocketClient is null;
             _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
             InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).Index;
             InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).TickSize;
@@ -73,20 +76,20 @@ namespace Bitmex.Net.Client
                 InstrumentTickSize = 0.01m;
             }
         }
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            processBuffer.Clear();
-            asks.Clear();
-            bids.Clear();
-            _bitmexSocketClient.Dispose();
+            // dispose client only created by this instance not shared socket client
+            if (!usedNewSocketClient)
+                _bitmexSocketClient.Dispose();
+            base.Dispose(disposing);
         }
 
-        protected override async Task<CallResult<bool>> DoResyncAsync()
+        protected override async Task<CallResult<bool>> DoResyncAsync(CancellationToken ct)
         {
-            return await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
+            return await WaitForSetOrderBookAsync(TimeSpan.FromSeconds(10.0), ct).ConfigureAwait(false);
         }
 
-        protected override async Task<CallResult<UpdateSubscription>> DoStartAsync()
+        protected override async Task<CallResult<UpdateSubscription>> DoStartAsync(CancellationToken ct)
         {
             /*If you wish to get real-time order book data, we recommend you use the orderBookL2_25 subscription. orderBook10 pushes the top 10 levels on every tick,
              * but transmits much more data. orderBookL2 pushes the full L2 order book, but the payload can get very large. orderbookL2_25 provides a subset of the full L2 orderbook,
@@ -101,8 +104,8 @@ namespace Bitmex.Net.Client
             {
                 return subscriptionResult;
             }
-            var setResult = await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
-            return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(null, setResult.Error);
+            var setResult = await WaitForSetOrderBookAsync(TimeSpan.FromSeconds(10.0), ct).ConfigureAwait(false);
+            return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(setResult.Error);
         }
         public DateTime LastOrderBookMessage;
         public DateTime LastAction;
