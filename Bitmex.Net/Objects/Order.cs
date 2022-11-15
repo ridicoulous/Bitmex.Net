@@ -1,12 +1,11 @@
 ﻿using System;
 using Bitmex.Net.Client.Converters;
-using CryptoExchange.Net.ExchangeInterfaces;
 using Newtonsoft.Json;
 
 namespace Bitmex.Net.Client.Objects
 {
     /// <summary>Placement, Cancellation, Amending, and History</summary>
-    public class Order : ICommonOrder
+    public class BitmexOrder : ICommonOrder
     {
         [JsonProperty("orderID")]
         public string Id { get; set; }
