@@ -40,6 +40,18 @@ namespace Bitmex.Net.Client
         {
         }
 
+        internal static IEnumerable<string> GetEndPointsWithAdditionalRateLimiter(string baseAddress)
+        {
+            return new[] 
+            {
+                $"{baseAddress}{PositionIsolateEndpoint}",
+                $"{baseAddress}{PositionLeverageEndpoint}",
+                $"{baseAddress}{PositionTransferMarginEndpoint}",
+                $"{baseAddress}{OrderEndpoint}",
+                $"{baseAddress}{OrderCancelAllEndpoint}",
+            };
+        }
+
         #region IBitmexMarginClient
         public async Task<WebCallResult<List<Funding>>> GetFundingAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default)
         {

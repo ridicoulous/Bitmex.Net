@@ -31,8 +31,8 @@ namespace Bitmex.Net
         private const string InstrumentCompositeIndexEndpoint = "instrument/compositeIndex";
         private const string InstrumentIndiciesEndpoint = "instrument/indices";
         private const string InsuranceEndpoint = "insurance";
-        private const string OrderEndpoint = "order";
-        private const string OrderCancelAllEndpoint = "order/all";
+        protected const string OrderEndpoint = "order";
+        protected const string OrderCancelAllEndpoint = "order/all";
         private const string OrderCancelAllAfterEndpoint = "order/cancelAllAfter";
         private const string OrderBookL2Endpoint = "orderBook/L2";
         private const string QuoteEndpoint = "quote";
