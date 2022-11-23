@@ -33,10 +33,10 @@ namespace Bitmex.Net.Client.HistoricalData
             string testnetPrefix = _isTest ? "-testnet" : String.Empty;
             return $"https://s3-eu-west-1.amazonaws.com/public{testnetPrefix}.bitmex.com/data/{typeof(T).Name.ToLower()}/{date.Date:yyyyMMdd}.csv.gz";
         }
-        public List<Trade> GetDailyTrades(DateTime date, params string[] symbols) => GetDailyTradesAsync(date, symbols).GetAwaiter().GetResult();
-        public async Task<List<Trade>> GetDailyTradesAsync(DateTime date, params string[] symbols)
+        public List<BitmexTrade> GetDailyTrades(DateTime date, params string[] symbols) => GetDailyTradesAsync(date, symbols).GetAwaiter().GetResult();
+        public async Task<List<BitmexTrade>> GetDailyTradesAsync(DateTime date, params string[] symbols)
         {
-            return await LoadDailyData<Trade>(date, symbols);
+            return await LoadDailyData<BitmexTrade>(date, symbols);
         }
         public List<Quote> GetDailyQuotes(DateTime date, params string[] symbols) => GetDailyQuotesAsync(date, symbols).GetAwaiter().GetResult();
 
@@ -44,9 +44,9 @@ namespace Bitmex.Net.Client.HistoricalData
         {
             return await LoadDailyData<Quote>(date, symbols);
         }
-        public async Task<List<Trade>> GetTradesByPeriodAsync(DateTime from, DateTime to, params string[] symbols)
+        public async Task<List<BitmexTrade>> GetTradesByPeriodAsync(DateTime from, DateTime to, params string[] symbols)
         {
-            return await LoadDataByPeriodAsync<Trade>(from, to, symbols);
+            return await LoadDataByPeriodAsync<BitmexTrade>(from, to, symbols);
         }
         public List<Quote> GetQuotesByPeriod(DateTime from, DateTime to, params string[] symbols) => GetQuotesByPeriodAsync(from, to, symbols).GetAwaiter().GetResult();
         public async Task<List<Quote>> GetQuotesByPeriodAsync(DateTime from, DateTime to, params string[] symbols)
@@ -124,7 +124,7 @@ namespace Bitmex.Net.Client.HistoricalData
             return result;
         }
 
-        public List<Trade> GetTradesByPeriod(DateTime from, DateTime to, params string[] symbols)
+        public List<BitmexTrade> GetTradesByPeriod(DateTime from, DateTime to, params string[] symbols)
         {
             throw new NotImplementedException();
         }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace  Bitmex.Net.Client.Interfaces
 {
-    public interface IBitmexMarginClient : IFuturesClient
+    public interface IBitmexMarginClient : IFuturesClient, IBitmexCommonTradeClient
     {
         #region  Position : Summary of Open and Closed Positions 
         /// <summary>
@@ -18,7 +18,7 @@ namespace  Bitmex.Net.Client.Interfaces
         /// </summary>
         /// <param name="filter">can use here filter, columns and count parameters</param>
         /// <returns></returns>
-        Task<WebCallResult<List<Position>>> GetPositionsAsync(BitmexRequestWithFilter filter = null, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexPosition>>> GetPositionsAsync(BitmexRequestWithFilter filter = null, CancellationToken ct = default);
 
         /// <summary>
         /// Enable isolated margin or cross margin per-position.
@@ -26,7 +26,7 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <param name="symbol">Position symbol to isolate</param>
         /// <param name="isolate">True for isolated margin, false for cross margin.</param>
         /// <returns></returns>
-        Task<WebCallResult<Position>> SetPositionIsolationAsync(string symbol, bool isolate, CancellationToken ct = default);
+        Task<WebCallResult<BitmexPosition>> SetPositionIsolationAsync(string symbol, bool isolate, CancellationToken ct = default);
 
         /// <summary>
         /// Choose leverage for a position.
@@ -34,7 +34,7 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <param name="symbol">Symbol of position to adjust.</param>
         /// <param name="leverage">Leverage value. Send a number between 0.01 and 100 to enable isolated margin with a fixed leverage. Send 0 to enable cross margin.</param>
         /// <returns></returns>
-        Task<WebCallResult<Position>> SetPositionLeverageAsync(string symbol, decimal leverage, CancellationToken ct = default);
+        Task<WebCallResult<BitmexPosition>> SetPositionLeverageAsync(string symbol, decimal leverage, CancellationToken ct = default);
 
         /// <summary>
         /// Update your risk limit.
@@ -42,7 +42,7 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <param name="symbol">Symbol of position to update risk limit on.</param>
         /// <param name="riskLimit">New Risk Limit, in Satoshis.</param>
         /// <returns></returns>
-        Task<WebCallResult<Position>> SetPositionRiskLimitAsync(string symbol, decimal riskLimit, CancellationToken ct = default);
+        Task<WebCallResult<BitmexPosition>> SetPositionRiskLimitAsync(string symbol, decimal riskLimit, CancellationToken ct = default);
 
         /// <summary>
         /// Transfer equity in or out of a position
@@ -50,7 +50,7 @@ namespace  Bitmex.Net.Client.Interfaces
         /// <param name="symbol">Symbol of position to isolate.</param>
         /// <param name="amount">Amount to transfer, in Satoshis. May be negative.</param>
         /// <returns></returns>
-        Task<WebCallResult<Position>> SetPositionTransferMarginAsync(string symbol, decimal amount, CancellationToken ct = default);
+        Task<WebCallResult<BitmexPosition>> SetPositionTransferMarginAsync(string symbol, decimal amount, CancellationToken ct = default);
         #endregion
         #region Liquidation : Active Liquidations 
 

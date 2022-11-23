@@ -8,7 +8,7 @@ using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net.Interfaces.CommonClients;
 using CryptoExchange.Net.Objects;
 
-namespace Bitmex.Net.Interfaces
+namespace Bitmex.Net.Client.Interfaces
 {
     public interface IBitmexCommonTradeClient : IBaseRestClient
     {
@@ -88,7 +88,7 @@ namespace Bitmex.Net.Interfaces
         /// </summary>
         /// <param name="requestWithFilter"></param>
         /// <returns></returns>
-        Task<WebCallResult<List<Order>>> GetOrdersAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexOrder>>> GetOrdersAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default);
 
         /// <summary>
         /// Place order. See instructions at
@@ -96,7 +96,7 @@ namespace Bitmex.Net.Interfaces
         /// </summary>
         /// <param name="placeOrderRequest"></param>
         /// <returns></returns>
-        Task<WebCallResult<Order>> PlaceOrderAsync(PlaceOrderRequest placeOrderRequest, CancellationToken ct = default);
+        Task<WebCallResult<BitmexOrder>> PlaceOrderAsync(PlaceOrderRequest placeOrderRequest, CancellationToken ct = default);
 
         /// <summary>
         /// Update order.
@@ -109,14 +109,14 @@ namespace Bitmex.Net.Interfaces
         /// </summary>
         /// <param name="updateOrderRequest"></param>
         /// <returns></returns>
-        Task<WebCallResult<Order>> UpdateOrderAsync(UpdateOrderRequest updateOrderRequest, CancellationToken ct = default);
+        Task<WebCallResult<BitmexOrder>> UpdateOrderAsync(UpdateOrderRequest updateOrderRequest, CancellationToken ct = default);
 
         /// <summary>
         /// Cancel order. Either an Id or a clOrdID must be provided.
         /// </summary>
         /// <param name="cancelOrderRequest"></param>
         /// <returns></returns>
-        Task<WebCallResult<List<Order>>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexOrder>>> CancelOrderAsync(CancelOrderRequest cancelOrderRequest, CancellationToken ct = default);
 
         /// <summary>
         /// Cancels all orders
@@ -125,7 +125,7 @@ namespace Bitmex.Net.Interfaces
         /// <param name="filter">Optional filter for cancellation. Use to only cancel some orders, e.g. {"side": "Buy"}.</param>
         /// <param name="text">Optional cancellation annotation. e.g. 'Spread Exceeded'</param>
         /// <returns></returns>
-        Task<WebCallResult<List<Order>>> CancelAllOrdersAsync(string symbol = null, BitmexRequestWithFilter filter = null, string text = null, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexOrder>>> CancelAllOrdersAsync(string symbol = null, BitmexRequestWithFilter filter = null, string text = null, CancellationToken ct = default);
 
         /// <summary>
         /// Create multiple new orders for the same symbol
@@ -136,7 +136,7 @@ namespace Bitmex.Net.Interfaces
         /// </summary>
         /// <param name="placeOrderRequests"></param>
         /// <returns></returns>
-        Task<WebCallResult<List<Order>>> PlaceOrdersBulkAsync(List<PlaceOrderRequest> placeOrderRequests, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexOrder>>> PlaceOrdersBulkAsync(List<PlaceOrderRequest> placeOrderRequests, CancellationToken ct = default);
 
         /// <summary>
         /// Amend multiple orders for the same symbol.
@@ -144,7 +144,7 @@ namespace Bitmex.Net.Interfaces
         /// </summary>
         /// <param name="ordersToUpdate"></param>
         /// <returns></returns>
-        Task<WebCallResult<List<Order>>> UpdateOrdersBulkAsync(List<UpdateOrderRequest> ordersToUpdate, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexOrder>>> UpdateOrdersBulkAsync(List<UpdateOrderRequest> ordersToUpdate, CancellationToken ct = default);
 
         /// <summary>
         /// Automatically cancel all your orders after a specified timeout.
@@ -157,13 +157,6 @@ namespace Bitmex.Net.Interfaces
         Task<WebCallResult<object>> CancellAllAfterAsync(TimeSpan timeOut, CancellationToken ct = default);
         #endregion
         #region OrderBook : Level 2 Book Data 
-        /// <summary>
-        /// Get orderbook
-        /// </summary>
-        /// <param name="symbol">Instrument symbol. Send a series (e.g. XBT) to get data for the nearest contract in that series.</param>
-        /// <param name="depth">Orderbook depth per side. Send 0 for full depth.</param>
-        /// <returns></returns>
-        WebCallResult<OrderBookL2> GetOrderBook(string symbol, int depth = 25);
         /// <summary>
         /// Get orderbook
         /// </summary>
@@ -226,7 +219,7 @@ namespace Bitmex.Net.Interfaces
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        Task<WebCallResult<List<Trade>>> GetTradesAsync(BitmexRequestWithFilter filter = null, CancellationToken ct = default);
+        Task<WebCallResult<List<BitmexTrade>>> GetTradesAsync(BitmexRequestWithFilter filter = null, CancellationToken ct = default);
 
         /// <summary>
         /// Timestamps returned by our bucketed endpoints are the end of the period, indicating when the bucket was written to disk. Some other common systems use the timestamp as the beginning of the period. Please be aware of this when using this endpoint.
@@ -258,12 +251,27 @@ namespace Bitmex.Net.Interfaces
         /// <returns></returns>
         Task<WebCallResult<List<Wallet>>> GetUserWalletAllCurrenciesAsync(CancellationToken ct = default);
         /// <summary>
-        /// Get your current wallet information, for all currencies use all
+        /// Get your current wallet information for the specified currency, for all currencies use "all" as currency
         /// </summary>
         /// <param name="currency">Any currency. For all currencies specify "all"</param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        Task<WebCallResult<List<WalletHistory>>> GetUserWalletHistoryAsync(string currency = "XBt", int count = 100, int startFrom = 0, bool reverse = true, CancellationToken ct = default);
+        Task<WebCallResult<List<WalletHistory>>> GetUserWalletHistoryAsync(string currency = "all", int count = 100, int startFrom = 0, CancellationToken ct = default);
+
+        //
+        //public async Task<WebCallResult<List<Transaction>>> GetUserWalletSummaryAsync(string currency = "XBt", CancellationToken ct = default)
+        //{
+        //    var parameters = GetParameters();
+        //    parameters.Add("currency", currency);
+        //    return await SendRequestAsync<List<Transaction>>(GetUrl(UserWalletSummaryEndpoint), HttpMethod.Get, ct, parameters, true);
+        //}
+        /// <summary>
+        /// Get the execution history by day
+        /// </summary>
+        /// <param name="requestWithFilter">you can set Symbol and Timestamp here</param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task<WebCallResult<List<Execution>>> GetUserExecutionHistoryAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default);
         #endregion
     }
 }

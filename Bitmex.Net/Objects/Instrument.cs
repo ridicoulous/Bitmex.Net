@@ -1,12 +1,12 @@
-﻿using CryptoExchange.Net.ExchangeInterfaces;
+﻿using CryptoExchange.Net.CommonObjects;
 using Newtonsoft.Json;
 
-namespace    Bitmex.Net.Client.Objects
+namespace Bitmex.Net.Client.Objects
 {
-  
-        /// <summary>Tradeable Contracts, Indices, and History</summary>
 
-        public class Instrument : ICommonSymbol, ICommonTicker
+    /// <summary>Tradeable Contracts, Indices, and History</summary>
+
+    public class Instrument
     {
         [JsonProperty("symbol", Required = Required.Always)]
       
@@ -318,17 +318,31 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("timestamp")]
         public System.DateTime? Timestamp { get; set; }
 
-        public string CommonName => Symbol;
-
-        public decimal CommonMinimumTradeSize => LotSize.GetValueOrDefault();
-
-        public string CommonSymbol => Symbol;
-
-        public decimal CommonHigh => HighPrice.GetValueOrDefault();
-
-        public decimal CommonLow => LowPrice.GetValueOrDefault();
-
-        public decimal CommonVolume => Volume24h.GetValueOrDefault();
+        internal Symbol ToCryptoExchangeSymbol()
+        {
+            return new Symbol()
+            {
+                SourceObject = this,
+                Name = this.Symbol,
+                MinTradeQuantity = this.LotSize.GetValueOrDefault(),
+                PriceStep = this.TickSize,
+                QuantityStep = this.LotSize.GetValueOrDefault(),
+                PriceDecimals = TickSize > 0 ? ((int)System.Math.Ceiling(-1 * System.Math.Log10((double)TickSize))) : (int?) TickSize
+        };
+        }
+        internal Ticker ToCryptoExchangeTicker()
+        {
+            return new Ticker()
+            {
+                SourceObject = this,
+                Symbol = this.Symbol,
+                HighPrice = this.HighPrice,
+                LowPrice = this.LowPrice,
+                LastPrice = this.LastPrice,
+                Volume = this.Volume24h,
+                Price24H = this.PrevPrice24h
+            };
+        }
     }
 
 }

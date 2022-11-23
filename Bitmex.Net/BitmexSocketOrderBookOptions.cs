@@ -35,7 +35,7 @@ namespace Bitmex.Net.Client
         /// and you can use `instrument.tickSize` directly. For example, XBTUSD has 88 index and tick size returned by api =0.5, but to calculate price at orderbookL2 update you should use 0.01. this value is hardcoded
         /// </param>
         /// <param name="instrumentIndex">Used for price calculation. <see href="https://www.bitmex.com/app/restAPI#OrderBookL2">Bitmex docs</see></param>
-        public BitmexSocketOrderBookOptions(string name, bool isTest = false,  int? instrumentIndex=null, decimal? tickSize = null) : base(name, true,false)
+        public BitmexSocketOrderBookOptions(string name, bool isTest = false,  int? instrumentIndex=null, decimal? tickSize = null) : base()
         {
             IsTestnet = isTest;          
             TickSize = tickSize;

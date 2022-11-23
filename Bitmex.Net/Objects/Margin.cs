@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CryptoExchange.Net.CommonObjects;
+using Newtonsoft.Json;
 
 namespace    Bitmex.Net.Client.Objects
 {
@@ -10,7 +11,7 @@ namespace    Bitmex.Net.Client.Objects
     public class Margin
     {
         [JsonProperty("account", Required = Required.Always)]
-        public decimal Account { get; set; }
+        public long Account { get; set; }
 
         [JsonProperty("currency")]
         public string Currency { get; set; }
@@ -132,7 +133,16 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("commission")]
         public decimal? Commission { get; set; }
 
-
+        internal Balance ToCryptoExchangeBalance()
+        {
+            return new Balance()
+            {
+                SourceObject = this,
+                Asset = this.Currency,
+                Available = this.AvailableMargin,
+                Total = this.WalletBalance
+            };
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 ﻿using Bitmex.Net.Client.Converters;
 using Bitmex.Net.Client.Interfaces;
-using CryptoExchange.Net.ExchangeInterfaces;
+using CryptoExchange.Net.CommonObjects;
 using Newtonsoft.Json;
 using System;
 
@@ -8,7 +8,7 @@ namespace Bitmex.Net.Client.Objects
 {
     /// <summary>Individual &amp; Bucketed Trades</summary>
 
-    public class Trade : IBitmexHistoricalDataEntry, ICommonRecentTrade
+    public class BitmexTrade : IBitmexHistoricalDataEntry
     {
         [JsonProperty("timestamp", Required = Required.Always)]
         public DateTime Timestamp { get; set; }
@@ -31,11 +31,17 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("foreignNotional")]
         public decimal? ForeignNotional { get; set; }
 
-        public decimal CommonPrice => Price;
-
-        public decimal CommonQuantity => Size;
-
-        public DateTime CommonTradeTime => Timestamp;
+        internal Trade ToCryptoExchangeTrade()
+        {
+            return new Trade()
+            {
+                SourceObject = this,
+                Price = this.Price,
+                Quantity = this.Size,
+                Symbol = this.Symbol,
+                Timestamp = this.Timestamp,
+            };
+        }
     }
 
 }

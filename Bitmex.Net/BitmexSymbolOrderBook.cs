@@ -15,7 +15,7 @@ namespace Bitmex.Net.Client
     public class BitmexSymbolOrderBook : SymbolOrderBook
     {
         private static BitmexSocketOrderBookOptions defaultOrderBookOptions = new BitmexSocketOrderBookOptions("BitmexOrderBook");
-        private readonly BitmexSocketClient _bitmexSocketClient;
+        private readonly BitmexSocketStream _bitmexSocketStream;
         private bool usedNewSocketClient;
         private readonly int InstrumentIndex;
         private readonly decimal InstrumentTickSize;
@@ -48,14 +48,6 @@ namespace Bitmex.Net.Client
         }
         public BitmexSymbolOrderBook(string symbol, bool isTest = false) : this(symbol, defaultOrderBookOptions)
         {
-            isTestnet = isTest;
-            _bitmexSocketClient = new BitmexSocketClient(new BitmexSocketClientOptions(isTest));
-            InstrumentIndex = _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).Index;
-            InstrumentTickSize = _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).TickSize;
-            if (symbol == "XBTUSD")
-            {
-                InstrumentTickSize = 0.01m;
-            }
         }
         /// <summary>
         /// AttentioN! For price calculation at order book update you should use level id and and instrument index <see href=""/></see>
@@ -68,19 +60,23 @@ namespace Bitmex.Net.Client
         {
             isTestnet = options.IsTestnet;
             usedNewSocketClient = bitmexSocketClient is null;
-            _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
-            InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).Index;
-            InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).TickSize;
+            var mainClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
+            _bitmexSocketStream = (BitmexSocketStream)mainClient.SocketStreams;
+            InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketStream.GetIndexAndTickForInstrument(symbol).Index;
             if (symbol == "XBTUSD")
-            {
+            {   //this value is hardcoded
                 InstrumentTickSize = 0.01m;
+            }
+            else
+            {   
+                InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketStream.GetIndexAndTickForInstrument(symbol).TickSize;
             }
         }
         protected override void Dispose(bool disposing)
         {
             // dispose client only created by this instance not shared socket client
             if (!usedNewSocketClient)
-                _bitmexSocketClient.Dispose();
+                _bitmexSocketStream.Dispose();
             base.Dispose(disposing);
         }
 
@@ -99,7 +95,7 @@ namespace Bitmex.Net.Client
              
             Due to decrease delays, subscribe to full orderbook
              */
-            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol, true).ConfigureAwait(false);
+            var subscriptionResult = await _bitmexSocketStream.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol, true).ConfigureAwait(false);
             if (!subscriptionResult)
             {
                 return subscriptionResult;
@@ -163,7 +159,7 @@ namespace Bitmex.Net.Client
                     {
                         log.Write(LogLevel.Debug, $"Setting orderdbook through api");
 
-                        var ob = client.GetOrderBook(Symbol, 0);
+                        var ob = client.MarginClient.GetOrderBookAsync(Symbol, 0).GetAwaiter().GetResult();
                         if (ob)
                         {
                             SetInitialOrderBook(NextId(), ob.Data.Where(x => x.Side == OrderBookEntryType.Bid), ob.Data.Where(x => x.Side == OrderBookEntryType.Ask));

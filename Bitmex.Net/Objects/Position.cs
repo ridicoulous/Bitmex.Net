@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using CryptoExchange.Net.CommonObjects;
+using Newtonsoft.Json;
 
 namespace    Bitmex.Net.Client.Objects
 {
 
     /// <summary>Summary of Open and Closed Positions</summary>
-    public class Position
+    public class BitmexPosition
     {
         [JsonProperty("account", Required = Required.Always)]
         public long Account { get; set; } = 0;
@@ -280,7 +282,30 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("lastValue")]
         public decimal? LastValue { get; set; } = 0;
 
-
+        internal Position ToCryptoExchangePosition()
+        {
+            return new Position()
+            {
+                SourceObject = this,
+                EntryPrice = this.AvgEntryPrice,
+                Isolated = !this.CrossMargin,
+                Leverage = this.Leverage.GetValueOrDefault(),
+                LiquidationPrice = this.LiquidationPrice,
+                MaintananceMargin = this.MaintMargin,
+                MarkPrice = this.MarkPrice,
+                PositionMargin = this.PosMargin,
+                Quantity = Math.Abs(this.CurrentQty.GetValueOrDefault()),
+                RealizedPnl = this.RealisedPnl + this.RebalancedPnl,
+                Side = this.CurrentQty switch
+                {
+                    < 0 => CommonPositionSide.Short,
+                    > 0 => CommonPositionSide.Long,
+                    _ => null
+                },
+                Symbol = this.Symbol,
+                UnrealizedPnl = this.UnrealisedPnl
+            };
+        }
     }
 
 }

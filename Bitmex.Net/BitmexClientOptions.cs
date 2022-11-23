@@ -21,7 +21,7 @@ namespace Bitmex.Net.Client
         {
             HttpClient = client;
         }
-        public BitmexClientOptions(string key, string secret, bool isTest = false) : this(new CryptoExchange.Net.Authentication.ApiCredentials(key, secret), isTest)
+        public BitmexClientOptions(string key, string secret, bool isTest = false) : this(new ApiCredentials(key, secret), isTest)
         {
         }
 
@@ -29,7 +29,6 @@ namespace Bitmex.Net.Client
         {
             CommonApiOptions = new(isTest ? TestNetEndpoint : ProductionEndpoint);
             LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-            LogWriters = new List<ILogger> { new DebugLogger() };
         }
         private BitmexClientOptions(BitmexClientOptions baseOn) : base(baseOn)
         {

@@ -156,7 +156,6 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         /// <returns></returns>
         public static BitmexRequestWithFilter WithNewestFirst(this BitmexRequestWithFilter filter)
         {
-            filter.Reverse = true;
             return filter;
         }
         /// <summary>

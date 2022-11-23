@@ -7,7 +7,7 @@ using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net.Objects;
 
-namespace Bitmex.Net.Interfaces
+namespace Bitmex.Net.Client.Interfaces
 {
     public interface IBitmexNonTradeFeaturesClient
     {
@@ -25,12 +25,6 @@ namespace Bitmex.Net.Interfaces
         Task<WebCallResult<List<Announcement>>> GetUrgentAnnouncementsAsync(CancellationToken ct = default);
         #endregion
         #region Persistent API Keys for Developers
-        /// <summary>
-        /// Get your API Keys
-        /// </summary>
-        /// <param name="reverse">If true, will sort results newest first.</param>
-        /// <returns></returns>
-        WebCallResult<List<APIKey>> GetApiKeys(bool reverse = false);
         /// <summary>
         /// Get your API Keys
         /// </summary>
