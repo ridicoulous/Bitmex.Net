@@ -208,7 +208,7 @@ namespace    Bitmex.Net.Client.Objects
         public decimal? RealisedTax { get; set; }
 
         [JsonProperty("realisedPnl")]
-        public decimal? RealisedPnl { get; set; }
+        public decimal? RealisedPnlAfterRebalancing { get; set; }
 
         [JsonProperty("unrealisedGrossPnl")]
         public decimal? UnrealisedGrossPnl { get; set; }
@@ -281,7 +281,11 @@ namespace    Bitmex.Net.Client.Objects
 
         [JsonProperty("lastValue")]
         public decimal? LastValue { get; set; }
-
+        /// <summary>
+        /// for closed positions it equal to PrevRealisedPnl, for closed ones it equal to RealisedPnlAfterRebalancing + RebalancedPnl
+        /// in a case of socket update use with cautions: some fields required for calculation may be null
+        /// </summary>
+        public decimal? RealisedPnl => IsOpen == false? PrevRealisedPnl : RealisedPnlAfterRebalancing + RebalancedPnl;
         internal Position ToCryptoExchangePosition()
         {
             return new Position()
@@ -295,7 +299,7 @@ namespace    Bitmex.Net.Client.Objects
                 MarkPrice = this.MarkPrice,
                 PositionMargin = this.PosMargin,
                 Quantity = Math.Abs(this.CurrentQty.GetValueOrDefault()),
-                RealizedPnl = this.RealisedPnl + this.RebalancedPnl,
+                RealizedPnl = RealisedPnl,
                 Side = this.CurrentQty switch
                 {
                     < 0 => CommonPositionSide.Short,
