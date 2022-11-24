@@ -485,7 +485,7 @@ namespace Bitmex.Net.Client
                 instumentGetWaiter.Release();
                 return;
             }
-            using (var bitmexClient = new BitmexClient(new BitmexClientOptions(isTest: isTestnet)))
+            using (var bitmexClient = new BitmexClient(new BitmexClientOptions(isTest: isTestnet){LogLevel = this.log?.Level ?? LogLevel.Information}))
             {
                 var getByOnce = 500;
                 var lastResponseItemCount = 0;

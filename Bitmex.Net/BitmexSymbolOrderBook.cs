@@ -60,7 +60,7 @@ namespace Bitmex.Net.Client
         {
             isTestnet = options.IsTestnet;
             usedNewSocketClient = bitmexSocketClient is null;
-            var mainClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
+            var mainClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet){LogLevel = options.LogLevel});
             _bitmexSocketStream = (BitmexSocketStream)mainClient.SocketStreams;
             InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketStream.GetIndexAndTickForInstrument(symbol).Index;
             if (symbol == "XBTUSD")
