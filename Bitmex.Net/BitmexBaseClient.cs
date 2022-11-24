@@ -32,7 +32,7 @@ namespace Bitmex.Net
         
         protected Uri GetUrl(string endpoint)
         {
-            return new Uri($"{BaseAddress}{endpoint}");
+            return new Uri($"{BaseAddress}/{endpoint}");
         }
         
         /// <summary>

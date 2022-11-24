@@ -24,8 +24,8 @@ namespace Bitmex.Net
         private const string GetUrgentAnnouncementsEndpoint = "announcement/urgent";
         private const string GetApiKeysEndpoint = "apiKey";
         private const string ChatMessagesEndpoint = "chat";
-        private const string GetAvailableChannelsEndpoint = "/chat/channels";
-        private const string GetConnectedUsersEndpoint = "/chat/connected";
+        private const string GetAvailableChannelsEndpoint = "chat/channels";
+        private const string GetConnectedUsersEndpoint = "chat/connected";
         private const string GlobalNotificationEndpoint = "globalNotification";
         private const string LeaderBoardEndpoint = "leaderboard";
         private const string LeaderBoardByNameEndpoint = "leaderboard/name";

@@ -44,11 +44,11 @@ namespace Bitmex.Net.Client
         {
             return new[] 
             {
-                $"{baseAddress}{PositionIsolateEndpoint}",
-                $"{baseAddress}{PositionLeverageEndpoint}",
-                $"{baseAddress}{PositionTransferMarginEndpoint}",
-                $"{baseAddress}{OrderEndpoint}",
-                $"{baseAddress}{OrderCancelAllEndpoint}",
+                $"{baseAddress}/{PositionIsolateEndpoint}",
+                $"{baseAddress}/{PositionLeverageEndpoint}",
+                $"{baseAddress}/{PositionTransferMarginEndpoint}",
+                $"{baseAddress}/{OrderEndpoint}",
+                $"{baseAddress}/{OrderCancelAllEndpoint}",
             };
         }
 
