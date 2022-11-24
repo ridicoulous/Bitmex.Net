@@ -492,7 +492,13 @@ namespace Bitmex.Net.Client
                 var ind = 0;
                 do
                 {
-                    var instruments = await bitmexClient.MarginClient.GetInstrumentsAsync(new Objects.Requests.BitmexRequestWithFilter().WithStartingFrom(ind).WithResultsCount(500).AddColumnsToGetInRequest(new string[] { "symbol", "tickSize" }));
+                    var instruments = await bitmexClient.MarginClient.GetInstrumentsAsync(
+                        new Objects.Requests.BitmexRequestWithFilter()
+                            .WithOldestFirst()
+                            .WithStartingFrom(ind)
+                            .WithResultsCount(500)
+                            .AddColumnsToGetInRequest(new string[] { "symbol", "tickSize" })
+                        );
                     if (instruments)
                     {
                         lastResponseItemCount = instruments.Data.Count;
