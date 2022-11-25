@@ -8,7 +8,7 @@ using System.Net.Http;
 
 namespace Bitmex.Net.Client
 {
-    public class BitmexClientOptions : BaseRestClientOptions
+    public class BitmexClientOptions : ClientOptions
     {
 
         private const string ProductionEndpoint = "https://www.bitmex.com/api/v1";
@@ -16,11 +16,11 @@ namespace Bitmex.Net.Client
 
         public BitmexClientOptions(HttpClient client, string key, string secret, bool isTest = false) : this(new ApiCredentials(key, secret), isTest)
         {
-            HttpClient = client;
+            CommonApiOptions.HttpClient = client;
         }
         public BitmexClientOptions(HttpClient client) : this(false)
         {
-            HttpClient = client;
+            CommonApiOptions.HttpClient = client;
         }
         public BitmexClientOptions(string key, string secret, bool isTest = false) : this(new ApiCredentials(key, secret), isTest)
         {

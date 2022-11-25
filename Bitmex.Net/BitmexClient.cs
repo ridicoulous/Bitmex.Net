@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -35,28 +35,6 @@ namespace Bitmex.Net
 
         public ISpotClient CommonSpotClient => SpotClient;
         public IFuturesClient CommonMarginClient => MarginClient;
-        internal async Task<WebCallResult<T>> SendRequestInternal<T>(
-            RestApiClient apiClient,
-            Uri uri,
-            HttpMethod method,
-            CancellationToken cancellationToken,
-            Dictionary<string, object> parameters = null,
-            bool signed = false,
-            HttpMethodParameterPosition? postPosition = null,
-            ArrayParametersSerialization? arraySerialization = null,
-            int weight = 1
-        ) where T : class
-        {
-            return await base.SendRequestAsync<T>(apiClient, uri, method, cancellationToken, parameters, signed, postPosition, arraySerialization, requestWeight: weight);
-        }
-        protected override Error ParseErrorResponse(JToken error)
-        {
-            if (error["error"] != null)
-            {
-                var message = error["error"]?.ToString();// $"{(string)error["error"]["name"]}: {(string)error["error"]["message"]}";
-                return new BitmexError(42, message, error);
-            }
-            return null;
-        }
+       
     }
 }

@@ -13,9 +13,14 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace Bitmex.Net.Client
 {
@@ -24,12 +29,15 @@ namespace Bitmex.Net.Client
         private static readonly Dictionary<string, BitmexInstrumentIndexWithTick> instrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
         private static readonly SemaphoreSlim instumentGetWaiter = new(1,1);
         private static bool areInstrumentsLoaded;
+        private readonly ConcurrentDictionary<string, BitmexSubscribeRequest> _sendedSubscriptions = new ConcurrentDictionary<string, BitmexSubscribeRequest>();
+        private readonly List<UpdateSubscription> _subscriptions = new List<UpdateSubscription>();
         protected Log log;
         protected BitmexSocketClient socketClient;
         private readonly bool isTestnet;
         private bool shouldUseIndexesAndTicksFromBitmex = false;
+        private object _locker = new object();
 
-        public BitmexSocketStream(Log log, BitmexSocketClient bitmexSocketClient, BitmexSocketClientOptions options) : base(options, options.CommonStreamsOptions)
+        public BitmexSocketStream(Log log, BitmexSocketClient bitmexSocketClient, BitmexSocketClientOptions options) : base(log, options, options.CommonStreamsOptions)
         {
             isTestnet = options.IsTestnet;
             this.log = log;
@@ -72,7 +80,9 @@ namespace Bitmex.Net.Client
         public event Action<BitmexSocketEvent<BitmexPosition>> OnUserPositionsUpdate;
         public event Action<BitmexSocketEvent<Transaction>> OnUserTransactionsUpdate;
         public event Action<BitmexSocketEvent<Wallet>> OnUserWalletUpdate;
-        
+
+        public event Action OnPongReceived;
+
         #endregion
 
         // protected override IWebsocket CreateSocket(string address)
@@ -100,19 +110,19 @@ namespace Bitmex.Net.Client
         //     s.OnOpen += S_OnOpen;
         //     return s;
         // }
-   
 
 
-        // public override async Task UnsubscribeAllAsync()
-        // {
-        //     foreach (var c in this._subscriptions)
-        //     {
-        //         await c.CloseAsync().ConfigureAwait(false);
-        //     }
-        //     await base.UnsubscribeAllAsync();
-        // }
 
-        
+        public override async Task UnsubscribeAllAsync()
+        {
+            foreach (var c in this._subscriptions)
+            {
+                await c.CloseAsync().ConfigureAwait(false);
+            }
+            await base.UnsubscribeAllAsync();
+        }
+
+
 
         public async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookUpdatesAsync(Action<DataEvent<BitmexSocketEvent<BitmexOrderBookEntry>>> onData, string symbol = "", bool full = false, CancellationToken ct = default)
         {
@@ -138,7 +148,7 @@ namespace Bitmex.Net.Client
                     {
                         var response = Deserialize<BitmexSubscriptionResponse>(data);
                         if (response)
-                            socketClient.SendedSubscriptions.TryAdd(response.Data.Subscribe, response.Data.Request);
+                            _sendedSubscriptions.TryAdd(response.Data.Subscribe, response.Data.Request);
                         return;
                     }
                     else if (!String.IsNullOrEmpty((string)token["unsubscribe"]))
@@ -451,7 +461,7 @@ namespace Bitmex.Net.Client
 
         private async Task<CallResult<UpdateSubscription>> SubscribeAsync<T>(BitmexSubscribeRequest request, Action<DataEvent<T>> onData, CancellationToken ct)
         {
-            return await socketClient.SubscribeInternal(this, BaseAddress, request, AuthenticationProvider is not null, onData, ct);
+            return await SubscribeInternal(BaseAddress, request, AuthenticationProvider is not null, onData, ct);
         }
 
         private void OnUnsubscribe(BitmexSubscriptionResponse response)
@@ -520,15 +530,203 @@ namespace Bitmex.Net.Client
             instumentGetWaiter.Release();
         }
 
-//Should be removed after refactoring
-        private CallResult<T> Deserialize<T>(JToken token)
-        {
-            return socketClient.DeserializeInternal<T>(token);
-        }
-
+        #region SocketApiClient abstract methods implementation
+        #region BaseApiClient abstract methods implementation
         protected override AuthenticationProvider CreateAuthenticationProvider(ApiCredentials credentials)
         {
             return new BitmexAuthenticationProvider(credentials);
-        }  
+        }
+        #endregion
+
+        protected override async Task<CallResult<bool>> AuthenticateSocketAsync(SocketConnection socketConnection)
+        {
+            if (socketConnection.ApiClient.AuthenticationProvider is null)
+                return new CallResult<bool>(false);
+
+            bool isSuccess = false;
+            ServerError serverError = null;
+            var authRequest = new BitmexSubscribeRequest() { Op = BitmexWebSocketOperation.AuthKeyExpires };
+            var authParams = ((BitmexAuthenticationProvider)socketConnection.ApiClient.AuthenticationProvider);
+            // request = {"op": "authKeyExpires", "args": [API_KEY, expires, signature]}
+            var expires = authParams.ApiExpires;
+            authRequest.Args.Add(authParams.Credentials.Key.GetString());
+            authRequest.Args.Add(expires);
+            authRequest.Args.Add(authParams.Sign(authParams.CreateAuthPayload(HttpMethod.Get, "/realtime", expires)));
+            await socketConnection.SendAndWaitAsync(authRequest, TimeSpan.FromSeconds(1), f =>
+            {
+                if (String.IsNullOrEmpty(f.ToString()))
+                {
+                    isSuccess = false;
+                    serverError = new ServerError("Auth request was not succesful");
+                }
+                else
+                {
+                    isSuccess = true;
+                }
+                return true;
+
+            });
+            return isSuccess ? new CallResult<bool>(true) : new CallResult<bool>(serverError);
+        }
+
+        protected override bool HandleQueryResponse<T>(SocketConnection socketConnection, object request, JToken data, [NotNullWhen(true)] out CallResult<T> callResult)
+        {
+            if (data.Type == JTokenType.String && data.ToString() == "pong")
+            {
+                callResult = null;
+                return true;
+            }
+            callResult = Deserialize<T>(data);
+            return callResult;
+        }
+
+        protected override bool HandleSubscriptionResponse(SocketConnection socketConnection, SocketSubscription subscription, object request, JToken message, out CallResult<object> callResult)
+        {
+            callResult = null;
+            if (message.Type == JTokenType.String && message.ToString() == "pong")
+            {
+                return false;
+            }
+            if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
+            {
+                log.Write(LogLevel.Debug, "skipping welcome message by request");
+                return false;
+            }
+            if (message.Type == JTokenType.String && (string)message == "pong")
+            {
+                return true;
+            }
+            var response = Deserialize<BitmexSubscriptionResponse>(message);
+            var bRequest = (BitmexSubscribeRequest)request;
+            callResult = response.As<object>(response);
+            if (response)
+            {
+                if (bRequest.Args.Contains(response.Data.Subscribe))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        protected override bool MessageMatchesHandler(SocketConnection socketConnection, JToken message, object request)
+        {
+            if (message.Type == JTokenType.String && message.ToString() == "pong")
+            {
+                return false;
+            }
+            if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
+            {
+                log.Write(LogLevel.Debug, "skipping welcome message by request");
+                return false;
+            }
+            return true;
+        }
+
+        protected override bool MessageMatchesHandler(SocketConnection socketConnection, JToken message, string identifier)
+        {
+            if (message.Type == JTokenType.String && message.ToString() == "pong")
+            {
+                OnPongReceived?.Invoke();
+                return false;
+            }
+            if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
+            {
+                log.Write(LogLevel.Debug, "skipping welcome message by id");
+                return false;
+            }
+            return true;
+        }
+
+        protected async override Task<bool> UnsubscribeAsync(SocketConnection connection, SocketSubscription subscriptionToUnsub)
+        {
+            if (subscriptionToUnsub.Request is BitmexSubscribeRequest subReq)
+            {
+                var r = subscriptionToUnsub.Request as BitmexSubscribeRequest;
+                r.Op = BitmexWebSocketOperation.Unsubscribe;
+                var result = await QueryAndWaitAsync<BitmexSubscriptionResponse>(connection, r);
+                if (result && result.Data.Success && result.Data.Request.Args.Contains(result.Data.Unsubscribe))
+                {
+                    _sendedSubscriptions.TryRemove(result.Data.Unsubscribe, out _);
+                    log.Write(LogLevel.Warning, $"{JsonConvert.SerializeObject(subscriptionToUnsub.Request)} subscription was unsubscribed");
+                }
+                else
+                {
+                    log.Write(LogLevel.Warning, $"{JsonConvert.SerializeObject(subscriptionToUnsub.Request)} subscription was not unsubscribed: {result.Error?.Message}");
+                }
+            }
+            return false;
+        }
+        public override void Dispose()
+        {
+            //foreach (var s in _subscriptions)
+            //{
+            //    s.Close().GetAwaiter().GetResult();
+            //}
+            //foreach (var s in this.sockets.Values)
+            //{
+            //    s.Close().Wait();
+            //}
+            _subscriptions.Clear();
+            _sendedSubscriptions.Clear();
+            base.Dispose();
+        }
+
+        #endregion
+        private void CheckDoubleSendingRequest(BitmexSubscribeRequest request)
+        {
+            lock (_locker)
+            {
+                List<string> toRemove = new List<string>();
+                foreach (var arg in request.Args)
+                {
+                    if (_sendedSubscriptions.ContainsKey(arg.ToString()))
+                    {
+                        toRemove.Add(arg.ToString());
+                    }
+                    else
+                    {
+                        _sendedSubscriptions.TryAdd(arg.ToString(), request);
+                    }
+                }
+                if (toRemove.Any())
+                {
+                    log.Write(LogLevel.Warning, $"Not sending another subscribe request for topics: {String.Join(',', toRemove)}, cause it was already sended");
+                    request.Args.RemoveAll(c => toRemove.Contains(c));
+                }
+            }
+        }
+        internal async Task<CallResult<UpdateSubscription>> SubscribeInternal<TUpdate>
+        (
+            string url,
+            BitmexSubscribeRequest request,
+            bool authenticate,
+            Action<DataEvent<TUpdate>> onData,
+            CancellationToken ct)
+        {
+            CheckDoubleSendingRequest(request);
+            if (!request.Args.Any())
+            {
+                log.Write(LogLevel.Warning, $"Not sending empty request {JsonConvert.SerializeObject(request)}");
+                return new CallResult<UpdateSubscription>(new ServerError("Not sending empty request ", request));
+            }
+            request.Args.ValidateNotNull(nameof(request));
+
+            var subscription = await SubscribeAsync
+            (
+                url,
+                request,
+                url + NextId(),
+                authenticate,
+                onData,
+                ct).ConfigureAwait(false);
+            if (subscription)
+            {
+                if (request.Op == BitmexWebSocketOperation.Subscribe)
+                    _subscriptions.Add(subscription.Data);
+            }
+            return subscription;
+        }
     }
+
 }

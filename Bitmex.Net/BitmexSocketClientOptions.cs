@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bitmex.Net.Client
 {    
-    public class BitmexSocketClientOptions : BaseSocketClientOptions
+    public class BitmexSocketClientOptions : ClientOptions
     {
         private const string SocketEndpoint = "wss://ws.bitmex.com/realtime";
         private const string TestNetSocketEndpoint = "wss://ws.testnet.bitmex.com/realtime";
@@ -25,7 +25,7 @@ namespace Bitmex.Net.Client
         /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
         public BitmexSocketClientOptions(bool isTestnet, bool useMultiplexing = false, bool loadInstrumentIndexes=true) : base()
         {
-            CommonStreamsOptions = new ApiClientOptions(isTestnet ? TestNetSocketEndpoint : SocketEndpoint);
+            CommonStreamsOptions = new SocketApiClientOptions(isTestnet ? TestNetSocketEndpoint : SocketEndpoint);
             LoadInstruments = loadInstrumentIndexes;
             IsTestnet = isTestnet;
             if (useMultiplexing)
@@ -48,7 +48,7 @@ namespace Bitmex.Net.Client
         public static BitmexSocketClientOptions Default { get; set; } = new BitmexSocketClientOptions()
         {
         };
-        internal ApiClientOptions CommonStreamsOptions { get; set; }
+        internal SocketApiClientOptions CommonStreamsOptions { get; set; }
         public bool IsTestnet { get; private set; }
 
         /// <summary>

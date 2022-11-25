@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Bitmex.Net.Client;
 using Bitmex.Net.Client.Helpers.Extensions;
-using Bitmex.Net.Client.Interfaces;
+using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.CommonObjects;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
+using Newtonsoft.Json.Linq;
 
 namespace Bitmex.Net
 {
@@ -21,7 +20,7 @@ namespace Bitmex.Net
         internal static TimeSyncState TimeSyncState = new TimeSyncState(String.Empty);
         protected readonly BitmexClient baseClient;
         protected readonly Log log;
-        protected BitmexBaseClient(string name, BitmexClientOptions options, CryptoExchange.Net.Logging.Log log, BitmexClient client) : base(options, options.CommonApiOptions)
+        protected BitmexBaseClient(string name, BitmexClientOptions options, CryptoExchange.Net.Logging.Log log, BitmexClient client) : base(log,options, options.CommonApiOptions)
         {
             ExchangeName = name;
             baseClient = client;
@@ -62,8 +61,7 @@ namespace Bitmex.Net
         }
         protected async Task<WebCallResult<T>> SendRequestAsync<T>(string endpoint, HttpMethod method, CancellationToken ct = default, Dictionary<string, object> request = null, ArrayParametersSerialization? arraySerialization = null) where T : class
         {
-            return await baseClient.SendRequestInternal<T>(
-                this,
+            return await SendRequestInternal<T>(
                 GetUrl(endpoint),
                 method,
                 ct,
@@ -78,7 +76,7 @@ namespace Bitmex.Net
         public override TimeSpan GetTimeOffset() => TimeSpan.Zero;
 
         /// <inheritdoc />
-        protected override TimeSyncInfo GetTimeSyncInfo() => new TimeSyncInfo(log, false, TimeSpan.MaxValue, TimeSyncState);
+        public override TimeSyncInfo GetTimeSyncInfo() => new TimeSyncInfo(log, false, TimeSpan.MaxValue, TimeSyncState);
 
         protected override Task<WebCallResult<DateTime>> GetServerTimestampAsync()
         {
@@ -90,6 +88,29 @@ namespace Bitmex.Net
         {
             return new BitmexAuthenticationProvider(credentials);
         }
+        protected override Error ParseErrorResponse(JToken error)
+        {
+            if (error["error"] != null)
+            {
+                var message = error["error"]?.ToString();// $"{(string)error["error"]["name"]}: {(string)error["error"]["message"]}";
+                return new BitmexError(42, message, error);
+            }
+            return null;
+        }
         #endregion
+
+        internal async Task<WebCallResult<T>> SendRequestInternal<T>(
+           Uri uri,
+           HttpMethod method,
+           CancellationToken cancellationToken,
+           Dictionary<string, object> parameters = null,
+           bool signed = false,
+           HttpMethodParameterPosition? postPosition = null,
+           ArrayParametersSerialization? arraySerialization = null,
+           int weight = 1
+        ) where T : class
+        {
+            return await base.SendRequestAsync<T>(uri, method, cancellationToken, parameters, signed, postPosition, arraySerialization, requestWeight: weight);
+        }
     }
 }
