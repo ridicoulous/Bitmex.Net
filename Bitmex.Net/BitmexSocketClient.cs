@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -29,7 +29,7 @@ namespace Bitmex.Net.Client
         {
             SocketStreams = AddApiClient(new BitmexSocketStream(log, this, options));
         }
-        public IBitmexSocketStream SocketStreams { get; set; }
+        public BitmexSocketStream SocketStreams { get; set; }
 
     }
 }
