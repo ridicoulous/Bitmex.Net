@@ -6,6 +6,7 @@ using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
@@ -571,13 +572,21 @@ namespace Bitmex.Net.Client
 
         protected override bool HandleQueryResponse<T>(SocketConnection socketConnection, object request, JToken data, [NotNullWhen(true)] out CallResult<T> callResult)
         {
-            if (data.Type == JTokenType.String && data.ToString() == "pong")
+            callResult = null;
+            var bRequest = (BitmexSubscribeRequest)request;
+            if (bRequest.Op != BitmexWebSocketOperation.Unsubscribe)
+                return false;
+
+            var response = Deserialize<T>(data);
+            callResult = new CallResult<T>(response.Data);
+            if (response.Data is BitmexSubscriptionResponse resp)
             {
-                callResult = null;
-                return true;
+                if (bRequest.Args.Contains(resp.Unsubscribe))
+                {
+                    return true;
+                }
             }
-            callResult = Deserialize<T>(data);
-            return callResult;
+            return false;
         }
 
         protected override bool HandleSubscriptionResponse(SocketConnection socketConnection, SocketSubscription subscription, object request, JToken message, out CallResult<object> callResult)
@@ -617,7 +626,12 @@ namespace Bitmex.Net.Client
             }
             if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
             {
-                log.Write(LogLevel.Debug, "skipping welcome message by request");
+                log.Write(LogLevel.Trace, "skipping welcome message by request");
+                return false;
+            }
+            if (message["error"]?.ToString()?.StartsWith("Not subscribed") == true)
+            {
+                log.Write(LogLevel.Debug, "Seems we sent an unsubscribe request, but have already unsubscribed");
                 return false;
             }
             return true;
@@ -638,21 +652,20 @@ namespace Bitmex.Net.Client
             return true;
         }
 
-        protected async override Task<bool> UnsubscribeAsync(SocketConnection connection, SocketSubscription subscriptionToUnsub)
+        protected async override Task<bool> UnsubscribeAsync(SocketConnection connection, SocketSubscription subscription)
         {
-            if (subscriptionToUnsub.Request is BitmexSubscribeRequest subReq)
+            if (subscription.Request is BitmexSubscribeRequest subReq)
             {
-                var r = subscriptionToUnsub.Request as BitmexSubscribeRequest;
-                r.Op = BitmexWebSocketOperation.Unsubscribe;
-                var result = await QueryAndWaitAsync<BitmexSubscriptionResponse>(connection, r);
+                var result = await QueryAndWaitAsync<BitmexSubscriptionResponse>(connection, subReq.CreateUnsubscribeRequest());
                 if (result && result.Data.Success && result.Data.Request.Args.Contains(result.Data.Unsubscribe))
                 {
                     _sendedSubscriptions.TryRemove(result.Data.Unsubscribe, out _);
-                    log.Write(LogLevel.Warning, $"{JsonConvert.SerializeObject(subscriptionToUnsub.Request)} subscription was unsubscribed");
+                    log.Write(LogLevel.Trace, $"{JsonConvert.SerializeObject(subscription.Request)} subscription was unsubscribed");
+                    return true;
                 }
                 else
                 {
-                    log.Write(LogLevel.Warning, $"{JsonConvert.SerializeObject(subscriptionToUnsub.Request)} subscription was not unsubscribed: {result.Error?.Message}");
+                    log.Write(LogLevel.Debug, $"{JsonConvert.SerializeObject(subscription.Request)} subscription was not unsubscribed: {result.Error?.Message}");
                 }
             }
             return false;
