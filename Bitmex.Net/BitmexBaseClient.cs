@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -110,7 +111,15 @@ namespace Bitmex.Net
            int weight = 1
         ) where T : class
         {
-            return await base.SendRequestAsync<T>(uri, method, cancellationToken, parameters, signed, postPosition, arraySerialization, requestWeight: weight);
+            return await base.SendRequestAsync<T>(
+                uri,
+                method,
+                cancellationToken,
+                parameters?.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value), //order matters for signing requests
+                signed,
+                postPosition,
+                arraySerialization,
+                requestWeight: weight);
         }
     }
 }
