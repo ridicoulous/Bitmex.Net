@@ -14,7 +14,6 @@ namespace Bitmex.Net.Client
 {
     public class BitmexAuthenticationProvider : AuthenticationProvider
     {
-        private readonly HMACSHA256 encryptor;
         private readonly int LifetimeSeconds;
 
         private static readonly object nonceLock = new object();
@@ -25,7 +24,7 @@ namespace Bitmex.Net.Client
             {
                 lock (nonceLock)
                 {
-                    var nonce = (long)Math.Round((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + LifetimeSeconds);
+                    var nonce = (long)Math.Round((DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds + LifetimeSeconds);
                     if (nonce == lastNonce)
                         nonce += 1;
 
@@ -36,8 +35,7 @@ namespace Bitmex.Net.Client
         }        
         public BitmexAuthenticationProvider(ApiCredentials credentials, TimeSpan? requestLifeTime = null) : base(credentials)
         {
-            LifetimeSeconds = requestLifeTime.HasValue ? (int)requestLifeTime.Value.TotalSeconds : 60;
-            encryptor = new HMACSHA256(Encoding.ASCII.GetBytes(credentials.Secret.GetString()));
+            LifetimeSeconds = (int?)requestLifeTime?.TotalSeconds ?? 60;
         }
         public override void AuthenticateRequest(RestApiClient apiClient,
                                                  Uri uri,
@@ -53,35 +51,26 @@ namespace Bitmex.Net.Client
             uriParameters = parameterPosition == HttpMethodParameterPosition.InUri ? new SortedDictionary<string, object>(providedParameters) : new SortedDictionary<string, object>();
             bodyParameters = parameterPosition == HttpMethodParameterPosition.InBody ? new SortedDictionary<string, object>(providedParameters) : new SortedDictionary<string, object>();
             headers = new Dictionary<string, string>();
-
-
-            var apiexpires = ApiExpires;
-
+            
             if (!auth)
                 return;
 
-            headers.Add("api-key", Credentials.Key.GetString());
-            headers.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
+            var apiexpires = ApiExpires;
 
             string additionalData = String.Empty;
             if (providedParameters != null && providedParameters.Any() && method != HttpMethod.Get)
             {
-                additionalData = JsonConvert.SerializeObject(providedParameters.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value));
+                additionalData = JsonConvert.SerializeObject(providedParameters);
             }
-            var dataToSign = CreateAuthPayload(method, uri.ToString().Split(uri.Host, StringSplitOptions.None)[1], apiexpires, additionalData);
+            var dataToSign = CreateAuthPayload(method, uri.PathAndQuery, apiexpires, additionalData);
             var signedData = Sign(dataToSign);
+            headers.Add("api-key", Credentials.Key.GetString());
+            headers.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
             headers.Add("api-signature", signedData);
-        }
-        public string ByteArrayToString(byte[] ba)
-        {
-            var hex = new StringBuilder(ba.Length * 2);
-            foreach (var b in ba)
-                hex.AppendFormat("{0:X2}", b);
-            return hex.ToString();
         }
         public override string Sign(string toSign)
         {
-            return ByteArrayToString(encryptor.ComputeHash(Encoding.UTF8.GetBytes(toSign)));
+            return SignHMACSHA256(toSign);
         }
         /// <summary>
         /// 
