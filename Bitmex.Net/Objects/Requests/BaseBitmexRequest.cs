@@ -49,7 +49,7 @@ namespace Bitmex.Net.Client.Objects.Requests
         /// If true, will sort results newest first.
         /// </summary>
         [JsonProperty("reverse")]
-        public bool? Reverse { get; set; } 
+        public bool? Reverse { get; set; } = true;
 
         /// <summary>
         /// Starting date filter for results.

@@ -1,6 +1,6 @@
 ﻿using System;
 using Bitmex.Net.Client.Converters;
-using CryptoExchange.Net.ExchangeInterfaces;
+using CryptoExchange.Net.CommonObjects;
 using Newtonsoft.Json;
 
 namespace    Bitmex.Net.Client.Objects
@@ -8,7 +8,7 @@ namespace    Bitmex.Net.Client.Objects
 
     /// <summary>Raw Order and Balance Data</summary>
 
-    public class Execution : ICommonTrade
+    public class Execution
     {
         [JsonProperty("execID", Required = Required.Always)]
 
@@ -152,17 +152,22 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("timestamp")]
         public System.DateTime? Timestamp { get; set; }
 
-        public string CommonId => ExecID;
 
-        public decimal CommonPrice => Price.GetValueOrDefault();
-
-        public decimal CommonQuantity => LastQty.GetValueOrDefault();
-
-        public decimal CommonFee => ExecComm.GetValueOrDefault();
-
-        public string CommonFeeAsset => "XBT";
-
-        public DateTime CommonTradeTime => Timestamp.GetValueOrDefault();
+        internal UserTrade ToCryptoExchangeUserTrade()
+        {
+            return new UserTrade()
+            {
+                SourceObject = this,
+                Fee = ExecComm,
+                FeeAsset = SettlCurrency,
+                Id = ExecID,
+                OrderId = OrderID,
+                Price = Price.GetValueOrDefault(),
+                Quantity = LastQty.GetValueOrDefault(),
+                Symbol = Symbol,
+                Timestamp = Timestamp.GetValueOrDefault()
+            };
+        }
     }
 
 }

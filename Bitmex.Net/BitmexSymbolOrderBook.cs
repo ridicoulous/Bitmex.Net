@@ -8,13 +8,15 @@ using Bitmex.Net.Client.Objects;
 using System.Linq;
 using Bitmex.Net.Client.Objects.Socket;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Bitmex.Net.Client
 {
     public class BitmexSymbolOrderBook : SymbolOrderBook
     {
         private static BitmexSocketOrderBookOptions defaultOrderBookOptions = new BitmexSocketOrderBookOptions("BitmexOrderBook");
-        private readonly BitmexSocketClient _bitmexSocketClient;
+        private readonly BitmexSocketStream _bitmexSocketStream;
+        private bool usedNewSocketClient;
         private readonly int InstrumentIndex;
         private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
@@ -46,14 +48,6 @@ namespace Bitmex.Net.Client
         }
         public BitmexSymbolOrderBook(string symbol, bool isTest = false) : this(symbol, defaultOrderBookOptions)
         {
-            isTestnet = isTest;
-            _bitmexSocketClient = new BitmexSocketClient(new BitmexSocketClientOptions(isTest));
-            InstrumentIndex = _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).Index;
-            InstrumentTickSize = _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).TickSize;
-            if (symbol == "XBTUSD")
-            {
-                InstrumentTickSize = 0.01m;
-            }
         }
         /// <summary>
         /// AttentioN! For price calculation at order book update you should use level id and and instrument index <see href=""/></see>
@@ -62,31 +56,36 @@ namespace Bitmex.Net.Client
         /// <param name="symbol"></param>
         /// <param name="options"></param>
         /// <param name="bitmexSocketClient"></param>
-        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base(symbol, options)
+        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base("Bitmex", symbol, options)
         {
             isTestnet = options.IsTestnet;
-            _bitmexSocketClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
-            InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).Index;
-            InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketClient.GetIndexAndTickForInstrument(symbol).TickSize;
+            usedNewSocketClient = bitmexSocketClient is null;
+            var mainClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet){LogLevel = options.LogLevel});
+            _bitmexSocketStream = (BitmexSocketStream)mainClient.SocketStreams;
+            InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketStream.GetIndexAndTickForInstrument(symbol).Index;
             if (symbol == "XBTUSD")
-            {
+            {   //this value is hardcoded
                 InstrumentTickSize = 0.01m;
             }
+            else
+            {   
+                InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketStream.GetIndexAndTickForInstrument(symbol).TickSize;
+            }
         }
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            processBuffer.Clear();
-            asks.Clear();
-            bids.Clear();
-            _bitmexSocketClient.Dispose();
+            // dispose client only created by this instance not shared socket client
+            if (!usedNewSocketClient)
+                _bitmexSocketStream.Dispose();
+            base.Dispose(disposing);
         }
 
-        protected override async Task<CallResult<bool>> DoResyncAsync()
+        protected override async Task<CallResult<bool>> DoResyncAsync(CancellationToken ct)
         {
-            return await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
+            return await WaitForSetOrderBookAsync(TimeSpan.FromSeconds(10.0), ct).ConfigureAwait(false);
         }
 
-        protected override async Task<CallResult<UpdateSubscription>> DoStartAsync()
+        protected override async Task<CallResult<UpdateSubscription>> DoStartAsync(CancellationToken ct)
         {
             /*If you wish to get real-time order book data, we recommend you use the orderBookL2_25 subscription. orderBook10 pushes the top 10 levels on every tick,
              * but transmits much more data. orderBookL2 pushes the full L2 order book, but the payload can get very large. orderbookL2_25 provides a subset of the full L2 orderbook,
@@ -96,13 +95,13 @@ namespace Bitmex.Net.Client
              
             Due to decrease delays, subscribe to full orderbook
              */
-            var subscriptionResult = await _bitmexSocketClient.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol, true).ConfigureAwait(false);
+            var subscriptionResult = await _bitmexSocketStream.SubscribeToOrderBookUpdatesAsync(OnUpdate, Symbol, true).ConfigureAwait(false);
             if (!subscriptionResult)
             {
                 return subscriptionResult;
             }
-            var setResult = await WaitForSetOrderBookAsync(10000).ConfigureAwait(false);
-            return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(null, setResult.Error);
+            var setResult = await WaitForSetOrderBookAsync(TimeSpan.FromSeconds(10.0), ct).ConfigureAwait(false);
+            return setResult ? subscriptionResult : new CallResult<UpdateSubscription>(setResult.Error);
         }
         public DateTime LastOrderBookMessage;
         public DateTime LastAction;
@@ -160,7 +159,7 @@ namespace Bitmex.Net.Client
                     {
                         log.Write(LogLevel.Debug, $"Setting orderdbook through api");
 
-                        var ob = client.GetOrderBook(Symbol, 0);
+                        var ob = client.MarginClient.GetOrderBookAsync(Symbol, 0).GetAwaiter().GetResult();
                         if (ob)
                         {
                             SetInitialOrderBook(NextId(), ob.Data.Where(x => x.Side == OrderBookEntryType.Bid), ob.Data.Where(x => x.Side == OrderBookEntryType.Ask));

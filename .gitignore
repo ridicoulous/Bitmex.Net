@@ -13,6 +13,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# User-specific files (VS code)
+*.vscode/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

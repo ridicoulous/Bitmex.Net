@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace Bitmex.Net.Client.HistoricalData
 {
-    public sealed class TradeMap : ClassMap<Trade>
+    public sealed class TradeMap : ClassMap<BitmexTrade>
     {
         public TradeMap()
         {

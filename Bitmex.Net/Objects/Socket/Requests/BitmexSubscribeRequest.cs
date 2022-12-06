@@ -55,5 +55,13 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
             }
             return this;
         }
+        public BitmexSubscribeRequest CreateUnsubscribeRequest()
+        {
+            return new()
+            {
+                Args = this.Args,
+                Op = BitmexWebSocketOperation.Unsubscribe
+            };
+        }
     }
 }

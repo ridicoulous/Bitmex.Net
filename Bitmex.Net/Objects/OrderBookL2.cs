@@ -1,6 +1,6 @@
 ﻿using Bitmex.Net.Client.Converters;
+using CryptoExchange.Net.CommonObjects;
 using CryptoExchange.Net.Converters;
-using CryptoExchange.Net.ExchangeInterfaces;
 using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using Newtonsoft.Json;
@@ -32,11 +32,31 @@ namespace Bitmex.Net.Client.Objects
         public decimal Quantity { get; set; }
     }
 
-    public class OrderBookL2 : List<BitmexOrderBookEntry>, ICommonOrderBook
+    public class OrderBookL2 : List<BitmexOrderBookEntry>
     {
         public IEnumerable<ISymbolOrderBookEntry> CommonBids => this.Where(i => i.Side == OrderBookEntryType.Bid);
 
         public IEnumerable<ISymbolOrderBookEntry> CommonAsks => this.Where(i => i.Side == OrderBookEntryType.Ask);
+
+        internal OrderBook ToCryptoExchangeOrderBook()
+        {
+            return new OrderBook()
+            {
+                SourceObject = this,
+                Asks = CommonAsks
+                    .Select(entry => new OrderBookEntry()
+                    {
+                        Price = entry.Price,
+                        Quantity = entry.Quantity
+                    }),
+                Bids = CommonBids
+                    .Select(entry => new OrderBookEntry()
+                    {
+                        Price = entry.Price,
+                        Quantity = entry.Quantity
+                    })
+            };
+        } 
     }
     public class BitmexOrderBookEntry : ISymbolOrderBookEntry
     {
