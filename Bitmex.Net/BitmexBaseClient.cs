@@ -115,7 +115,7 @@ namespace Bitmex.Net
                 uri,
                 method,
                 cancellationToken,
-                parameters?.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value), //order matters for signing requests
+                parameters,
                 signed,
                 postPosition,
                 arraySerialization,
