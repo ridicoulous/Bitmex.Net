@@ -28,8 +28,16 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("isMarginCurrency")]
         public bool IsMarginCurrency { get; set; }
 
+        [JsonProperty("minDepositAmount")]
+        public decimal MinDepositAmount { get; set; }
+
+        [JsonProperty("minWithdrawalAmount")]
+        public decimal MinWithdrawalAmount { get; set; }
+
+        [JsonProperty("maxWithdrawalAmount")]
+        public decimal MaxWithdrawalAmount { get; set; }
+
         [JsonProperty("networks")]
         public Network[] Networks { get; set; }
     }
 }
-
