@@ -30,19 +30,23 @@ namespace Bitmex.Net.Client
         {
             CommonApiOptions = new(isTest ? TestNetEndpoint : ProductionEndpoint);
             LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-            this.CommonApiOptions.RateLimiters.Add(new RateLimiter().AddTotalRateLimit(
-                ApiCredentials is null ? 30 : 120,
-                TimeSpan.FromMinutes(1)));
-            this.CommonApiOptions.RateLimiters.Add(new RateLimiter().AddEndpointLimit(
-                BitmexMarginClient.GetEndPointsWithAdditionalRateLimiter(CommonApiOptions.BaseAddress),
-                10,
-                TimeSpan.FromSeconds(1)));
-            this.CommonApiOptions.RateLimitingBehaviour = RateLimitingBehaviour.Wait;
         }
 
         public BitmexClientOptions(ApiCredentials apiCredentials, bool isTest) : this(isTest)
         {
             ApiCredentials = apiCredentials;
+            CommonApiOptions.RateLimiters.Add(
+                new RateLimiter().AddTotalRateLimit(
+                    ApiCredentials is null ? 30 : 120,
+                    TimeSpan.FromMinutes(1))
+            );
+            CommonApiOptions.RateLimiters.Add(
+                    new RateLimiter().AddEndpointLimit(
+                    BitmexMarginClient.GetEndPointsWithAdditionalRateLimiter(CommonApiOptions.BaseAddress),
+                    10,
+                    TimeSpan.FromSeconds(1))
+            );
+            CommonApiOptions.RateLimitingBehaviour = RateLimitingBehaviour.Wait;
         }
         // for cloning this instance only
         private BitmexClientOptions(BitmexClientOptions baseOn) : base(baseOn)
