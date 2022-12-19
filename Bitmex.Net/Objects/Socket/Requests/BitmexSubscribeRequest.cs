@@ -13,14 +13,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
         {
             Op = BitmexWebSocketOperation.Subscribe;
         }    
-        public BitmexSubscribeRequest(BitmexWebSocketOperation op, params string[] args)
-        {
-            Op = op;
-            foreach (var a in args)
-            {
-                Args.Add(a);
-            }
-        }
+
         public BitmexSubscribeRequest(params object[] args)
         {
             Op = BitmexWebSocketOperation.Subscribe;
