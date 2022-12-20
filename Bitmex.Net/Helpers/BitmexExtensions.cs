@@ -1,6 +1,8 @@
 ﻿using Bitmex.Net.Client.Attributes;
+using Bitmex.Net.Client.Converters;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
+using Bitmex.Net.Client.Objects.Socket;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -104,6 +106,25 @@ namespace Bitmex.Net.Client.Helpers.Extensions
             else
                 throw new ArgumentException("Unsupported timespan for Bitmex Candles, check supported intervals");
         }
+
+        public static bool IsItNonTradeSubscriptionString(this object subscriptionArg)
+        {
+            if (subscriptionArg is string subArg)
+            {
+                foreach (var topic in GetNonTradeSubscriptions())
+                {
+                    if (subArg.Contains(JsonConvert.SerializeObject(topic, new BitmexWebsocketTableConverter(false))))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        private static List<BitmexSubscribtions> GetNonTradeSubscriptions()
+        {
+            return new() { BitmexSubscribtions.Announcements, BitmexSubscribtions.Chat, BitmexSubscribtions.PublicNotifications };
+        }
     }
     public static class BitmexRequestExtensions
     {
@@ -202,5 +223,6 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         {
             return filter.AddFilter("timestamp.month", $"{year}-{month}");
         }
+        
     }
 }

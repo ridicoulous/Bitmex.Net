@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace   Bitmex.Net.Client.Interfaces
 {
-    public interface IBitmexSocketStream
+    public interface IBitmexSocketStreamActions
     {
         event Action<BitmexSocketEvent<Announcement>> OnAnnouncementUpdate;
         event Action<BitmexSocketEvent<Chat>> OnChatMessageUpdate;
@@ -45,7 +45,7 @@ namespace   Bitmex.Net.Client.Interfaces
         event Action<BitmexSocketEvent<Transaction>> OnUserTransactionsUpdate;
         event Action<BitmexSocketEvent<Wallet>> OnUserWalletUpdate;
 
-        Task<CallResult<UpdateSubscription>> SubscribeAsync(BitmexSubscribeRequest bitmexSubscribeRequest, CancellationToken ct = default);
+        Task<IEnumerable<CallResult<UpdateSubscription>>> SubscribeAsync(BitmexSubscribeRequest bitmexSubscribeRequest, CancellationToken ct = default);
 
         /// subscribe to orderbook updates
         /// </summary>

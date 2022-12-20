@@ -1,4 +1,5 @@
 ﻿using Bitmex.Net.Client.Converters;
+using Bitmex.Net.Client.Helpers.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -56,5 +57,17 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
                 Op = BitmexWebSocketOperation.Unsubscribe
             };
         }
+
+        /// <summary>
+        /// Moves the subscription topics from the request that should be sent to the different endpoint into one more BitmexSubscribeRequest
+        /// </summary>
+        /// <returns>new BitmexSubscribeRequest with nontrade topics only</returns>
+        internal BitmexSubscribeRequest PopNonTradeSubscriptions()
+        {
+            var nonTradeArgs = Args.Where(arg => arg.IsItNonTradeSubscriptionString()).ToList();
+            Args.RemoveAll(x => nonTradeArgs.Contains(x));
+            return new BitmexSubscribeRequest(nonTradeArgs);
+        }
+
     }
 }
