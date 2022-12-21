@@ -18,6 +18,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
         public BitmexSubscribeRequest(params object[] args)
         {
             Op = BitmexWebSocketOperation.Subscribe;
+            Args.AddRange(args);
         }
         [JsonProperty("args")]        
         public List<object> Args { get; set; } = new List<object> { };
@@ -64,7 +65,7 @@ namespace Bitmex.Net.Client.Objects.Socket.Requests
         /// <returns>new BitmexSubscribeRequest with nontrade topics only</returns>
         internal BitmexSubscribeRequest PopNonTradeSubscriptions()
         {
-            var nonTradeArgs = Args.Where(arg => arg.IsItNonTradeSubscriptionString()).ToList();
+            var nonTradeArgs = Args.Where(arg => arg.IsItNonTradeSubscriptionString()).ToArray(); //ToArray() because BitmexSubscribeRequest(params ...) ctor requires array
             Args.RemoveAll(x => nonTradeArgs.Contains(x));
             return new BitmexSubscribeRequest(nonTradeArgs);
         }

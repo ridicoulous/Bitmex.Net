@@ -215,5 +215,9 @@ namespace Bitmex.Net.Client
             return await Task.WhenAll(tasks);
         }
 
+        public async Task UnsubscribeAsync(IEnumerable<UpdateSubscription> subscriptions)
+        {
+            await Task.WhenAll(subscriptions.Select(sub => UnsubscribeAsync(sub)));
+        }
     }
 }
