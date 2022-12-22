@@ -7,6 +7,8 @@ namespace Bitmex.Net.Client.Interfaces
 {
     public interface IBitmexSocketClient
     {
-        BitmexSocketStream SocketStreams { get; }
+        BitmexSocketStream MainSocketStreams { get; }
+        BitmexSocketStream NonTradeSocketStreams { get; }
+
     }
 }

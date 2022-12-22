@@ -77,26 +77,32 @@ namespace Bitmex.Net.ClientExample
             // subscribe to testnet.bitmex.com's Order, 1h klines using appconfig.json credentials
             using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
             {
-                LogLevel = LogLevel.Debug,
+                LogLevel = LogLevel.Trace,
             }))
             {
-                var stream = socket.SocketStreams;
-                // each subscription method has corresponding BitmexSocketStream event triggered on updates
+                // each subscription method has corresponding BitmexSocketClient event triggered on updates
                 // e.g. Order => OnUserOrdersUpdate, TradeBin1h => OnOneHourTradeBinUpdate, Trade => OnTradeUpdate and so on
-                stream.OnUserOrdersUpdate += Socket_OnUserOrdersUpdate; //add action that should be do on orders updates
-                stream.OnOneHourTradeBinUpdate += (data) => {         //add action that should be do on new candle comes
+                socket.OnUserOrdersUpdate += Socket_OnUserOrdersUpdate; //add action that should be do on orders updates
+                socket.OnOneHourTradeBinUpdate += (data) => {         //add action that should be do on new candle comes
                     var whichCandle = data.Action == BitmexAction.Partial ? "snapshot" : "new";
                     foreach(var candle in data.Data)
                     Console.WriteLine($"{whichCandle} candle come: open {candle.Open}, high {candle.High}, low {candle.Low}, close: {candle.Close}");
                 };
-                var res = await stream.SubscribeAsync(new BitmexSubscribeRequest()
-                 .AddSubscription(BitmexSubscribtions.Order, "XBTUSD")  // subscribe to orders updates
-                 .AddSubscription(BitmexSubscribtions.TradeBin1h, "XBTUSD") // subscribe to candle updates
+                var listOfSubscriptionsResults = await socket.SubscribeAsync(new BitmexSubscribeRequest()
+                    .AddSubscription(BitmexSubscribtions.Order, "XBTUSD")  // subscribe to orders updates
+                    .AddSubscription(BitmexSubscribtions.TradeBin1h, "XBTUSD") // subscribe to candle updates
+                    // next two subscriptions requires different endpoint, but it's ok, everything handles under the hood.
+                    // That's why socket.SubscribeAsync() method returns a collection of the CallResult<UpdateSubscription> object
+                    .AddSubscription(BitmexSubscribtions.Chat) // subscribe to chat updates
+                    .AddSubscription(BitmexSubscribtions.PublicNotifications) // subscribe to the notification
+
                 );
                 Console.ReadLine();
-                // you can unsubscribe from any subscriptions
-                await socket.UnsubscribeAsync(res.Data);
+                
+                // you can unsubscribe from this subscriptions
+                await socket.UnsubscribeAsync(listOfSubscriptionsResults.Select(cb => cb.Data));
                 Console.ReadLine();
+
                 // or from all ones
                 await socket.UnsubscribeAllAsync();
                 Console.ReadLine();

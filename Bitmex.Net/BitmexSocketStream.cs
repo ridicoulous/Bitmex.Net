@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace Bitmex.Net.Client
 {
-    public class BitmexSocketStream : SocketApiClient, IBitmexSocketStream
+    public class BitmexSocketStream : SocketApiClient
     {
         private static readonly Dictionary<string, BitmexInstrumentIndexWithTick> instrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
         private static readonly SemaphoreSlim instumentGetWaiter = new(1,1);
