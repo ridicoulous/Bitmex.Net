@@ -38,17 +38,8 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("lastPx")]
         public decimal? LastPx { get; set; }
 
-        [JsonProperty("underlyingLastPx")]
-        public decimal? UnderlyingLastPx { get; set; }
-
-        [JsonProperty("lastMkt")]
-        public string LastMkt { get; set; }
-
         [JsonProperty("lastLiquidityInd")]
         public string LastLiquidityInd { get; set; }
-
-        [JsonProperty("simpleOrderQty")]
-        public decimal? SimpleOrderQty { get; set; }
 
         [JsonProperty("orderQty")]
         public decimal? OrderQty { get; set; }
@@ -89,9 +80,6 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("contingencyType")]
         public string ContingencyType { get; set; }
 
-        [JsonProperty("exDestination")]
-        public string ExDestination { get; set; }
-
         [JsonProperty("ordStatus")]
         public string OrdStatus { get; set; }
 
@@ -104,14 +92,8 @@ namespace    Bitmex.Net.Client.Objects
         [JsonProperty("ordRejReason")]
         public string OrdRejReason { get; set; }
 
-        [JsonProperty("simpleLeavesQty")]
-        public decimal? SimpleLeavesQty { get; set; }
-
         [JsonProperty("leavesQty")]
         public decimal? LeavesQty { get; set; }
-
-        [JsonProperty("simpleCumQty")]
-        public decimal? SimpleCumQty { get; set; }
 
         [JsonProperty("cumQty")]
         public decimal? CumQty { get; set; }
@@ -124,9 +106,6 @@ namespace    Bitmex.Net.Client.Objects
 
         [JsonProperty("tradePublishIndicator")]
         public string TradePublishIndicator { get; set; }
-
-        [JsonProperty("multiLegReportingType")]
-        public string MultiLegReportingType { get; set; }
 
         [JsonProperty("text")]
         public string Text { get; set; }
