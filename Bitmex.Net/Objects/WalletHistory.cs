@@ -50,6 +50,6 @@ namespace Bitmex.Net.Client.Objects
         public decimal MarginBalanceInBtc => MarginBalance ?? 0 / 10e7m;
 
         [JsonProperty("timestamp")]
-        public DateTime Timestamp { get; set; }
+        public DateTime? Timestamp { get; set; }
     }
 }

@@ -24,9 +24,7 @@ namespace Bitmex.Net.Client
         /// <param name="key"></param>
         /// <param name="secret"></param>
         /// <param name="isTestnet"></param>
-        /// <param name=""></param>
         /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
-        /// <param name="useMultiplexing"></param>
         public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false, bool loadInstrumentIndexes = true) : this(isTestnet, loadInstrumentIndexes)
         {
             key.ValidateNotNull(nameof(key));
@@ -38,7 +36,6 @@ namespace Bitmex.Net.Client
         /// 
         /// </summary>
         /// <param name="isTestnet"></param>
-        /// <param name="useMultiplexing"></param>
         /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
         public BitmexSocketClientOptions(bool isTestnet, bool loadInstrumentIndexes=true, SocketApiClientOptions commonStreamsOptions = null) : base()
         {
