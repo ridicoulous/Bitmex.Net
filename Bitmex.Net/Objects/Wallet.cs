@@ -11,38 +11,6 @@ namespace Bitmex.Net.Client.Objects
 
         public string Currency { get; set; }
 
-        [JsonProperty("prevDeposited")]
-        public decimal PrevDeposited { get; set; }
-
-        [JsonProperty("prevWithdrawn")]
-        public decimal PrevWithdrawn { get; set; }
-
-        [JsonProperty("prevTransferIn")]
-        public decimal PrevTransferIn { get; set; }
-
-        [JsonProperty("prevTransferOut")]
-        public decimal PrevTransferOut { get; set; }
-
-        [JsonProperty("prevAmount")]
-        public decimal PrevAmount { get; set; }
-
-        [JsonProperty("prevTimestamp")]
-        public System.DateTime? PrevTimestamp { get; set; }
-
-        [JsonProperty("deltaDeposited")]
-        public decimal DeltaDeposited { get; set; }
-
-        [JsonProperty("deltaWithdrawn")]
-        public decimal DeltaWithdrawn { get; set; }
-
-        [JsonProperty("deltaTransferIn")]
-        public decimal DeltaTransferIn { get; set; }
-
-        [JsonProperty("deltaTransferOut")]
-        public decimal DeltaTransferOut { get; set; }
-
-        [JsonProperty("deltaAmount")]
-        public decimal DeltaAmount { get; set; }
 
         [JsonProperty("deposited")]
         public decimal Deposited { get; set; }

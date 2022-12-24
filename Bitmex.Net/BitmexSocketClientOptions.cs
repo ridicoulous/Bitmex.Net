@@ -58,13 +58,21 @@ namespace Bitmex.Net.Client
         public static BitmexSocketClientOptions Default { get; set; } = new BitmexSocketClientOptions()
         {
         };
-        public SocketApiClientOptions CommonStreamsOptions { get;}
+        public SocketApiClientOptions CommonStreamsOptions { get; private set; }
         public bool IsTestnet { get; private set; }
 
 
         public BitmexSocketClientOptions Copy()
         {
             return new BitmexSocketClientOptions(this);
+        }
+
+        internal BitmexSocketClientOptions CopyWithNonTradeSocketEndpoint()
+        {
+            return new BitmexSocketClientOptions(this)
+            {
+                CommonStreamsOptions = new(this.CommonStreamsOptions, new($"{this.CommonStreamsOptions.BaseAddress}Platform"))
+            };
         }
 
     }

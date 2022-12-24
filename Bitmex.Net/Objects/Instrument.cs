@@ -36,27 +36,6 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("relistInterval")]
         public System.DateTime? RelistInterval { get; set; }
 
-        [JsonProperty("inverseLeg")]
-        public string InverseLeg { get; set; }
-
-        [JsonProperty("sellLeg")]
-        public string SellLeg { get; set; }
-
-        [JsonProperty("buyLeg")]
-        public string BuyLeg { get; set; }
-
-        [JsonProperty("optionStrikePcnt")]
-        public decimal? OptionStrikePcnt { get; set; }
-
-        [JsonProperty("optionStrikeRound")]
-        public decimal? OptionStrikeRound { get; set; }
-
-        [JsonProperty("optionStrikePrice")]
-        public decimal? OptionStrikePrice { get; set; }
-
-        [JsonProperty("optionMultiplier")]
-        public decimal? OptionMultiplier { get; set; }
-
         [JsonProperty("positionCurrency")]
         public string PositionCurrency { get; set; }
 
@@ -132,9 +111,6 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("limit")]
         public decimal? Limit { get; set; }
 
-        [JsonProperty("capped")]
-        public bool? Capped { get; set; }
-
         [JsonProperty("taxed")]
         public bool? Taxed { get; set; }
 
@@ -149,9 +125,6 @@ namespace Bitmex.Net.Client.Objects
 
         [JsonProperty("settlementFee")]
         public decimal? SettlementFee { get; set; }
-
-        [JsonProperty("insuranceFee")]
-        public decimal? InsuranceFee { get; set; }
 
         [JsonProperty("fundingBaseSymbol")]
         public string FundingBaseSymbol { get; set; }
@@ -180,15 +153,6 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("rebalanceInterval")]
         public System.DateTime? RebalanceInterval { get; set; }
 
-        [JsonProperty("openingTimestamp")]
-        public System.DateTime? OpeningTimestamp { get; set; }
-
-        [JsonProperty("closingTimestamp")]
-        public System.DateTime? ClosingTimestamp { get; set; }
-
-        [JsonProperty("sessionInterval")]
-        public System.DateTime? SessionInterval { get; set; }
-
         [JsonProperty("prevClosePrice")]
         public decimal? PrevClosePrice { get; set; }
 
@@ -197,15 +161,6 @@ namespace Bitmex.Net.Client.Objects
 
         [JsonProperty("limitUpPrice")]
         public decimal? LimitUpPrice { get; set; }
-
-        [JsonProperty("bankruptLimitDownPrice")]
-        public decimal? BankruptLimitDownPrice { get; set; }
-
-        [JsonProperty("bankruptLimitUpPrice")]
-        public decimal? BankruptLimitUpPrice { get; set; }
-
-        [JsonProperty("prevTotalVolume")]
-        public decimal? PrevTotalVolume { get; set; }
 
         [JsonProperty("totalVolume")]
         public decimal? TotalVolume { get; set; }
@@ -303,14 +258,8 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("markPrice")]
         public decimal? MarkPrice { get; set; }
 
-        [JsonProperty("indicativeTaxRate")]
-        public decimal? IndicativeTaxRate { get; set; }
-
         [JsonProperty("indicativeSettlePrice")]
         public decimal? IndicativeSettlePrice { get; set; }
-
-        [JsonProperty("optionUnderlyingPrice")]
-        public decimal? OptionUnderlyingPrice { get; set; }
 
         [JsonProperty("settledPrice")]
         public decimal? SettledPrice { get; set; }
