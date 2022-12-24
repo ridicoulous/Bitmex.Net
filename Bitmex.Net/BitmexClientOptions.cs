@@ -14,7 +14,7 @@ namespace Bitmex.Net.Client
         private const string ProductionEndpoint = "https://www.bitmex.com/api/v1";
         private const string TestNetEndpoint = "https://testnet.bitmex.com/api/v1";
 
-        public BitmexClientOptions(HttpClient client, string key, string secret, bool isTest = false) : this(new ApiCredentials(key, secret), isTest)
+        public BitmexClientOptions(HttpClient client, string key, string secret, bool isTest = false, bool outputOriginalData = false) : this(new ApiCredentials(key, secret), isTest, outputOriginalData)
         {
             CommonApiOptions.HttpClient = client;
         }
@@ -22,13 +22,13 @@ namespace Bitmex.Net.Client
         {
             CommonApiOptions.HttpClient = client;
         }
-        public BitmexClientOptions(string key, string secret, bool isTest = false) : this(new ApiCredentials(key, secret), isTest)
+        public BitmexClientOptions(string key, string secret, bool isTest = false, bool outputOriginalData = false) : this(new ApiCredentials(key, secret), isTest, outputOriginalData)
         {
         }
 
-        public BitmexClientOptions(bool isTest = false) : base()
+        public BitmexClientOptions(bool isTest = false, bool outputOriginalData = false) : base()
         {
-            CommonApiOptions = new(isTest ? TestNetEndpoint : ProductionEndpoint);
+            CommonApiOptions = new(isTest ? TestNetEndpoint : ProductionEndpoint) { OutputOriginalData = outputOriginalData };
             LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
         }
 
@@ -48,6 +48,12 @@ namespace Bitmex.Net.Client
             );
             CommonApiOptions.RateLimitingBehaviour = RateLimitingBehaviour.Wait;
         }
+
+        public BitmexClientOptions(ApiCredentials apiCredentials, bool isTest, bool outputOriginalData) : this(isTest, outputOriginalData)
+        {
+            ApiCredentials = apiCredentials;
+        }
+
         // for cloning this instance only
         private BitmexClientOptions(BitmexClientOptions baseOn) : base(baseOn)
         {
