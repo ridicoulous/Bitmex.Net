@@ -27,9 +27,6 @@ namespace Bitmex.Net.Client.Objects
         [JsonConverter(typeof(BitmexOrderSideConverter))]
         public BitmexOrderSide? Side { get; set; }
 
-        [JsonProperty("simpleOrderQty")]
-        public decimal? SimpleOrderQty { get; set; }
-
         [JsonProperty("orderQty")]
         public decimal? OrderQty { get; set; }
 
@@ -66,9 +63,6 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("contingencyType")]
         public string ContingencyType { get; set; }
 
-        [JsonProperty("exDestination")]
-        public string ExDestination { get; set; }
-
         [JsonProperty("ordStatus"), JsonConverter(typeof(BitmexOrderStatusConverter))]
         public BitmexOrderStatus? Status { get; set; }
 
@@ -81,23 +75,14 @@ namespace Bitmex.Net.Client.Objects
         [JsonProperty("ordRejReason")]
         public string OrdRejReason { get; set; }
 
-        [JsonProperty("simpleLeavesQty")]
-        public decimal? SimpleLeavesQty { get; set; }
-
         [JsonProperty("leavesQty")]
         public decimal? LeavesQty { get; set; }
-
-        [JsonProperty("simpleCumQty")]
-        public decimal? SimpleCumQty { get; set; }
 
         [JsonProperty("cumQty")]
         public decimal? CumQty { get; set; }
 
         [JsonProperty("avgPx")]
         public decimal? AvgPx { get; set; }
-
-        [JsonProperty("multiLegReportingType")]
-        public string MultiLegReportingType { get; set; }
 
         [JsonProperty("text")]
         public string Text { get; set; }

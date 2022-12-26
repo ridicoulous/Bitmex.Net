@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bitmex.Net.Client.Objects;
@@ -92,6 +90,8 @@ namespace Bitmex.Net.Client.Interfaces
         /// <returns></returns>
         Task<WebCallResult<object>> GetWebsokcetHelpAsync(CancellationToken ct = default);
         #endregion
-
+        #region Assets
+        public Task<WebCallResult<List<WalletAsset>>> GetWalletAssetsAsync(CancellationToken ct = default);
+        #endregion
     }
 }
