@@ -31,8 +31,6 @@ namespace Bitmex.Net
         private const string LeaderBoardByNameEndpoint = "leaderboard/name";
         private const string Schemandpoint = "schema";
         private const string SchemaWebsokcetHelpEndpoint = "schema/websocketHelp";
-        private const string WalletAssetsEndpoint = "wallet/assets";
-
         #endregion
 
         internal BitmexNonTradeFeatureClient(string name, BitmexClientOptions options, Log log, BitmexClient client) : base(name, options, log, client)
@@ -112,12 +110,6 @@ namespace Bitmex.Net
         public async Task<WebCallResult<object>> GetWebsokcetHelpAsync(CancellationToken ct = default)
         {
             return await SendRequestAsync<object>(SchemaWebsokcetHelpEndpoint, HttpMethod.Get, ct);
-        }
-        #endregion
-        #region Assets
-        public async Task<WebCallResult<List<WalletAsset>>> GetWalletAssetsAsync(CancellationToken ct = default)
-        {
-            return await SendRequestAsync<List<WalletAsset>>(WalletAssetsEndpoint, HttpMethod.Get, ct);
         }
         #endregion
 

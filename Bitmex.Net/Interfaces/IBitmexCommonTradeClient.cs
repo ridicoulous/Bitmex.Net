@@ -272,6 +272,14 @@ namespace Bitmex.Net.Client.Interfaces
         /// <param name="ct"></param>
         /// <returns></returns>
         Task<WebCallResult<List<Execution>>> GetUserExecutionHistoryAsync(BitmexRequestWithFilter requestWithFilter = null, CancellationToken ct = default);
+        #endregion 
+        #region Assets
+        /// <summary>
+        /// Get Assets Config
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        Task<WebCallResult<List<WalletAsset>>> GetWalletAssetsAsync(CancellationToken ct = default);
         #endregion
     }
 }
