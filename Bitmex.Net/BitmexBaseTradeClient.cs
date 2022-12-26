@@ -63,6 +63,7 @@ namespace Bitmex.Net
         private const string UserMarginEndpoint = "user/margin";
         private const string UserCommunicationTokenEndpoint = "user/communicationToken";
         private const string UserEventEndpoint = "userEvent";
+        private const string WalletAssetsEndpoint = "wallet/assets";
 
         #endregion
         protected BitmexBaseTradeClient(string name, BitmexClientOptions options, Log log, BitmexClient client) : base(name, options, log, client)
@@ -408,6 +409,13 @@ namespace Bitmex.Net
             var parameters = GetParameters();
             parameters.Add("currency", currency);
             return await SendRequestAsync<Margin>(UserMarginEndpoint, HttpMethod.Get, ct, parameters);
+        }
+        #endregion
+        #region Assets
+        ///<inheritdoc/>
+        public async Task<WebCallResult<List<WalletAsset>>> GetWalletAssetsAsync(CancellationToken ct = default)
+        {
+            return await SendRequestAsync<List<WalletAsset>>(WalletAssetsEndpoint, HttpMethod.Get, ct);
         }
         #endregion
 
