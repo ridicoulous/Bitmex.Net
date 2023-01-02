@@ -16,7 +16,7 @@ namespace Bitmex.Net.Client.Tests
 {
     public class BitmexClientIntegrationTests
     {
-        BitmexClient _client = new BitmexClient();
+        IBitmexMarginClient _client = new BitmexClient().MarginClient;
 
         /*
         [Fact]
@@ -31,11 +31,11 @@ namespace Bitmex.Net.Client.Tests
         [Fact]
         public void ShouldReturnFourLastBuyTrades()
         {
-            var trades = _client.GetTrades(new BitmexRequestWithFilter()
+            var trades = _client.GetTradesAsync(new BitmexRequestWithFilter()
                 .WithSymbolFilter("XBTUSD")
                 .WithSideFilter(BitmexOrderSide.Buy)
                 .WithExactDateFilter(new DateTime(2019, 1, 1))
-                .WithResultsCount(4));
+                .WithResultsCount(4)).Result;
             Assert.True(trades);
             Assert.True(trades.Data.Count == 4);
             Assert.True(trades.Data.All(c => c.Side == BitmexOrderSide.Buy && c.Symbol == "XBTUSD"));
@@ -43,10 +43,10 @@ namespace Bitmex.Net.Client.Tests
         [Fact]
         public void ShouldReturnFourLastTradeBins()
         {
-            var tradeBuckets = _client.GetTradesBucketed("1m", true, new BitmexRequestWithFilter()
+            var tradeBuckets = _client.GetTradesBucketedAsync("1m", true, new BitmexRequestWithFilter()
                 .WithSymbolFilter("XBTUSD")
                 .WithNewestFirst()
-                .WithResultsCount(402));
+                .WithResultsCount(402)).Result;
             Assert.True(tradeBuckets);
             Assert.True(tradeBuckets.Data.Count == 402);
             Assert.True(tradeBuckets.Data.All(c => c.Symbol == "XBTUSD"&&c.Close    >0));
@@ -76,9 +76,19 @@ namespace Bitmex.Net.Client.Tests
         [Fact]
         public void ShoulThrowError()
         {
-            var order = _client.PlaceOrder(new PlaceOrderRequest("745242") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 });
+            var order = _client.PlaceOrderAsync(new PlaceOrderRequest("745242") { BitmexOrderType = BitmexOrderType.Limit, Price = 22000, Side = BitmexOrderSide.Sell, Quantity = 10 }).Result;
             Assert.False(order);
             Assert.NotNull(order.Error);
+        }
+        [Fact]
+        public void IndexOfXBTUSDShouldBe88()
+        {
+            string pair = "XBTUSD";
+            int expectedIndex = 88;
+
+            var socketClient = new BitmexSocketClient();
+
+            Assert.True(socketClient.MainSocketStreams.GetIndexAndTickForInstrument(pair).Index == expectedIndex);
         }
     }
 }
