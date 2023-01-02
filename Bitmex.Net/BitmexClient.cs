@@ -18,6 +18,9 @@ namespace Bitmex.Net
     {
         private const string ExchangeName = "Bitmex";
 
+        public BitmexClient() : this(BitmexClientOptions.Default)
+        {
+        }
         public BitmexClient(BitmexClientOptions options) : this(ExchangeName, options)
         {
         }
