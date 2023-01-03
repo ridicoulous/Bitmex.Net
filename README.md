@@ -102,24 +102,41 @@ Other CryptoExchange.Net implementations:
 </table>
 
 ## Changelog
-* 10/27/2021
+* 2.0.1
+  * updated documentation
+* 2.0.0
+  * updated to CryptoExchange.Net v5.3.1. See [examples here](https://github.com/ridicoulous/Bitmex.Net/blob/master/Bitmex.Net.ClientExample/Program.cs) how to use BitmexClient. 
+  * removed some unused fields due to bitmex.com updates
+  * nontrade socket subscriptions on different endpoint (due to bitmex.com updates)
+  * ratelimiter by default:
+    * 30/min for unsigned requests
+    * 120/min for signed ones
+    * 10/1s (in addition to 120/min) for orders requests
+  * fixed resubscribing SymbolOrderBook
+  * position: renamed RealisedPnl=> RealisedPnlAfterRebalancing. RealisedPnl is a result of calculation now
+  * renamed models Order=>BitmexOrder and so on, to avoid conflict with base lib naming
+  * revert=true by default! Be careful, by default, requests return the latest values first
+  * added a few new requesting methods
+  * removed sync version of requesting methods
+* v1.6.1
   * ws endpoint update, bulk orders changes
-* 10/14/2021 
+* v1.6.0 
   * fix user wallet history deserialization error
-* 10/1/2021
+* v1.5.2
   * base library major update, bulk orders cancelling fixes
-* 1/28/2021
+* v1.4.8
   * dependencies update
-* 1/26/2021 
+* v1.4.7 
   * added milliseconds accuracy to start/end time filters
+* v1.4.6
   * added auth in not auth methods for better rate limits
+* v1.4.6
   * fix boolean values serialization
-
-* 1/18/2021 
+* v1.4.4
   * Wallet history fix
+* v1.4.3
   * Fix typo at Get all price indices endpoint
-  
-* 1/11/2021 
+* v1.4.2 
   * base library update
 
 ## Donations
