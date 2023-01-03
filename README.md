@@ -109,14 +109,15 @@ Other CryptoExchange.Net implementations:
   * removed some unused fields due to bitmex.com updates
   * nontrade socket subscriptions on different endpoint (due to bitmex.com updates)
   * ratelimiter by default:
-      30/min for unsigned requests
-      120/min for signed ones
-      10/1s (in addition to 120/min) for orders requests
+    * 30/min for unsigned requests
+    * 120/min for signed ones
+    * 10/1s (in addition to 120/min) for orders requests
   * fixed resubscribing SymbolOrderBook
   * position: renamed RealisedPnl=> RealisedPnlAfterRebalancing. RealisedPnl is a result of calculation now
   * renamed models Order=>BitmexOrder and so on, to avoid conflict with base lib naming
   * revert=true by default! Be careful, by default, requests return the latest values first
-  * added a few new requests
+  * added a few new requesting methods
+  * removed sync version of requesting methods
 * v1.6.1
   * ws endpoint update, bulk orders changes
 * v1.6.0 
