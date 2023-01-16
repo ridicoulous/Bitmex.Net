@@ -32,7 +32,7 @@ namespace Bitmex.Net.Client
             LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
         }
 
-        public BitmexClientOptions(ApiCredentials apiCredentials, bool isTest) : this(isTest)
+        public BitmexClientOptions(ApiCredentials apiCredentials, bool isTest, bool outputOriginalData = false) : this(isTest, outputOriginalData)
         {
             ApiCredentials = apiCredentials;
             CommonApiOptions.RateLimiters.Add(
@@ -47,11 +47,6 @@ namespace Bitmex.Net.Client
                     TimeSpan.FromSeconds(1))
             );
             CommonApiOptions.RateLimitingBehaviour = RateLimitingBehaviour.Wait;
-        }
-
-        public BitmexClientOptions(ApiCredentials apiCredentials, bool isTest, bool outputOriginalData) : this(isTest, outputOriginalData)
-        {
-            ApiCredentials = apiCredentials;
         }
 
         // for cloning this instance only
