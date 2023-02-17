@@ -18,7 +18,6 @@ namespace Bitmex.Net
 {
     public abstract class BitmexBaseClient : RestApiClient
     {
-        internal static TimeSyncState TimeSyncState = new TimeSyncState(String.Empty);
         protected readonly BitmexClient baseClient;
         protected readonly Log log;
         protected BitmexBaseClient(string name, BitmexClientOptions options, CryptoExchange.Net.Logging.Log log, BitmexClient client) : base(log,options, options.CommonApiOptions)
@@ -74,16 +73,10 @@ namespace Bitmex.Net
         }
 
         #region RestApiClient methods
-        public override TimeSpan GetTimeOffset() => TimeSpan.Zero;
+        public override TimeSpan? GetTimeOffset() => null;
 
         /// <inheritdoc />
-        public override TimeSyncInfo GetTimeSyncInfo() => new TimeSyncInfo(log, false, TimeSpan.MaxValue, TimeSyncState);
-
-        protected override Task<WebCallResult<DateTime>> GetServerTimestampAsync()
-        {
-            // it doesn't need to implement because we don't use time synchronization
-            throw new NotImplementedException();
-        }
+        public override TimeSyncInfo GetTimeSyncInfo() => null;
 
         protected override AuthenticationProvider CreateAuthenticationProvider(ApiCredentials credentials)
         {
