@@ -17,7 +17,6 @@ namespace Bitmex.Net.Client
         private static BitmexSocketOrderBookOptions defaultOrderBookOptions = new BitmexSocketOrderBookOptions("BitmexOrderBook");
         private readonly BitmexSocketStream _bitmexSocketStream;
         private bool usedNewSocketClient;
-        private readonly int InstrumentIndex;
         private readonly decimal InstrumentTickSize;
         private bool IsInititalBookSetted;
         private bool isTestnet;
@@ -62,16 +61,8 @@ namespace Bitmex.Net.Client
             usedNewSocketClient = bitmexSocketClient is null;
             var mainClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet){LogLevel = options.LogLevel});
             _bitmexSocketStream = (BitmexSocketStream)mainClient.MainSocketStreams;
-            InstrumentIndex = options.InstrumentIndex ?? _bitmexSocketStream.GetIndexAndTickForInstrument(symbol).Index;
-            if (symbol == "XBTUSD")
-            {   //this value is hardcoded
-                InstrumentTickSize = 0.01m;
-            }
-            else
-            {   
-                InstrumentTickSize = options.TickSize.HasValue ? options.TickSize.Value : _bitmexSocketStream.GetIndexAndTickForInstrument(symbol).TickSize;
-            }
         }
+
         protected override void Dispose(bool disposing)
         {
             // dispose client only created by this instance not shared socket client
@@ -144,10 +135,6 @@ namespace Bitmex.Net.Client
                     if (entries == null || !entries.Any())
                     {
                         return;
-                    }
-                    foreach (var e in entries)
-                    {                       
-                        e.SetPrice(InstrumentIndex, InstrumentTickSize);
                     }
                     UpdateOrderBook(LastId, NextId(), entries.Where(e => e.Side == OrderBookEntryType.Bid), entries.Where(e => e.Side == OrderBookEntryType.Ask));
                     LastAction = DateTime.UtcNow;

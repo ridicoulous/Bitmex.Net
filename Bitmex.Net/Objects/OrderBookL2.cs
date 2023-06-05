@@ -76,14 +76,8 @@ namespace Bitmex.Net.Client.Objects
         public decimal? Size { get; set; }
 
         [JsonProperty("price")]
-        public decimal? _price { get; set; }
+        public decimal Price { get; set; }
 
-        public decimal Price { get => _price ?? 0; set => _price = value; }
-
-        public void SetPrice(int instrumentIndex, decimal tickSize = 0.01m)
-        {           
-            Price = ((1e8m * instrumentIndex) - Id) * tickSize;
-        }
     }
 
 }

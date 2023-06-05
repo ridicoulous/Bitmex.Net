@@ -10,7 +10,6 @@ namespace Bitmex.Net.Client
     {
         private const string SocketEndpoint = "wss://ws.bitmex.com/realtime";
         private const string TestNetSocketEndpoint = "wss://ws.testnet.bitmex.com/realtime";
-        public readonly bool LoadInstruments;
         public bool SendPingManually = false;
 
         
@@ -24,7 +23,7 @@ namespace Bitmex.Net.Client
         /// <param name="key"></param>
         /// <param name="secret"></param>
         /// <param name="isTestnet"></param>
-        /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
+        /// <param name="loadInstrumentIndexes">now is obsolete and not used anymore, left for compatibility</param>
         public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false, bool loadInstrumentIndexes = true) : this(isTestnet, loadInstrumentIndexes)
         {
             key.ValidateNotNull(nameof(key));
@@ -36,18 +35,16 @@ namespace Bitmex.Net.Client
         /// 
         /// </summary>
         /// <param name="isTestnet"></param>
-        /// <param name="loadInstrumentIndexes">If you will subscribe to orderbook, set it to true, cause instrument index and tick size will be used for price calculation</param>
+        /// <param name="loadInstrumentIndexes">now is obsolete and not used anymore, left for compatibility</param>
         public BitmexSocketClientOptions(bool isTestnet, bool loadInstrumentIndexes=true, SocketApiClientOptions commonStreamsOptions = null) : base()
         {
             CommonStreamsOptions = commonStreamsOptions ?? new SocketApiClientOptions(isTestnet ? TestNetSocketEndpoint : SocketEndpoint);
-            LoadInstruments = loadInstrumentIndexes;
             IsTestnet = isTestnet;
         }
 
         private BitmexSocketClientOptions(BitmexSocketClientOptions baseOn) : base(baseOn)
         {
             IsTestnet = baseOn.IsTestnet;
-            LoadInstruments = baseOn.LoadInstruments;
             SendPingManually = baseOn.SendPingManually;
             CommonStreamsOptions = baseOn.CommonStreamsOptions;
         }
