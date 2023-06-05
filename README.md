@@ -102,6 +102,10 @@ Other CryptoExchange.Net implementations:
 </table>
 
 ## Changelog
+* 2.0.3
+  * updated to CryptoExchange.Net v5.4.3
+* 2.0.2
+  * fixed setting up rate limiter
 * 2.0.1
   * updated documentation
 * 2.0.0
