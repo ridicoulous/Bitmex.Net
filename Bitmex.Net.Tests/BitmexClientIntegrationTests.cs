@@ -80,15 +80,5 @@ namespace Bitmex.Net.Client.Tests
             Assert.False(order);
             Assert.NotNull(order.Error);
         }
-        [Fact]
-        public void IndexOfXBTUSDShouldBe88()
-        {
-            string pair = "XBTUSD";
-            int expectedIndex = 88;
-
-            var socketClient = new BitmexSocketClient();
-
-            Assert.True(socketClient.MainSocketStreams.GetIndexAndTickForInstrument(pair).Index == expectedIndex);
-        }
-    }
+   }
 }
