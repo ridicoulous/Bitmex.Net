@@ -1,7 +1,4 @@
-﻿using CryptoExchange.Net.Objects;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CryptoExchange.Net.Objects.Options;
 
 namespace Bitmex.Net.Client
 {
@@ -15,10 +12,6 @@ namespace Bitmex.Net.Client
         /// This value is used for price calculation by orderbook entry id. Set  it carefully
         /// </summary>
         public readonly decimal? TickSize;
-        /// <summary>
-        /// This value is used for price calculation by orderbook entry id. Set it carefully. 
-        /// </summary>
-        public readonly int? InstrumentIndex;
 
         /// <summary>
         /// 
@@ -34,12 +27,10 @@ namespace Bitmex.Net.Client
         /// these instruments, you must use their original tick as part of your calculations. If not, this can be ignored,
         /// and you can use `instrument.tickSize` directly. For example, XBTUSD has 88 index and tick size returned by api =0.5, but to calculate price at orderbookL2 update you should use 0.01. this value is hardcoded
         /// </param>
-        /// <param name="instrumentIndex">Used for price calculation. <see href="https://www.bitmex.com/app/restAPI#OrderBookL2">Bitmex docs</see></param>
-        public BitmexSocketOrderBookOptions(string name, bool isTest = false,  int? instrumentIndex=null, decimal? tickSize = null) : base()
+        public BitmexSocketOrderBookOptions(bool isTest = false, decimal? tickSize = null) : base()
         {
             IsTestnet = isTest;          
             TickSize = tickSize;
-            InstrumentIndex = instrumentIndex;    
         }
     }
 }

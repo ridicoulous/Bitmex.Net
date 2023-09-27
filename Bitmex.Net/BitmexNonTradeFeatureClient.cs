@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,10 +7,8 @@ using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
-using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.CommonObjects;
-using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Bitmex.Net
@@ -33,7 +29,8 @@ namespace Bitmex.Net
         private const string SchemaWebsokcetHelpEndpoint = "schema/websocketHelp";
         #endregion
 
-        internal BitmexNonTradeFeatureClient(string name, BitmexClientOptions options, Log log, BitmexClient client) : base(name, options, log, client)
+        internal BitmexNonTradeFeatureClient(ILogger logger, HttpClient httpClient, BitmexRestOptions opt)
+        : base(logger, httpClient, opt)
         {
         }
 

@@ -1,19 +1,15 @@
 ﻿using CryptoExchange.Net;
-using CryptoExchange.Net.Objects;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using CryptoExchange.Net.Objects.Options;
 
 namespace Bitmex.Net.Client
-{    
-    public class BitmexSocketClientOptions : ClientOptions
+{
+    public class BitmexSocketClientOptions : SocketApiOptions
     {
         private const string SocketEndpoint = "wss://ws.bitmex.com/realtime";
         private const string TestNetSocketEndpoint = "wss://ws.testnet.bitmex.com/realtime";
         public bool SendPingManually = false;
 
-        
-        public BitmexSocketClientOptions() : this(false, true)
+        public BitmexSocketClientOptions() : this(false)
         {
         }
 
@@ -23,8 +19,7 @@ namespace Bitmex.Net.Client
         /// <param name="key"></param>
         /// <param name="secret"></param>
         /// <param name="isTestnet"></param>
-        /// <param name="loadInstrumentIndexes">now is obsolete and not used anymore, left for compatibility</param>
-        public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false, bool loadInstrumentIndexes = true) : this(isTestnet, loadInstrumentIndexes)
+        public BitmexSocketClientOptions(string key, string secret, bool isTestnet = false) : this(isTestnet)
         {
             key.ValidateNotNull(nameof(key));
             secret.ValidateNotNull(nameof(secret));
@@ -35,42 +30,32 @@ namespace Bitmex.Net.Client
         /// 
         /// </summary>
         /// <param name="isTestnet"></param>
-        /// <param name="loadInstrumentIndexes">now is obsolete and not used anymore, left for compatibility</param>
-        public BitmexSocketClientOptions(bool isTestnet, bool loadInstrumentIndexes=true, SocketApiClientOptions commonStreamsOptions = null) : base()
+        public BitmexSocketClientOptions(bool isTestnet, SocketExchangeOptions commonStreamsOptions = null) : base()
         {
-            CommonStreamsOptions = commonStreamsOptions ?? new SocketApiClientOptions(isTestnet ? TestNetSocketEndpoint : SocketEndpoint);
+            CommonStreamsOptions = commonStreamsOptions ?? new();
             IsTestnet = isTestnet;
-        }
-
-        private BitmexSocketClientOptions(BitmexSocketClientOptions baseOn) : base(baseOn)
-        {
-            IsTestnet = baseOn.IsTestnet;
-            SendPingManually = baseOn.SendPingManually;
-            CommonStreamsOptions = baseOn.CommonStreamsOptions;
         }
 
         /// <summary>
         /// Default options
         /// </summary>
-        public static BitmexSocketClientOptions Default { get; set; } = new BitmexSocketClientOptions()
-        {
-        };
-        public SocketApiClientOptions CommonStreamsOptions { get; private set; }
+        public static BitmexSocketClientOptions Default { get; set; } = new BitmexSocketClientOptions();
+        public SocketExchangeOptions CommonStreamsOptions { get; private set; }
         public bool IsTestnet { get; private set; }
+        internal virtual string BaseAddress => IsTestnet ? TestNetSocketEndpoint : SocketEndpoint;
 
-
-        public BitmexSocketClientOptions Copy()
+        public BitmexSocketClientOptions Copy() => Copy<BitmexSocketClientOptions>();
+        public new BitmexSocketClientOptions Copy<T>()
         {
-            return new BitmexSocketClientOptions(this);
+            var newOpt = base.Copy<BitmexSocketClientOptions>();
+            newOpt.IsTestnet = IsTestnet;
+            newOpt.SendPingManually = SendPingManually;
+            newOpt.CommonStreamsOptions = CommonStreamsOptions;
+            return newOpt;
         }
-
-        internal BitmexSocketClientOptions CopyWithNonTradeSocketEndpoint()
-        {
-            return new BitmexSocketClientOptions(this)
-            {
-                CommonStreamsOptions = new(this.CommonStreamsOptions, new($"{this.CommonStreamsOptions.BaseAddress}Platform"))
-            };
-        }
-
+    }
+    internal class BitmexNonTradeSocketClientOptions :BitmexSocketClientOptions
+    {
+        internal override string BaseAddress => $"{base.BaseAddress}Platform";
     }
 }

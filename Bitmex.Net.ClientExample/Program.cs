@@ -10,18 +10,9 @@ using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects;
 
 using Bitmex.Net.Client.HistoricalData;
-using System.Collections.Generic;
-using CryptoExchange.Net.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
-using Polly.Extensions.Http;
-using Polly;
-using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using CryptoExchange.Net.Sockets;
 using Newtonsoft.Json;
-using CryptoExchange.Net.Authentication;
-using System.Threading;
 using CryptoExchange.Net.CommonObjects;
 using Bitmex.Net.Client.Objects.Requests;
 
@@ -37,7 +28,7 @@ namespace Bitmex.Net.ClientExample
         static async Task Main(string[] args)
         {
             // using CryptoExchange.Net.OrderBook.SymbolOrderBook, it subscribes to socket orderbook under the hood
-            var socketBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions("bitmex"){LogLevel = LogLevel.Trace});
+            var socketBook = new BitmexSymbolOrderBook("XBTUSD", new BitmexSocketOrderBookOptions());
             socketBook.OnBestOffersChanged += S_OnBestOffersChanged;
             await socketBook.StartAsync();
             Console.ReadLine();
@@ -49,7 +40,7 @@ namespace Bitmex.Net.ClientExample
             var configuration = builder.Build();
 
 
-            var client = new BitmexClient(new BitmexClientOptions(configuration["prod:key"], configuration["prod:secret"])).MarginClient;
+            var client = new BitmexClient(new BitmexRestOptions(configuration["prod:key"], configuration["prod:secret"])).MarginClient;
             // get last 100 public trades for XBTUSD
             var pubTrades = await client.GetTradesAsync(new BitmexRequestWithFilter(){Symbol = "XBTUSD"});
             // get last 100 your wallet changes
@@ -61,9 +52,9 @@ namespace Bitmex.Net.ClientExample
             // get wallet with all currencies
             var wallet = await client.GetUserWalletAllCurrenciesAsync();
             // place order via CryptoExchange.Net.Interfaces.CommonClients.IFuturesClient interface implementation
-            var ordId = client.PlaceOrderAsync("XBTUSD", CommonOrderSide.Buy, CommonOrderType.Limit, 100, 10000);
+            var ordId = await client.PlaceOrderAsync("XBTUSD", CommonOrderSide.Buy, CommonOrderType.Limit, 100, 10000);
             // place order via IBitmexCommonTradeClient interface implementation
-            var ord = client.PlaceOrderAsync(new PlaceOrderRequest("XBTUSD")
+            var ord = await client.PlaceOrderAsync(new PlaceOrderRequest("XBTUSD")
                 { 
                     BitmexOrderType = BitmexOrderType.Limit,
                     Side = BitmexOrderSide.Buy,
@@ -75,10 +66,7 @@ namespace Bitmex.Net.ClientExample
             Console.ReadLine();
 
             // subscribe to testnet.bitmex.com's Order, 1h klines using appconfig.json credentials
-            using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)
-            {
-                LogLevel = LogLevel.Trace,
-            }))
+            using (var socket = new BitmexSocketClient(new BitmexSocketClientOptions(configuration["testnet:key"], configuration["testnet:secret"], isTestnet: true)))
             {
                 // each subscription method has corresponding BitmexSocketClient event triggered on updates
                 // e.g. Order => OnUserOrdersUpdate, TradeBin1h => OnOneHourTradeBinUpdate, Trade => OnTradeUpdate and so on
@@ -86,7 +74,7 @@ namespace Bitmex.Net.ClientExample
                 socket.OnOneHourTradeBinUpdate += (data) => {         //add action that should be do on new candle comes
                     var whichCandle = data.Action == BitmexAction.Partial ? "snapshot" : "new";
                     foreach(var candle in data.Data)
-                    Console.WriteLine($"{whichCandle} candle come: open {candle.Open}, high {candle.High}, low {candle.Low}, close: {candle.Close}");
+                        Console.WriteLine($"{whichCandle} candle come: open {candle.Open}, high {candle.High}, low {candle.Low}, close: {candle.Close}");
                 };
                 var listOfSubscriptionsResults = await socket.SubscribeAsync(new BitmexSubscribeRequest()
                     .AddSubscription(BitmexSubscribtions.Order, "XBTUSD")  // subscribe to orders updates
@@ -122,7 +110,7 @@ namespace Bitmex.Net.ClientExample
 
         private static void S_OnBestOffersChanged((CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry BestBid, CryptoExchange.Net.Interfaces.ISymbolOrderBookEntry BestAsk) obj)
         {
-            Console.WriteLine($"S_OnBestOffersChanged:{obj.BestAsk.Price}:{obj.BestBid.Price}");
+            Console.WriteLine($"S_OnBestOffersChanged: best ask is {obj.BestAsk.Price} {obj.BestAsk.Quantity} ; best bid is{obj.BestBid.Price} {obj.BestBid.Quantity} ");
         }
 
      

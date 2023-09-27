@@ -1,17 +1,11 @@
-﻿using Bitmex.Net.Client.Helpers.Extensions;
-using Bitmex.Net.Client.Interfaces;
+﻿using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
-using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.CommonObjects;
 using CryptoExchange.Net.Interfaces.CommonClients;
-using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -22,8 +16,8 @@ namespace Bitmex.Net.Client
 {
     public class BitmexMarginClient : BitmexBaseTradeClient, IBitmexMarginClient
     {
-        private static BitmexClientOptions defaultOptions = new BitmexClientOptions();
-        private static BitmexClientOptions DefaultOptions => defaultOptions.Copy();
+        private static readonly BitmexRestOptions defaultOptions = new();
+        private static BitmexRestOptions DefaultOptions => defaultOptions.Copy();
         #region Endpoints
 
         private const string LiquidationEndpoint = "liquidation";
@@ -36,7 +30,8 @@ namespace Bitmex.Net.Client
         private const string OrderClosePositionEndpoint = "order/closePosition";
         #endregion
 
-        internal BitmexMarginClient(string name, BitmexClientOptions options, Log log, BitmexClient client) : base(name, options, log, client)
+        internal BitmexMarginClient(ILogger logger, HttpClient httpClient, BitmexRestOptions opt)
+        : base(logger, httpClient, opt)
         {
         }
 

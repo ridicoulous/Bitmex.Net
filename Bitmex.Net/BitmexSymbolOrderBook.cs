@@ -14,7 +14,7 @@ namespace Bitmex.Net.Client
 {
     public class BitmexSymbolOrderBook : SymbolOrderBook
     {
-        private static BitmexSocketOrderBookOptions defaultOrderBookOptions = new BitmexSocketOrderBookOptions("BitmexOrderBook");
+        private static BitmexSocketOrderBookOptions defaultOrderBookOptions = new BitmexSocketOrderBookOptions();
         private readonly BitmexSocketStream _bitmexSocketStream;
         private bool usedNewSocketClient;
         private readonly decimal InstrumentTickSize;
@@ -45,22 +45,26 @@ namespace Bitmex.Net.Client
                 return lastId;
             }
         }
-        public BitmexSymbolOrderBook(string symbol, bool isTest = false) : this(symbol, defaultOrderBookOptions)
+
+        public BitmexSymbolOrderBook(string symbol, ILogger logger, bool isTest = false) : base(logger, $"Bitmex-{symbol}",  symbol)
         {
+            isTestnet = isTest;
+
         }
         /// <summary>
-        /// AttentioN! For price calculation at order book update you should use level id and and instrument index <see href=""/></see>
-        /// example, XBTUSD has 88 index and tick size returned by api =0.5, but to calculate price at orderbookL2 update you should use 0.01. this value is hardcoded
+        /// 
         /// </summary>
         /// <param name="symbol"></param>
         /// <param name="options"></param>
         /// <param name="bitmexSocketClient"></param>
-        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) : base("Bitmex", symbol, options)
+        public BitmexSymbolOrderBook(string symbol, BitmexSocketOrderBookOptions options, BitmexSocketClient bitmexSocketClient = null) 
+        : base(bitmexSocketClient?.MainSocketStreams?.Logger, $"Bitmex-{symbol}", symbol)
         {
+            Initialize(options);
             isTestnet = options.IsTestnet;
             usedNewSocketClient = bitmexSocketClient is null;
-            var mainClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet){LogLevel = options.LogLevel});
-            _bitmexSocketStream = (BitmexSocketStream)mainClient.MainSocketStreams;
+            var mainClient = bitmexSocketClient ?? new BitmexSocketClient(new BitmexSocketClientOptions(options.IsTestnet));
+            _bitmexSocketStream = mainClient.MainSocketStreams;
         }
 
         protected override void Dispose(bool disposing)
@@ -141,10 +145,10 @@ namespace Bitmex.Net.Client
                 }
                 else
                 {
-                    log.Write(LogLevel.Error, $"Orderbook was not updated cause not initiated");
-                    using (var client = new BitmexClient(new BitmexClientOptions(isTestnet)))
+                    _logger.Log(LogLevel.Error, $"Orderbook was not updated cause not initiated");
+                    using (var client = new BitmexClient(new BitmexRestOptions(isTestnet)))
                     {
-                        log.Write(LogLevel.Debug, $"Setting orderdbook through api");
+                        _logger.Log(LogLevel.Debug, $"Setting orderdbook through api");
 
                         var ob = client.MarginClient.GetOrderBookAsync(Symbol, 0).GetAwaiter().GetResult();
                         if (ob)
@@ -157,7 +161,7 @@ namespace Bitmex.Net.Client
             }
             catch (Exception ex)
             {
-                log.Write(LogLevel.Error, $"Orderbook was not updated {ex.ToString()}");
+                _logger.Log(LogLevel.Error, $"Orderbook was not updated {ex.ToString()}");
             }
         }
     }
