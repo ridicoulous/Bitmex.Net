@@ -21,9 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CryptoExchange.Net" Version="5.4.3" />
+    <PackageReference Include="CryptoExchange.Net" Version="6.1.4" />
     <PackageReference Include="CsvHelper" Version="27.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   
 

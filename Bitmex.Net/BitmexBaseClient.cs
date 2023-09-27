@@ -1,33 +1,27 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Bitmex.Net.Client;
 using Bitmex.Net.Client.Helpers.Extensions;
-using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Requests;
+using Bitmex.Net.Objects.Errors;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
-using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Bitmex.Net
 {
     public abstract class BitmexBaseClient : RestApiClient
     {
-        protected readonly BitmexClient baseClient;
-        protected readonly Log log;
-        protected BitmexBaseClient(string name, BitmexClientOptions options, CryptoExchange.Net.Logging.Log log, BitmexClient client) : base(log,options, options.CommonApiOptions)
+        protected BitmexBaseClient(ILogger logger, HttpClient? httpClient, BitmexRestOptions options)
+            : base(logger, httpClient, options.BaseAddress, options, options.CommonApiOptions)
         {
-            ExchangeName = name;
-            baseClient = client;
-            this.log = log;
         }
         
-        public string ExchangeName { get; }
         
         protected Uri GetUrl(string endpoint)
         {
@@ -82,12 +76,13 @@ namespace Bitmex.Net
         {
             return new BitmexAuthenticationProvider(credentials);
         }
-        protected override Error ParseErrorResponse(JToken error)
+
+        protected override Error ParseErrorResponse(int httpStatusCode, IEnumerable<KeyValuePair<string, IEnumerable<string>>> responseHeaders, string data)
         {
-            if (error["error"] != null)
+            var response = JsonConvert.DeserializeObject<BitmexErrorResponse>(data);
+            if (response.Error != null)
             {
-                var message = error["error"]?.ToString();// $"{(string)error["error"]["name"]}: {(string)error["error"]["message"]}";
-                return new BitmexError(42, message, error);
+                return new ServerError(httpStatusCode, response.Error?.Message, response);
             }
             return null;
         }

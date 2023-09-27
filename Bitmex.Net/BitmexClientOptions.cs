@@ -1,40 +1,65 @@
 ﻿using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
-using Microsoft.Extensions.Logging;
+using CryptoExchange.Net.Objects.Options;
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
 
 namespace Bitmex.Net.Client
 {
-    public class BitmexClientOptions : ClientOptions
+    public class BitmexRestOptions : RestExchangeOptions
     {
 
         private const string ProductionEndpoint = "https://www.bitmex.com/api/v1";
         private const string TestNetEndpoint = "https://testnet.bitmex.com/api/v1";
 
-        public BitmexClientOptions(HttpClient client, string key, string secret, bool isTest = false, bool outputOriginalData = false) : this(new ApiCredentials(key, secret), isTest, outputOriginalData)
+        readonly bool isTestnet = false;
+        public BitmexRestOptions(string key, string secret, bool isTest = false, bool outputOriginalData = false) : this(new ApiCredentials(key, secret), isTest, outputOriginalData)
         {
-            CommonApiOptions.HttpClient = client;
         }
-        public BitmexClientOptions(HttpClient client) : this(false)
+        public BitmexRestOptions() : this(null)
         {
-            CommonApiOptions.HttpClient = client;
         }
-        public BitmexClientOptions(string key, string secret, bool isTest = false, bool outputOriginalData = false) : this(new ApiCredentials(key, secret), isTest, outputOriginalData)
+        public BitmexRestOptions(bool isTest) : this(null, isTest)
         {
+        }
+        
+        private BitmexRestOptions(bool isTest, bool outputOriginalData) : base()
+        {
+            isTestnet = isTest;
+            CommonApiOptions = new() { OutputOriginalData = outputOriginalData };
         }
 
-        public BitmexClientOptions(bool isTest = false, bool outputOriginalData = false) : base()
-        {
-            CommonApiOptions = new(isTest ? TestNetEndpoint : ProductionEndpoint) { OutputOriginalData = outputOriginalData };
-            LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
-        }
-
-        public BitmexClientOptions(ApiCredentials apiCredentials, bool isTest, bool outputOriginalData = false) : this(isTest, outputOriginalData)
+        public BitmexRestOptions(ApiCredentials apiCredentials, bool isTest = false, bool outputOriginalData = false, RateLimitingBehaviour rateLimitingBehaviour = RateLimitingBehaviour.Wait) 
+        : this(isTest, outputOriginalData)
         {
             ApiCredentials = apiCredentials;
+            UpdateRateLimiters();
+            CommonApiOptions.RateLimitingBehaviour = rateLimitingBehaviour;
+        }
+
+          /// <summary>
+        /// Default options
+        /// </summary>
+        public static BitmexRestOptions Default { get; set; } = new BitmexRestOptions()
+        {
+        };
+
+        internal RestApiOptions CommonApiOptions { get; set; }
+        internal string BaseAddress => isTestnet ? TestNetEndpoint : ProductionEndpoint;
+        public void SetApiCredentials(ApiCredentials credentials)
+        {
+            ApiCredentials = credentials;
+            UpdateRateLimiters();
+        }
+        public BitmexRestOptions Copy()
+        {
+            var newOne = Copy<BitmexRestOptions>();
+            newOne.CommonApiOptions = CommonApiOptions;
+            return newOne;
+        }
+
+        private void UpdateRateLimiters()
+        {
+            CommonApiOptions.RateLimiters.Clear();
             CommonApiOptions.RateLimiters.Add(
                 new RateLimiter().AddTotalRateLimit(
                     ApiCredentials is null ? 30 : 120,
@@ -42,35 +67,10 @@ namespace Bitmex.Net.Client
             );
             CommonApiOptions.RateLimiters.Add(
                     new RateLimiter().AddEndpointLimit(
-                    BitmexMarginClient.GetEndPointsWithAdditionalRateLimiter(CommonApiOptions.BaseAddress),
+                    BitmexMarginClient.GetEndPointsWithAdditionalRateLimiter(BaseAddress),
                     10,
                     TimeSpan.FromSeconds(1))
             );
-            CommonApiOptions.RateLimitingBehaviour = RateLimitingBehaviour.Wait;
-        }
-
-        // for cloning this instance only
-        private BitmexClientOptions(BitmexClientOptions baseOn) : base(baseOn)
-        {
-            CommonApiOptions = baseOn.CommonApiOptions;
-        }
-
-        /// <summary>
-        /// Default options
-        /// </summary>
-        public static BitmexClientOptions Default { get; set; } = new BitmexClientOptions()
-        {
-        };
-
-        internal RestApiClientOptions CommonApiOptions { get; set; }
-
-        public void SetApiCredentials(ApiCredentials credentials)
-        {
-            ApiCredentials = credentials;
-        }
-        public BitmexClientOptions Copy()
-        {
-            return new BitmexClientOptions(this);
         }
     }
 }

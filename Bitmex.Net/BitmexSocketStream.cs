@@ -1,13 +1,9 @@
-﻿using Bitmex.Net.Client.Helpers.Extensions;
-using Bitmex.Net.Client.Interfaces;
-using Bitmex.Net.Client.Objects;
+﻿using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.Interfaces;
-using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
 using Microsoft.Extensions.Logging;
@@ -27,21 +23,15 @@ namespace Bitmex.Net.Client
 {
     public class BitmexSocketStream : SocketApiClient
     {
-        private static readonly Dictionary<string, BitmexInstrumentIndexWithTick> instrumentsIndexesAndTicks = new Dictionary<string, BitmexInstrumentIndexWithTick>();
         private static readonly SemaphoreSlim instumentGetWaiter = new(1,1);
         private static bool areInstrumentsLoaded;
         private readonly ConcurrentDictionary<string, BitmexSubscribeRequest> _sendedSubscriptions = new ConcurrentDictionary<string, BitmexSubscribeRequest>();
         private readonly List<UpdateSubscription> _subscriptions = new List<UpdateSubscription>();
-        protected Log log;
         protected BitmexSocketClient socketClient;
-        private readonly bool isTestnet;
         private object _locker = new object();
 
-        public BitmexSocketStream(Log log, BitmexSocketClient bitmexSocketClient, BitmexSocketClientOptions options) : base(log, options, options.CommonStreamsOptions)
+        internal BitmexSocketStream(ILogger logger, BitmexSocketClientOptions options) : base(logger, options.BaseAddress, options.CommonStreamsOptions, options)
         {
-            isTestnet = options.IsTestnet;
-            this.log = log;
-            this.socketClient = bitmexSocketClient;        
         }
 
         #region events
@@ -79,34 +69,8 @@ namespace Bitmex.Net.Client
 
         #endregion
 
-        // protected override IWebsocket CreateSocket(string address)
-        // {
-        //     Dictionary<string, string> emptyCoockies = new Dictionary<string, string>();
-        //     Dictionary<string, string> headers = new Dictionary<string, string>();
-        //     //if (authProvider != null)
-        //     //{
-        //     //    headers = this.authProvider.AddAuthenticationToHeaders("bitmex.com/realtime", HttpMethod.Get, null, true, PostParameters.InUri, ArrayParametersSerialization.MultipleValues);
-        //     //}
-        //     headers.Add("Accept-Encoding", "gzip, deflate, br");
-        //     headers.Add("Cache-Control", "no-cache");
-        //     headers.Add("Connection", "Upgrade");
-        //     headers.Add("Host", $"{(isTestnet ? "testnet" : "www")}.bitmex.com");
-        //     headers.Add("Origin", $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com");
-        //     headers.Add("Sec-WebSocket-Extensions", "");
-        //     headers.Add("Sec-WebSocket-Version", "13");
-        //     headers.Add("Upgrade", "websocket");
-        //     headers.Add("User-Agent", "https://github.com/ridicoulous/Bitmex.Net/");
-
-        //     var s = SocketFactory.CreateWebsocket(this.log, address, emptyCoockies, headers);
-        //     s.Origin = $"https://{(isTestnet ? "testnet" : "www")}.bitmex.com";
-        //     s.OnClose += S_OnClose;
-        //     s.OnError += S_OnError;
-        //     s.OnOpen += S_OnOpen;
-        //     return s;
-        // }
-
-
-
+        internal ILogger Logger => _logger;
+       
         public override async Task UnsubscribeAllAsync()
         {
             foreach (var c in this._subscriptions)
@@ -124,7 +88,7 @@ namespace Bitmex.Net.Client
             return await SubscribeAsync(new BitmexSubscribeRequest().AddSubscription(orderbookType, symbol), onData, ct);
         }
 
-        ResponseTableToDataTypeMapping Map = new ResponseTableToDataTypeMapping();
+        ResponseTableToDataTypeMapping Map = new();
 
         public async Task<CallResult<UpdateSubscription>> SubscribeAsync(BitmexSubscribeRequest bitmexSubscribeRequest, CancellationToken ct = default)
         {
@@ -154,7 +118,7 @@ namespace Bitmex.Net.Client
                     }
                     else
                     {
-                        log.Write(LogLevel.Warning, $"Unknown table [{table}] update catched at data {data}");
+                        _logger.Log(LogLevel.Warning, $"Unknown table [{table}] update catched at data {data}");
                         return;
                     }
                 }
@@ -168,7 +132,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnAnnouncementUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Chat:
@@ -177,7 +141,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnChatMessageUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Connected:
@@ -186,7 +150,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnChatConnectionUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Funding:
@@ -195,7 +159,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnFundingUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Instrument:
@@ -204,7 +168,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnInstrimentUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Insurance:
@@ -213,7 +177,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnInsuranceUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Liquidation:
@@ -222,7 +186,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnLiquidationUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.OrderBookL2_25:
@@ -233,7 +197,7 @@ namespace Bitmex.Net.Client
                                 OnOrderBookL2_25Update?.Invoke(result.Data);
                             }
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.OrderBookL2:
@@ -244,7 +208,7 @@ namespace Bitmex.Net.Client
                                 OnorderBookL2Update?.Invoke(result.Data);
                             }
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.OrderBook10:
@@ -253,7 +217,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnOrderBook10Update?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.PublicNotifications:
@@ -262,7 +226,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnGlobalNotificationUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Quote:
@@ -271,7 +235,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnQuotesUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.QuoteBin1m:
@@ -280,7 +244,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnOneMinuteQuoteBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.QuoteBin5m:
@@ -289,7 +253,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnFiveMinuteQuoteBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.QuoteBin1h:
@@ -298,7 +262,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnOneHourQuoteBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.QuoteBin1d:
@@ -307,7 +271,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnDailyQuoteBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Settlement:
@@ -316,7 +280,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnSettlementUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Trade:
@@ -325,7 +289,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnTradeUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.TradeBin1m:
@@ -334,7 +298,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnOneMinuteTradeBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.TradeBin5m:
@@ -343,7 +307,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnFiveMinuteTradeBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.TradeBin1h:
@@ -352,7 +316,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnOneHourTradeBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.TradeBin1d:
@@ -361,7 +325,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnDailyTradeBinUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Affiliate:
@@ -370,7 +334,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnUserAffiliatesUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Execution:
@@ -379,7 +343,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnUserExecutionsUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Order:
@@ -388,7 +352,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnUserOrdersUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Margin:
@@ -397,7 +361,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnUserMarginUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Position:
@@ -406,7 +370,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnUserPositionsUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Transact:
@@ -415,7 +379,7 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnUserTransactionsUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     case BitmexSubscribtions.Wallet:
@@ -424,12 +388,12 @@ namespace Bitmex.Net.Client
                             if (result.Success)
                                 OnUserWalletUpdate?.Invoke(result.Data);
                             else
-                                log.Write(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
+                                _logger.Log(LogLevel.Warning, "Couldn't deserialize data received from  stream: " + result.Error);
                             break;
                         }
                     default:
                         {
-                            log.Write(LogLevel.Warning, $"Catched inknown table update: {data}");
+                            _logger.Log(LogLevel.Warning, $"Catched inknown table update: {data}");
                             break;
                         }
                 }
@@ -444,11 +408,11 @@ namespace Bitmex.Net.Client
 
         private void OnUnsubscribe(BitmexSubscriptionResponse response)
         {
-            log.Write(LogLevel.Debug, $"Unsub: {JsonConvert.SerializeObject(response)}");
+            _logger.Log(LogLevel.Debug, $"Unsub: {JsonConvert.SerializeObject(response)}");
             if (!String.IsNullOrEmpty(response.Unsubscribe))
             {
                 // _sendedSubscriptions.TryRemove(response.Unsubscribe, out _);
-                log.Write(LogLevel.Warning, $"{response.Unsubscribe} topic from {JsonConvert.SerializeObject(response.Request)} subscription was unsubscribed");
+                _logger.Log(LogLevel.Warning, $"{response.Unsubscribe} topic from {JsonConvert.SerializeObject(response.Request)} subscription was unsubscribed");
             }
         }
 
@@ -468,13 +432,13 @@ namespace Bitmex.Net.Client
             bool isSuccess = false;
             ServerError serverError = null;
             var authRequest = new BitmexSubscribeRequest() { Op = BitmexWebSocketOperation.AuthKeyExpires };
-            var authParams = ((BitmexAuthenticationProvider)socketConnection.ApiClient.AuthenticationProvider);
+            var authParams = (BitmexAuthenticationProvider)socketConnection.ApiClient.AuthenticationProvider;
             // request = {"op": "authKeyExpires", "args": [API_KEY, expires, signature]}
             var expires = authParams.ApiExpires;
-            authRequest.Args.Add(authParams.Credentials.Key.GetString());
+            authRequest.Args.Add(ApiOptions.ApiCredentials.Key.GetString());
             authRequest.Args.Add(expires);
             authRequest.Args.Add(authParams.Sign(authParams.CreateAuthPayload(HttpMethod.Get, "/realtime", expires)));
-            await socketConnection.SendAndWaitAsync(authRequest, TimeSpan.FromSeconds(1), null, token =>
+            await socketConnection.SendAndWaitAsync(authRequest, TimeSpan.FromSeconds(1), null, 1, token =>
             {
                 if (String.IsNullOrEmpty(token.ToString()))
                 {
@@ -519,7 +483,7 @@ namespace Bitmex.Net.Client
             }
             if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
             {
-                log.Write(LogLevel.Debug, "skipping welcome message by request");
+                _logger.Log(LogLevel.Debug, "skipping welcome message by request");
                 return false;
             }
             if (message.Type == JTokenType.String && (string)message == "pong")
@@ -547,12 +511,12 @@ namespace Bitmex.Net.Client
             }
             if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
             {
-                log.Write(LogLevel.Trace, "skipping welcome message by request");
+                _logger.Log(LogLevel.Trace, "skipping welcome message by request");
                 return false;
             }
             if (message["error"]?.ToString()?.StartsWith("Not subscribed") == true)
             {
-                log.Write(LogLevel.Debug, "Seems we sent an unsubscribe request, but have already unsubscribed");
+                _logger.Log(LogLevel.Debug, "Seems we sent an unsubscribe request, but have already unsubscribed");
                 return false;
             }
             return true;
@@ -567,7 +531,7 @@ namespace Bitmex.Net.Client
             }
             if (message["info"] != null && ((string)message["info"]).StartsWith("Welcome"))
             {
-                log.Write(LogLevel.Debug, "skipping welcome message by id");
+                _logger.Log(LogLevel.Debug, "skipping welcome message by id");
                 return false;
             }
             return true;
@@ -577,16 +541,16 @@ namespace Bitmex.Net.Client
         {
             if (subscription.Request is BitmexSubscribeRequest subReq)
             {
-                var result = await QueryAndWaitAsync<BitmexSubscriptionResponse>(connection, subReq.CreateUnsubscribeRequest());
+                var result = await QueryAndWaitAsync<BitmexSubscriptionResponse>(connection, subReq.CreateUnsubscribeRequest(), 1);
                 if (result && result.Data.Success && result.Data.Request.Args.Contains(result.Data.Unsubscribe))
                 {
                     _sendedSubscriptions.TryRemove(result.Data.Unsubscribe, out _);
-                    log.Write(LogLevel.Trace, $"{JsonConvert.SerializeObject(subscription.Request)} subscription was unsubscribed");
+                    _logger.Log(LogLevel.Trace, $"{JsonConvert.SerializeObject(subscription.Request)} subscription was unsubscribed");
                     return true;
                 }
                 else
                 {
-                    log.Write(LogLevel.Debug, $"{JsonConvert.SerializeObject(subscription.Request)} subscription was not unsubscribed: {result.Error?.Message}");
+                    _logger.Log(LogLevel.Debug, $"{JsonConvert.SerializeObject(subscription.Request)} subscription was not unsubscribed: {result.Error?.Message}");
                 }
             }
             return false;
@@ -625,7 +589,7 @@ namespace Bitmex.Net.Client
                 }
                 if (toRemove.Any())
                 {
-                    log.Write(LogLevel.Warning, $"Not sending another subscribe request for topics: {String.Join(',', toRemove)}, cause it was already sended");
+                    _logger.Log(LogLevel.Warning, $"Not sending another subscribe request for topics: {String.Join(',', toRemove)}, cause it was already sended");
                     request.Args.RemoveAll(c => toRemove.Contains(c));
                 }
             }
@@ -641,7 +605,7 @@ namespace Bitmex.Net.Client
             CheckDoubleSendingRequest(request);
             if (!request.Args.Any())
             {
-                log.Write(LogLevel.Warning, $"Not sending empty request {JsonConvert.SerializeObject(request)}");
+                _logger.Log(LogLevel.Warning, $"Not sending empty request {JsonConvert.SerializeObject(request)}");
                 return new CallResult<UpdateSubscription>(new ServerError("Not sending empty request ", request));
             }
             request.Args.ValidateNotNull(nameof(request));
@@ -650,7 +614,7 @@ namespace Bitmex.Net.Client
             (
                 url,
                 request,
-                url + NextId(),
+                null,
                 authenticate,
                 onData,
                 ct).ConfigureAwait(false);

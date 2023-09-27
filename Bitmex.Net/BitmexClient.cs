@@ -10,6 +10,7 @@ using Bitmex.Net.Client.Objects;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Interfaces.CommonClients;
 using CryptoExchange.Net.Objects;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Bitmex.Net
@@ -18,18 +19,19 @@ namespace Bitmex.Net
     {
         private const string ExchangeName = "Bitmex";
 
-        public BitmexClient() : this(BitmexClientOptions.Default)
+        public BitmexClient() : this(BitmexRestOptions.Default)
         {
         }
-        public BitmexClient(BitmexClientOptions options) : this(ExchangeName, options)
+        // public BitmexClient(BitmexClientOptions options) : this(ExchangeName, options)
+        // {
+        // }
+        public BitmexClient(BitmexRestOptions options, ILoggerFactory loggerFactory = null, HttpClient httpClient = null ) : base(loggerFactory, ExchangeName)
         {
-        }
-        public BitmexClient(string name, BitmexClientOptions options) : base(name, options)
-        {
-            var opt = options ?? BitmexClientOptions.Default;
-            SpotClient = AddApiClient(new BitmexSpotClient(name, opt, log, this));
-            MarginClient = AddApiClient(new BitmexMarginClient(name, opt, log, this));
-            NonTradeFeatureClient = AddApiClient(new BitmexNonTradeFeatureClient(name, opt, log, this));
+            var opt = options ?? BitmexRestOptions.Default;
+            Initialize(opt);
+            SpotClient = AddApiClient(new BitmexSpotClient(_logger, httpClient, opt));
+            MarginClient = AddApiClient(new BitmexMarginClient(_logger, httpClient, opt));
+            NonTradeFeatureClient = AddApiClient(new BitmexNonTradeFeatureClient(_logger, httpClient, opt));
         }
 
         public IBitmexSpotClient SpotClient { get; }

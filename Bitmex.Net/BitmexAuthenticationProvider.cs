@@ -16,7 +16,7 @@ namespace Bitmex.Net.Client
     {
         private readonly int LifetimeSeconds;
 
-        private static readonly object nonceLock = new object();
+        private static readonly object nonceLock = new();
         private long lastNonce;
         public long ApiExpires
         {
@@ -64,7 +64,7 @@ namespace Bitmex.Net.Client
             }
             var dataToSign = CreateAuthPayload(method, uri.PathAndQuery, apiexpires, additionalData);
             var signedData = Sign(dataToSign);
-            headers.Add("api-key", Credentials.Key.GetString());
+            headers.Add("api-key", _credentials.Key.GetString());
             headers.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
             headers.Add("api-signature", signedData);
         }

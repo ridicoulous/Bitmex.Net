@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Socket;
-using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bitmex.Net.Client
 {
@@ -27,10 +21,11 @@ namespace Bitmex.Net.Client
         {
         }
 
-        public BitmexSocketClient(BitmexSocketClientOptions options) : base("Bitmex", options)
+        public BitmexSocketClient(BitmexSocketClientOptions options, ILoggerFactory logger = null) : base(logger, "Bitmex")
         {
-            MainSocketStreams = AddApiClient(new BitmexSocketStream(log, this, options));
-            NonTradeSocketStreams = AddApiClient(new BitmexSocketStream(log, this, options.CopyWithNonTradeSocketEndpoint()));
+            Initialize(options.CommonStreamsOptions);
+            MainSocketStreams = AddApiClient(new BitmexSocketStream(_logger, options));
+            NonTradeSocketStreams = AddApiClient(new BitmexSocketStream(_logger, options.Copy<BitmexNonTradeSocketClientOptions>()));
         }
         public BitmexSocketStream MainSocketStreams { get; set; }
         public BitmexSocketStream NonTradeSocketStreams { get; set; }

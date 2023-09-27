@@ -12,8 +12,8 @@ using Bitmex.Net.Client.Objects.Requests;
 using CryptoExchange.Net;
 using CryptoExchange.Net.CommonObjects;
 using CryptoExchange.Net.Interfaces.CommonClients;
-using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
+using CryptoExchange.Net.Objects.Options;
 using Microsoft.Extensions.Logging;
 
 namespace Bitmex.Net
@@ -65,13 +65,17 @@ namespace Bitmex.Net
         private const string UserEventEndpoint = "userEvent";
         private const string WalletAssetsEndpoint = "wallet/assets";
 
+
         #endregion
-        protected BitmexBaseTradeClient(string name, BitmexClientOptions options, Log log, BitmexClient client) : base(name, options, log, client)
+        protected BitmexBaseTradeClient(ILogger logger, HttpClient httpClient, BitmexRestOptions options)
+        : base(logger, httpClient, options)
         {
         }
 
         public event Action<OrderId> OnOrderPlaced;
         public event Action<OrderId> OnOrderCanceled;
+
+        public virtual string ExchangeName => "Kuna";
 
         #region Execution : Raw Order and Balance Data
 
@@ -198,7 +202,7 @@ namespace Bitmex.Net
                 {
                     if (!string.IsNullOrEmpty(o.Error))
                     {
-                        log.Write(LogLevel.Error, $"Order {o.Id} cancelling error: {o.Error}");
+                        _logger.Log(LogLevel.Error, $"Order {o.Id} cancelling error: {o.Error}");
                     }
                     else
                     {
@@ -235,7 +239,7 @@ namespace Bitmex.Net
         public async Task<WebCallResult<List<BitmexOrder>>> PlaceOrdersBulkAsync(List<PlaceOrderRequest> placeOrderRequests, CancellationToken ct = default)
         {
             placeOrderRequests.ValidateNotNull(nameof(placeOrderRequests));
-            List<Task<WebCallResult<BitmexOrder>>> results = new List<Task<WebCallResult<BitmexOrder>>>();
+            List<Task<WebCallResult<BitmexOrder>>> results = new();
             await Task.Run(() =>
             {
                 foreach (var req in placeOrderRequests)
@@ -253,7 +257,7 @@ namespace Bitmex.Net
         public async Task<WebCallResult<List<BitmexOrder>>> UpdateOrdersBulkAsync(List<UpdateOrderRequest> ordersToUpdate, CancellationToken ct = default)
         {
             ordersToUpdate.ValidateNotNull(nameof(ordersToUpdate));
-            List<Task<WebCallResult<BitmexOrder>>> results = new List<Task<WebCallResult<BitmexOrder>>>();
+            List<Task<WebCallResult<BitmexOrder>>> results = new();
             await Task.Run(() =>
             {
                 foreach (var req in ordersToUpdate)
@@ -263,7 +267,7 @@ namespace Bitmex.Net
             });
             foreach (var faulted in results.Where(t => t.Exception != null))
             {
-                log.Write(LogLevel.Error, faulted.Exception.Message);
+                _logger.Log(LogLevel.Error, faulted.Exception.Message);
             }
             return results.FirstOrDefault().Result.As<List<BitmexOrder>>(results.Select(x => x.Result.Data).ToList());
         }
@@ -272,8 +276,10 @@ namespace Bitmex.Net
         ///<inheritdoc/>
         public async Task<WebCallResult<object>> CancellAllAfterAsync(TimeSpan timeOut, CancellationToken ct = default)
         {
-            var parameters = new Dictionary<string, object>();
-            parameters.Add("timeOut", (long)timeOut.TotalMilliseconds);
+            var parameters = new Dictionary<string, object>
+            {
+                { "timeOut", (long)timeOut.TotalMilliseconds }
+            };
             return await SendRequestAsync<object>(OrderCancelAllAfterEndpoint, HttpMethod.Post, ct, parameters);
         }
 
