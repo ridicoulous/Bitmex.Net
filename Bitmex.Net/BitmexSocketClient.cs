@@ -7,6 +7,7 @@ using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects.Socket.Requests;
+using Bitmex.Net.Objects.Socket.Repsonses;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
@@ -192,6 +193,19 @@ namespace Bitmex.Net.Client
             {
                 MainSocketStreams.OnPongReceived -= value;
                 NonTradeSocketStreams.OnPongReceived -= value;
+            }
+        }
+        public event Action<BitmexSocketErrorResponse> OnSubscriptionError
+        {
+            add
+            { 
+                NonTradeSocketStreams.OnSubscriptionError += value;
+                MainSocketStreams.OnSubscriptionError += value;
+            }
+            remove
+            {
+                NonTradeSocketStreams.OnSubscriptionError -= value;
+                MainSocketStreams.OnSubscriptionError -= value;
             }
         }
         #endregion
