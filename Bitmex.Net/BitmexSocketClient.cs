@@ -47,13 +47,13 @@ namespace Bitmex.Net.Client
             add => NonTradeSocketStreams.OnGlobalNotificationUpdate += value;
             remove => NonTradeSocketStreams.OnGlobalNotificationUpdate -= value;
         }
-        #endregion NonTradeSocketStreams events
-        #region MainSocketStreams events
         public event Action<BitmexSocketEvent<ConnectedUsers>> OnChatConnectionUpdate
         {
-            add => MainSocketStreams.OnChatConnectionUpdate += value;
-            remove => MainSocketStreams.OnChatConnectionUpdate -= value;
+            add => NonTradeSocketStreams.OnChatConnectionUpdate += value;
+            remove => NonTradeSocketStreams.OnChatConnectionUpdate -= value;
         }
+        #endregion NonTradeSocketStreams events
+        #region MainSocketStreams events
         public event Action<BitmexSocketEvent<Funding>> OnFundingUpdate
         {
             add => MainSocketStreams.OnFundingUpdate += value;

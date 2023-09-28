@@ -46,8 +46,9 @@ namespace Bitmex.Net.Client
 
         public BitmexSocketClientOptions Copy() => Copy<BitmexSocketClientOptions>();
         public new BitmexSocketClientOptions Copy<T>()
+        where T : BitmexSocketClientOptions, new()
         {
-            var newOpt = base.Copy<BitmexSocketClientOptions>();
+            var newOpt = base.Copy<T>();
             newOpt.IsTestnet = IsTestnet;
             newOpt.SendPingManually = SendPingManually;
             newOpt.CommonStreamsOptions = CommonStreamsOptions;
