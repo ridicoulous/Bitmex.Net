@@ -123,7 +123,14 @@ namespace Bitmex.Net.Client.Helpers.Extensions
         }
         private static List<BitmexSubscribtions> GetNonTradeSubscriptions()
         {
-            return new() { BitmexSubscribtions.Announcements, BitmexSubscribtions.Chat, BitmexSubscribtions.PublicNotifications };
+            return new()
+            {
+                BitmexSubscribtions.Announcements,
+                BitmexSubscribtions.Chat,
+                BitmexSubscribtions.PublicNotifications,
+                BitmexSubscribtions.Connected,
+                // BitmexSubscribtions.PrivateNotifications // currently not used
+            };
         }
     }
     public static class BitmexRequestExtensions

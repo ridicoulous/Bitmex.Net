@@ -7,6 +7,7 @@ using Bitmex.Net.Client.Interfaces;
 using Bitmex.Net.Client.Objects;
 using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects.Socket.Requests;
+using Bitmex.Net.Objects.Socket.Repsonses;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Sockets;
@@ -47,13 +48,13 @@ namespace Bitmex.Net.Client
             add => NonTradeSocketStreams.OnGlobalNotificationUpdate += value;
             remove => NonTradeSocketStreams.OnGlobalNotificationUpdate -= value;
         }
-        #endregion NonTradeSocketStreams events
-        #region MainSocketStreams events
         public event Action<BitmexSocketEvent<ConnectedUsers>> OnChatConnectionUpdate
         {
-            add => MainSocketStreams.OnChatConnectionUpdate += value;
-            remove => MainSocketStreams.OnChatConnectionUpdate -= value;
+            add => NonTradeSocketStreams.OnChatConnectionUpdate += value;
+            remove => NonTradeSocketStreams.OnChatConnectionUpdate -= value;
         }
+        #endregion NonTradeSocketStreams events
+        #region MainSocketStreams events
         public event Action<BitmexSocketEvent<Funding>> OnFundingUpdate
         {
             add => MainSocketStreams.OnFundingUpdate += value;
@@ -192,6 +193,19 @@ namespace Bitmex.Net.Client
             {
                 MainSocketStreams.OnPongReceived -= value;
                 NonTradeSocketStreams.OnPongReceived -= value;
+            }
+        }
+        public event Action<BitmexSocketErrorResponse> OnSubscriptionError
+        {
+            add
+            { 
+                NonTradeSocketStreams.OnSubscriptionError += value;
+                MainSocketStreams.OnSubscriptionError += value;
+            }
+            remove
+            {
+                NonTradeSocketStreams.OnSubscriptionError -= value;
+                MainSocketStreams.OnSubscriptionError -= value;
             }
         }
         #endregion

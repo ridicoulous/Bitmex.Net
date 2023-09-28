@@ -2,6 +2,7 @@
 using Bitmex.Net.Client.Objects.Socket;
 using Bitmex.Net.Client.Objects.Socket.Repsonses;
 using Bitmex.Net.Client.Objects.Socket.Requests;
+using Bitmex.Net.Objects.Socket.Repsonses;
 using CryptoExchange.Net;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
@@ -23,15 +24,13 @@ namespace Bitmex.Net.Client
 {
     public class BitmexSocketStream : SocketApiClient
     {
-        private static readonly SemaphoreSlim instumentGetWaiter = new(1,1);
-        private static bool areInstrumentsLoaded;
         private readonly ConcurrentDictionary<string, BitmexSubscribeRequest> _sendedSubscriptions = new ConcurrentDictionary<string, BitmexSubscribeRequest>();
         private readonly List<UpdateSubscription> _subscriptions = new List<UpdateSubscription>();
-        protected BitmexSocketClient socketClient;
         private object _locker = new object();
 
         internal BitmexSocketStream(ILogger logger, BitmexSocketClientOptions options) : base(logger, options.BaseAddress, options.CommonStreamsOptions, options)
         {
+            OnSubscriptionError = LogOnSubError;
         }
 
         #region events
@@ -64,6 +63,7 @@ namespace Bitmex.Net.Client
         public event Action<BitmexSocketEvent<BitmexPosition>> OnUserPositionsUpdate;
         public event Action<BitmexSocketEvent<Transaction>> OnUserTransactionsUpdate;
         public event Action<BitmexSocketEvent<Wallet>> OnUserWalletUpdate;
+        public event Action<BitmexSocketErrorResponse> OnSubscriptionError;
 
         public event Action OnPongReceived;
 
@@ -114,6 +114,13 @@ namespace Bitmex.Net.Client
                         var response = Deserialize<BitmexSubscriptionResponse>(data);
                         if (response)
                             OnUnsubscribe(response.Data);
+                        return;
+                    }
+                    else if (!string.IsNullOrEmpty(token["error"].ToString()))
+                    {
+                        var response = Deserialize<BitmexSocketErrorResponse>(data);
+                        if (response)
+                            OnSubscriptionError(response.Data);
                         return;
                     }
                     else
@@ -393,7 +400,7 @@ namespace Bitmex.Net.Client
                         }
                     default:
                         {
-                            _logger.Log(LogLevel.Warning, $"Catched inknown table update: {data}");
+                            _logger.Log(LogLevel.Warning, $"Catched unknown table update: {data}");
                             break;
                         }
                 }
@@ -625,6 +632,16 @@ namespace Bitmex.Net.Client
             }
             return subscription;
         }
+
+        private void LogOnSubError(BitmexSocketErrorResponse response)
+        {
+            _logger.Log(LogLevel.Warning,
+                        "The subscription was not successfully, error: {0}\nrequest:{1}, additional info: {2}",
+                        response.Error,
+                        JsonConvert.SerializeObject(response.Request),
+                        response.Meta?.Note);
+        }
+
     }
 
 }
