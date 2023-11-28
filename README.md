@@ -102,6 +102,11 @@ Other CryptoExchange.Net implementations:
 </table>
 
 ## Changelog
+* 3.0.1 
+  * updated to CryptoExchange.Net v6.2.1
+  * small fixess
+* 3.0.0 
+  * updated to CryptoExchange.Net v6.1.4
 * 2.0.3
   * updated to CryptoExchange.Net v5.4.3
 * 2.0.2
