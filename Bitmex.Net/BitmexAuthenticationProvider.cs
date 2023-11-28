@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Bitmex.Net.Client
 {
@@ -68,7 +66,7 @@ namespace Bitmex.Net.Client
             headers.Add("api-expires", apiexpires.ToString(CultureInfo.InvariantCulture));
             headers.Add("api-signature", signedData);
         }
-        public override string Sign(string toSign)
+        public string Sign(string toSign)
         {
             return SignHMACSHA256(toSign);
         }
